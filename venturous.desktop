@@ -1,0 +1,14 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+
+Name=Venturous
+GenericName=Wrapper for music player
+Comment=Listen to music
+
+Icon=venturous
+Categories=AudioVideo;Audio;Player;
+
+Exec=venturous
+StartupNotify=true
+Terminal=false

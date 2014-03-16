@@ -68,6 +68,7 @@ set(Sources_Path src)
 set(GUI_Path ${Sources_Path}/GUI)
 set(MainWindow_Path ${GUI_Path}/MainWindow)
 set(PreferencesWindow_Path ${GUI_Path}/PreferencesWindow)
+set(Resources_Path resources)
 
 include_directories(
     ${QtCoreUtilities_PublicHeaders_Path} ${QtXmlUtilities_PublicHeaders_Path}
@@ -96,7 +97,7 @@ set(Sources
 )
 
 include(vedgTools/QtAddResources)
-qtAddResources(Resources resources/Venturous.qrc)
+qtAddResources(Resources ${Resources_Path}/Venturous.qrc)
 
 if(ALWAYS_EMBED_ICONS OR WIN32)
     qtAddResources(Resources ${PATH_TO_MODULES}/SimpleFugue.qrc)
@@ -131,3 +132,6 @@ endif()
 
 
 install(TARGETS ${Targets} RUNTIME DESTINATION bin)
+
+install(FILES venturous.desktop DESTINATION share/applications)
+install(FILES ${Resources_Path}/icons/venturous.png DESTINATION share/icons)

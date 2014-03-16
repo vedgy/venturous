@@ -57,6 +57,12 @@ to use it for icon generation, pass "generate-png" argument to
     * audtool is usually unavailable in Windows at all. With audtool
     missing only basic Venturous features work.
 
+## How to uninstall
+Enter `venturous/build` directory, acquire root privileges (`sudo` or `su`)
+and run
+
+    xargs rm < install_manifest.txt
+
 ## License
 
 Copyright (C) 2014 Igor Kushnir <igorkuo AT Google mail>
