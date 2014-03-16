@@ -1,0 +1,9 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="Venturous">
+        <file alias="CopyLeft">icons/CopyLeft.png</file>
+        <file alias="CopyRight">icons/CopyRight.png</file>
+        <file alias="Venturous.png">icons/venturous.png</file>
+        <file alias="index.html">documents/index.html</file>
+    </qresource>
+</RCC>

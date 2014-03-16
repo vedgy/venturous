@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -x
+cd "$( dirname "${BASH_SOURCE[0]}" )"
+theme_name=SimpleFugue
+path_to_theme=$theme_name
+filename="$theme_name.qrc"
+python "$path_to_theme/generate-qrc.py" $path_to_theme $filename icons \
+    venturous preferences-desktop application-exit \
+    media-playback-start media-playback-stop media-skip-forward \
+    media-play-all \
+    list-edit dialog-ok-apply dialog-cancel list-add folder-add clean-up \
+    edit-clear document-revert document-open document-save-as \
+    help-contents help-about \
+    audio-file media-dir both-audio-file both-media-dir

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
+    <title>Venturous manual</title>
+    <link rel="icon" type="image/png" href="Venturous.png" />
+</head>
+
+<body>
+<h1>Venturous - version 0.8</h1>
+
+<a id="Index"><h2>Table of contents</h2></a>
+    <ul>
+        <li><a href="#Overview">Overview</a></li>
+        <li><a href="#Requirements">Requirements</a></li>
+        <li><a href="#AddingFiles">Adding files to playlist</a></li>
+        <li><a href="#EditingPlaylist">Editing playlist tree</a></li>
+        <li><a href="#ManagingPlayback">Managing playback</a></li>
+        <li><a href="#Ventool">Ventool and global shortcuts</a></li>
+        <li><a href="#NotificationArea">Notification area icon</a></li>
+        <li><a href="#ConfiguringVenturous">Configuring Venturous</a></li>
+        <li><a href="#ReportingBugs">Reporting bugs and feature requests</a>
+        </li>
+    </ul>
+
+
+<a id="Overview"><h2>Overview</h2></a>
+    <p>Venturous is a wrapper, which uses media player's command line interface.
+    Currently only Audacious media player is supported, but adding support for
+    other players should be quite simple.</p>
+    <p>Venturous is built around one feature, which is missing in most (maybe
+    even all) media players: user-defined items for random playback. This
+    feature is especially useful for grouping separate tracks, which are
+    actually parts of one composition. For example parts of classical music
+    compositions (movements) are often distributed as separate tracks. It is
+    usually desirable to listen to movements in succession and in a proper
+    order.</p>
+    <p>Venturous features tree-like playlist, which reflects files' and
+    directories' location. Each item (file or directory) in playlist tree can be
+    marked as playable. Items, which are marked as playable, can be sent to
+    external player's temporary playlist. Normal workflow is the following:
+    after item is played by external player, Venturous selects next random
+    playable item, sends it to new temporary playlist and starts playback. So,
+    effectively, random playback of user-defined items is achieved.</p>
+    <p>The simplest way to group several audio files in one playable item is to
+    place them in common directory, add it to Venturous playlist, mark it as
+    playable and unmark or remove underlying auto-marked nodes (if any).
+    Another way to group audio files is providing meta data (cue) file, which
+    contains entries for all files in the group, and adding it to playlist tree.
+    </p>
+    <p>Another nice feature of Venturous is graceful quit. In many popular
+    desktop environments and window managers Audacious would not save playback
+    state if it was running while user shut&nbsp;down/restarted/logged&nbsp;out.
+    Venturous does save its state in these cases in almost all desktop
+    environments. Furthermore, since Venturous manages Audacious, it also
+    ensures that Audacious quits in time and thus saves Audacious playback state
+    too.</p>
+    <p>Venturous saves preferences, playlist, backup playlist separately for
+    each user by default. Default Venturous preferences directory location is
+    "~/.config/venturous" (here '~' expands to current user's HOME directory).
+    Preferences location can be configured at Venturous build time
+    (PREFERENCES_DIR CMake cache variable).</p>
+
+
+<a id="Requirements"><h2>Requirements</h2></a>
+    <ol>
+        <li>Audacious version 3.4 or newer.</li>
+        <li>audacious and audtool executables must be present in PATH.<br />
+        There are two problems with this requirement in MS Windows:
+        <ol type="A">
+            <li>Audacious bin directory is not added in PATH environment
+            variable automatically. User has to manually add it there.</li>
+            <li>audtool is usually unavailable in Windows at all. With audtool
+            missing only basic Venturous features work.</li>
+        </ol>
+        </li>
+    </ol>
+
+
+<a id="AddingFiles"><h2>Adding files to playlist</h2></a>
+    <p>Adding files can be done in playlist edit mode. There are menu actions
+    (Playlist menu) and toolbar buttons, which allow adding individual files
+    or recursively add directories. There are also options on toolbar and in
+    preferences, which influence adding directories policy.</p>
+    <p>Venturous adds two types of items in playlist tree: files and media dirs.
+    "Add files" or "Add media dirs" checkboxes in "Directory adding policy" tab
+    of Preferences must be checked to enable adding these items. Alternatively,
+    adding these items can be enabled/disabled via corresponding toolbar
+    buttons: "Consider adding files", "Consider adding media dirs".</p>
+    <p>Naturally, not all files or directories will be added in playlist tree.
+    Only files, which match checked "File patterns", and directories, which
+    contain (directly!) files, which match "Media directory file patterns", will
+    be added. These patterns can be configured in "Filename patterns" tab of
+    Preferences. Only meta data patterns are enabled in "File patterns" by
+    default. This means that only *.cue files will be added as playable items.
+    All audio patterns, supported by Audacious, are enabled in
+    "Media directory file patterns" by default. This means that all directories,
+    which directly contain audio files, will be added as playable items
+    (assuming that "Add media dirs" is enabled).</p>
+    <p>A conflict situation is possible with adding directories: when both
+    adding files and media dirs is enabled, and media dir contains files, which
+    match "File patterns". Adding both directory and its files might be
+    undesirable. This situation is designated as "If both...". There are two
+    checkboxes in "Directory adding policy" tab of Preferences for fine-tuning
+    adding behavior in this situation. There are also two corresponding buttons
+    on toolbar.</p>
+    <p>See also <a href="#EditingPlaylist">Editing playlist tree</a></p>
+
+
+<a id="EditingPlaylist"><h2>Editing playlist tree</h2></a>
+    <p>When Venturous starts, playlist is in non-edit mode. User has to check
+    menu action "Edit mode" in Playlist menu or toolbar button with the same
+    name in order to enter edit mode. Multiple rows selection with CTRL or SHIFT
+    keys is allowed in edit mode. Selected items can be removed by pressing
+    Delete key. If item is removed, all its descendants are also removed
+    recursively. When user triggers action, which requires edit or non-edit tree
+    mode enabled, and if this mode is not currently active, dialog appears,
+    asking if user wants to switch edit mode.</p>
+    <p>Single item can be checked/unchecked by mouse-clicking or pressing Space
+    key. Checked items are considered for random playback selection and can be
+    added to Audacious playlist manually by activating in non-edit mode.</p>
+    <p>Adding files and directories is also enabled only in tree edit mode.
+    For more information about adding items to playlist see
+    <a href="#AddingFiles">Adding files to playlist</a></p>
+    There are several additional actions in Playlist menu:
+        <ol>
+            <li>"Clean up" - removes all items, which are not playable and have
+            no playable descendants.</li>
+            <li>"Clear" - removes all items from playlist.</li>
+            <li>"Restore previous" - restores playlist, which was used before
+            the last saved playlist.</li>
+            <li>"Load ..." - loads previously saved playlist. Note: loading
+            "items" file from Venturous preferences directory is equivalent to
+            cancelling unsaved playlist changes; loading "items.backup" is
+            equivalent to "Restore previous" action.</li>
+            <li>"Save as ..." - saves current playlist to user-defined file.
+            Playlist tree must be in non-edit mode in order to be saved.</li>
+        </ol>
+    <p>While playlist is being edited, old saved playlist is used for random
+    playback. Click "Apply changes" action in Playlist menu to save changes
+    and start using edited playlist. Click "Cancel changes" in the same menu to
+    cancel editing without saving. Alternatively, unchecking "Edit mode" in
+    menu or toolbar will trigger dialog, which asks whether changes have to be
+    saved.</p>
+    <p>It is also possible to manually edit playlist tree. It is stored in
+    &lt;Venturous preferences directory&gt;/items file in plain text format.
+    Note that tabs should not be replaced by spaces in this file. Only tab
+    character designates tree level indentation. "items.backup" file in the same
+    directory has identical format.</p>
+
+
+<a id="ManagingPlayback"><h2>Managing playback</h2></a>
+    <p>There are two playback modes: stopped and playing. In stopped mode
+    Venturous does not interact with external player at all. In playing mode
+    Venturous controls external player: starts playing next random item from
+    playlist when playback finishes; quits Audacious before quitting itself.</p>
+    There are four actions in Playback menu. All of them except "Play all"
+    are also present on toolbar.
+        <ol>
+            <li>"Play" - launches external player and continues playing whatever
+            was played last time in that external player (Audacious); enters
+            playing playback mode.</li>
+            <li>"Stop" - quits external player and enters stopped playback mode.
+            </li>
+            <li>"Next" - starts or restarts external player with next random
+            item from playlist; enters playing playback mode. Note: if playback
+            mode is active, quitting external player (or end of external
+            player's playback) is equivalent to triggering "Next" action.</li>
+            <li>"Play all" - starts or restarts external player with all
+            playable items from playlist; enters playing playback mode.</li>
+        </ol>
+
+
+<a id="Ventool"><h2>Ventool and global shortcuts</h2></a>
+    <p>Command line tool, which controls Venturous, is built and installed
+    with Venturous by default (switching off BUILD_VENTOOL CMake option during
+    Venturous build process prevents building and installing it). All available
+    Ventool commands can be found by running "ventool help" from terminal.</p>
+    <p>Ventool allows to manage playback and quit Venturous from command line.
+    It can also be used to create various global keyboard shortcuts. One
+    shortcut can be assigned to "venturous" command (launching Venturous);
+    another one - to "ventool quit" (quitting Venturous); "ventool play",
+    "ventool stop", "ventool next" provide common global multimedia shortcuts
+    interface. Exact procedure of assigning shortcuts to commands depends on
+    user's desktop&nbsp;environment/window&nbsp;manager
+    (it is usually quite simple).</p>
+
+
+<a id="NotificationArea"><h2>Notification area icon</h2></a>
+    <p>There is an option to show Venturous icon in notification area in
+    Venturous preferences. There are also two related suboptions under this
+    option.</p>
+    <p>Notification area icon is disabled by default because many popular
+    desktop environments and window managers do not support placing application
+    icons in notification area or even do not have notification area at all. If
+    you enable notification area icon, close preferences window, but still can
+    not see Venturous icon in notification area, it probably means that this
+    feature is not supported in your environment. In this case it is advised to
+    disable notification area icon without delay. Obviously, notification area
+    icon would unjustly consume some small amount of RAM and use some processor
+    time. The bigger problem with inaccessible icon is the following: if at
+    least one of notification area suboptions is enabled, there can be a
+    situation, when Venturous is running, but you have no easy access to its
+    graphical user interface.
+    Fortunately you can still issue commands via Ventool - and there is a
+    Ventool command to show Venturous window.
+    Suboption "Start Venturous to notification area" is especially problematic
+    in this case. After hiding or quitting Venturous with this option enabled
+    and no notification area, there are several ways to show Venturous window
+    again:</p>
+    <ul>
+        <li>Calling "ventool show" command.</li>
+        <li>Manual editing preferences XML file
+        (&lt;Venturous preferences directory&gt;/Venturous.xml) or just removing
+        it to restore default configuration.</li>
+        <li>Enabling notification area.</li>
+    </ul>
+    <p>If you are lucky enough to have notification area icon support in your
+    environment, you get several features. Left or middle click on Venturous
+    notification area icon shows/hides Venturous window. Right click shows
+    context menu with following actions:
+    <ul>
+        <li>Play</li>
+        <li>Stop</li>
+        <li>Next</li>
+        <li>Preferences ...</li>
+        <li>Quit</li>
+    </ul>
+
+
+<a id="ConfiguringVenturous"><h2>Configuring Venturous</h2></a>
+    <h3>Build-time configuration (CMake options and cache variables)</h3>
+    <ul>
+        <li>"FORCE_QT4" : BOOLEAN (default: OFF) -
+        if enabled, Qt4 will always be used, otherwise, Qt5 is used if
+        available. Note: even though Qt5 is the default here, Venturous build
+        script sets this option ON, so user would have to manually switch it
+        OFF to use Qt5. Qt4 is preferred (for now) because of font
+        rendering issues in Qt5.</li>
+        <li>"PREFERENCES_DIR" : STRING (default: "~/.config/venturous") -
+            directory, which contains user preferences and playlist
+            (here '~' expands to current user's HOME directory).</li>
+        <li>"ALWAYS_EMBED_ICONS" : BOOLEAN (default: ON) -
+        if disabled, embedding icons will be done only in Windows. It is not
+        recommended to switch this option off because in this case short text
+        labels instead of some icons will be displayed on toolbar. Saving less
+        than 1 Mb of disk space due to smaller Venturous executable size usually
+        isn't worth the inconvenience. Note: if all necessary icons are present
+        in system theme (which is unlikely), there may be no need to embed
+        icons.</li>
+        <li>"DEBUG_VENTUROUS" : BOOLEAN (default: OFF) -
+        if enabled, details of internal Venturous workflow will be written to
+        program output (stdout). Enabling this option will slightly decrease
+        performance, so it is disabled by default. This option is useful during
+        Venturous development.</li>
+        <li>"BUILD_VENTOOL" : BOOLEAN (default: ON) -
+        if enabled, Ventool is built along with Venturous. If you do not need
+        command line interface and global shortcuts for Venturous, feel free to
+        disable this option. See also
+        <a href="#Ventool">Ventool and global shortcuts</a></li>
+    </ul>
+    <h3>Run-time configuration (Venturous preferences)</h3>
+    Venturous preferences can be accessed in several ways: "Preferences ..."
+    action in File menu, corresponding toolbar button or notification area
+    icon's context menu. Preferences window contains three tabs:
+    <ol>
+        <li>"General" - contains many independent option groups. Each option
+        has verbose tooltip. Hover over control element (spinbox, checkbox or
+        combobox) to activate tooltip.</li>
+        <li>"Filename patterns" - contains two editable lists: "File patterns"
+        and "Media directory file patterns". Their meaning is described in
+        <a href="#AddingFiles">Adding files to playlist</a> section.
+        Checking/unchecking individual patterns is possible. Selecting arbitrary
+        number of elements using CTRL and SHIFT keys is supported.
+        Selecting caption row ("Meta data patterns", "Audio patterns" or
+        "Other patterns") results in applying action to all underlying patterns.
+        You can add new patterns using "Add pattern" button; edit user-defined
+        patterns (under "Other patterns" captions); copy user-defined patterns
+        to another column using "Copy right" and "Copy left" buttons.
+        Pressing one of the following keys will apply corresponding action to
+        all selected patterns.
+            <ul>
+                <li>Insert - check</li>
+                <li>Backspace - uncheck</li>
+                <li>Space - toggle checked state</li>
+                <li>Delete - remove (is applied only to user-defined patterns,
+                because built-in patterns can not be removed)</li>
+            </ul>
+        </li>
+        <li>"Directory adding policy" - contains adding directory options.
+        These options are described in verbose tooltips and in
+        <a href="#AddingFiles">Adding files to playlist</a> section.</li>
+    </ol>
+    <h3>Additional run-time tweaks</h3>
+    <ul>
+        <li>Resizing and moving Venturous and preferences window is possible.
+        </li>
+        <li>Venturous toolbar has a handle, which allows to detach and move it.
+        Toolbar can be attached to any window side (top, bottom, left or right).
+        In order to attach toolbar to desired Venturous window side, its handle
+        has to be dragged to the corresponding edge of the window.</li>
+        <li>Venturous toolbar can be hidden. "Toolbar" action has to be toggled
+        in context menu of main menu bar or toolbar in order to change toolbar's
+        visibility.</li>
+    </ul>
+    All tweaks, described above, are saved to preferences and thus preserved
+    between Venturous launches.
+
+<a id="ReportingBugs"><h2>Reporting bugs and feature requests</h2></a>
+    If you find a bug in Venturous or error in this manual, please, report it
+    at <a href="https://github.com/vedgy/venturous/issues">
+    Venturous GitHub repository</a>
+
+</body>
+
+</html>

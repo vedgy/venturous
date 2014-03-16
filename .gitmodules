@@ -1,0 +1,15 @@
+[submodule "modules/vedgTools/CMakeModules"]
+	path = modules/vedgTools/CMakeModules
+	url = https://github.com/vedgy/CMakeModules.git
+[submodule "modules/vedgTools/QtCoreUtilities"]
+	path = modules/vedgTools/QtCoreUtilities
+	url = https://github.com/vedgy/QtCoreUtilities.git
+[submodule "modules/vedgTools/QtXmlUtilities"]
+	path = modules/vedgTools/QtXmlUtilities
+	url = https://github.com/vedgy/QtXmlUtilities.git
+[submodule "modules/VenturousCore"]
+	path = modules/VenturousCore
+	url = https://github.com/vedgy/VenturousCore.git
+[submodule "modules/SimpleFugue"]
+	path = modules/SimpleFugue
+	url = https://github.com/vedgy/SimpleFugue.git

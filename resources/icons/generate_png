@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# generate_png: uses inkscape to convert svg to png images.
+# If some png file already exists, it is not generated and not overwritten.
+
+for icon in CopyLeft CopyRight; do
+    source="$icon.svg"
+    destination="$icon.png"
+    if [ ! -f "$destination" ]; then
+        inkscape -z -e "$destination" -w 33 -h 15 "$source"
+    fi
+done
