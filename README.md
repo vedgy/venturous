@@ -30,7 +30,11 @@ First, clone this repository, e.g.:
 
     git clone https://github.com/vedgy/venturous.git
 
-Then run:
+Enter newly created directory, e.g.:
+
+    cd venturous
+
+And run:
 
     ./update_and_configure_submodules
 
