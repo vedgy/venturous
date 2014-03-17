@@ -105,6 +105,31 @@
     adding behavior in this situation. There are also two corresponding buttons
     on toolbar.</p>
     <p>See also <a href="#EditingPlaylist">Editing playlist tree</a></p>
+    <a id="AddingExample">
+    <h3>Usage example: adding different categories of music</h3></a>
+            Assume that we have 3 categories of music: individual audio
+            file, directory with interconnected files, large audio file + cue
+            file. How to add these all to Venturous playlist?
+            It can be done as follows:
+            <ol>
+                <li>Separate music, which belongs to these categories, in 3
+                directories. Let us name them "files", "dirs" and "cue".</li>
+                <li>Check "Add media dirs" in "Directory adding policy" tab of
+                Preferences (or "Consider adding media directories" on toolbar).
+                Uncheck "Add files" in "Directory adding policy" tab of
+                Preferences (or "Consider adding files" on toolbar).
+                Trigger action "Add directory" and select "dirs".</li>
+                <li>Uncheck "Add media dirs" and check "Add files". Make sure
+                that only default file patterns are checked (all meta data
+                patterns) in "Filename patterns" tab of Preferences.
+                "Add directory" -> choose "cue".</li>
+                <li>Go to "Filename patterns" tab of Preferences. Select any
+                item in "File patterns" list to transfer focus. Press CTRL+A to
+                select all file patterns. Press Space to invert all file
+                patterns' checked states. Press Escape to close Preferences
+                window (changes are saved automatically).
+                "Add directory" -> choose "files".</li>
+            </ol>
 
 
 <a id="EditingPlaylist"><h2>Editing playlist tree</h2></a>
@@ -169,6 +194,23 @@
             <li>"Play all" - starts or restarts external player with all
             playable items from playlist; enters playing playback mode.</li>
         </ol>
+    <h3>Usage example: enable searching and playing music in Audacious
+    as an alternative to tree playlist in Venturous</h3>
+            Audacious supports multiple playlists in tabs. So the following
+            can be done:
+                <ol>
+                    <li>Add all your music to Venturous playlist in your
+                    preferred way (see
+                    <a href="#AddingExample">Adding directories example</a>).
+                    </li>
+                    <li>Trigger "Play all" action.</li>
+                    <li>Rename Audacious temporary playlist "Now Playing" to
+                    "All music" (playlist tab context menu has "Rename ..."
+                    action).</li>
+                </ol>
+            This way you can use Venturous, which will always add files to
+            "Now Playing" playlist, and have another permanent Audacious
+            playlist with all your music.
 
 
 <a id="Ventool"><h2>Ventool and global shortcuts</h2></a>
