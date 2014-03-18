@@ -255,7 +255,7 @@ void TreeWidget::onUiItemChanged(QTreeWidgetItem * item)
     const bool checked = isChecked(item);
     std::deque<std::string> path;
     do {
-        path.push_front(QtUtilities::qStringToString(item->text(0)));
+        path.emplace_front(QtUtilities::qStringToString(item->text(0)));
         item = item->parent();
     }
     while (item != nullptr);

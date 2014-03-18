@@ -18,7 +18,7 @@
 
 # include "PatternListWidget.hpp"
 
-# include "VenturousCore/AddingItems.hpp"
+# include <VenturousCore/AddingItems.hpp>
 
 # include <QString>
 # include <QStringList>
