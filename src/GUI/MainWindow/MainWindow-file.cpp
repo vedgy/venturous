@@ -37,6 +37,10 @@ void MainWindow::onPreferencesUpdated()
 
 void MainWindow::onPreferencesActivated()
 {
+    if (isPreferencesWindowOpen_) {
+        WindowUtilities::showAndActivateWindow(* preferencesWindow_);
+        return;
+    }
     copyWindowGeometryAndStateToPreferences();
     preferencesWindow_->setUiPreferences();
     isPreferencesWindowOpen_ = true;

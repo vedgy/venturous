@@ -33,6 +33,7 @@
 # include <QMessageBox>
 # include <QCloseEvent>
 # include <QKeyEvent>
+# include <QWidget>
 # include <QLabel>
 # include <QSystemTrayIcon>
 
@@ -47,6 +48,25 @@ QString getStatus(bool isPlayerRunning)
 QString getIconToolTip(bool isPlayerRunning)
 {
     return APPLICATION_NAME " - " + getStatus(isPlayerRunning);
+}
+
+}
+
+
+namespace WindowUtilities
+{
+void showAndActivateWindow(QWidget & window)
+{
+    const Qt::WindowStates state = window.windowState();
+    if (state & Qt::WindowMinimized) {
+        if (state & Qt::WindowMaximized)
+            window.showMaximized();
+        else
+            window.showNormal();
+    }
+    else
+        window.show();
+    window.activateWindow();
 }
 
 }
@@ -98,16 +118,7 @@ void MainWindow::hideNotificationAreaIcon()
 
 void MainWindow::showWindowProperly()
 {
-    const Qt::WindowStates state = windowState();
-    if (state & Qt::WindowMinimized) {
-        if (state & Qt::WindowMaximized)
-            showMaximized();
-        else
-            showNormal();
-    }
-    else
-        show();
-    activateWindow();
+    WindowUtilities::showAndActivateWindow(* this);
 }
 
 void MainWindow::hideWindowProperly()
