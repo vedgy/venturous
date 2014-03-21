@@ -40,7 +40,15 @@
 class Actions;
 class PreferencesWindow;
 QT_FORWARD_DECLARE_CLASS(QSharedMemory)
+QT_FORWARD_DECLARE_CLASS(QWidget)
 QT_FORWARD_DECLARE_CLASS(QLabel)
+
+
+namespace WindowUtilities
+{
+    void showAndActivateWindow(QWidget & window);
+}
+
 
 class MainWindow : public QMainWindow
 {
