@@ -39,6 +39,7 @@
 
 class Actions;
 class PreferencesWindow;
+class PlaybackComponent;
 QT_FORWARD_DECLARE_CLASS(QSharedMemory)
 QT_FORWARD_DECLARE_CLASS(QWidget)
 QT_FORWARD_DECLARE_CLASS(QLabel)
@@ -65,11 +66,11 @@ public:
     explicit MainWindow(std::unique_ptr<QSharedMemory> sharedMemory,
                         QWidget * parent = nullptr, Qt::WindowFlags flags = 0);
 
-    ~MainWindow() override;
+    ~MainWindow();
 
 private:
     static const QString preferencesFilename;
-    static const QString saveErrorPrefix;
+    static const QString savePreferencesErrorPrefix;
 
     void initPreferences();
     void initTree();
@@ -84,9 +85,6 @@ private:
     /// Must be called after itemTree_.itemCount() or isPlayerRunning_ change.
     void setWindowTitle();
 
-    void onPlayerFinished(bool crashExit, int exitCode,
-                          std::vector<std::string> missingFilesAndDirs);
-
     void showNotificationAreaIcon();
     void hideNotificationAreaIcon();
 
@@ -95,9 +93,6 @@ private:
     /// @brief If notification area icon is enabled, hides window; otherwise,
     /// minimizes window.
     void hideWindowProperly();
-
-    /// @brief Must be called after player.isRunning() changes.
-    void playerStateChanged(bool isRunning);
 
     /// Must be called after switching edit mode.
     void updateActionsState();
@@ -140,13 +135,6 @@ private:
     /// @brief Must be called after preferences_ are changed.
     void preferencesChanged();
 
-    /// @brief Must be called after played item is changed.
-    /// @param playedItem Must satisfy Preferences::PlayedItem requirements.
-    /// @param itemAbsolutePath Path to played item. Must be passed
-    /// if and only if exactly one item is played.
-    void playedItemChanged(int playedItem,
-                           const QString & itemAbsolutePath = QString());
-
     void copyWindowGeometryAndStateToPreferences();
 
     void timerEvent(QTimerEvent *) override;
@@ -159,37 +147,31 @@ private:
 
     ItemTree::Tree itemTree_;
     std::unique_ptr<ItemTree::Tree> temporaryTree_;
-    ItemTree::RandomItemChooser randomItemChooser_;
-    MediaPlayer mediaPlayer_;
 
     std::unique_ptr<Actions> actions_;
     QMenuBar menuBar_;
     QToolBar toolBar_;
     TreeWidget treeWidget_;
-    QLabel * const lastPlayedItemLabel;
+
+    std::unique_ptr<PlaybackComponent> playbackComponent_;
 
     Preferences savedPreferences_, preferences_;
     PreferencesWindow * preferencesWindow_;
     QSystemTrayIcon * notificationAreaIcon_ = nullptr;
 
-    bool isPlayerRunning_ = false;
     int ventoolCheckInterval_ = 0;
     int timerIdentifier_ = 0;
     bool isPreferencesWindowOpen_ = false;
     bool quitState_ = false;
 
 private slots:
+    void onPlayerStateChanged(bool isRunning);
+
     void onNotificationAreaIconActivated(QSystemTrayIcon::ActivationReason);
 
     void onPreferencesUpdated();
     void onPreferencesActivated();
     void onFileQuit();
-
-    void onItemActivated(QString absolutePath);
-    void playbackPlay();
-    void playbackStop();
-    void playbackNext();
-    void onPlayAll();
 
     void onEditModeStateChanged();
     void applyChanges();

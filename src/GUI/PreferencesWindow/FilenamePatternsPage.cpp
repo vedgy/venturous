@@ -30,7 +30,7 @@
 # include <QPushButton>
 
 
-FilenamePatternsPage::FilenamePatternsPage(const Icons::Theme & theme,
+FilenamePatternsPage::FilenamePatternsPage(const QIcon & addIcon,
         QWidget * const parent, const Qt::WindowFlags f)
     : PreferencesPage(parent, f)
 {
@@ -44,7 +44,7 @@ FilenamePatternsPage::FilenamePatternsPage(const Icons::Theme & theme,
 
     filePatternList_.setToolTip(filesMatchPatterns +
                                 tr("can be added as playable items."));
-    addColumn(layout, 0, tr("File patterns"), filePatternList_, theme);
+    addColumn(layout, 0, tr("File patterns"), filePatternList_, addIcon);
 
     addCopyButton(layout, 2, "CopyRight", copySelectedPatterns.arg(left, right),
                   SLOT(copyRight()));
@@ -55,7 +55,7 @@ FilenamePatternsPage::FilenamePatternsPage(const Icons::Theme & theme,
     mediaDirFilePatternList_.setToolTip(
         filesMatchPatterns + tr("mark their parent directory as media dir."));
     addColumn(layout, 2, tr("Media directory file patterns"),
-              mediaDirFilePatternList_, theme);
+              mediaDirFilePatternList_, addIcon);
 
     layout->setRowStretch(1, 3);
     layout->setRowStretch(3, 1);
@@ -80,13 +80,13 @@ void FilenamePatternsPage::writeUiPreferencesTo(Preferences & destination) const
 void FilenamePatternsPage::addColumn(
     QGridLayout * const layout, const int column,
     const QString & caption, PatternListWidget & patternList,
-    const Icons::Theme & theme)
+    const QIcon & addIcon)
 {
     layout->addWidget(new QLabel(caption, this), 0, column);
     layout->addWidget(& patternList, 1, column, 5, 1);
 
     QPushButton * const addButton =
-        new QPushButton(theme.add(), QObject::tr("Add pattern"), this);
+        new QPushButton(addIcon, QObject::tr("Add pattern"), this);
     patternList.connect(addButton, SIGNAL(clicked(bool)),
                         SLOT(addUnknownPattern()));
     layout->addWidget(addButton, 6, column);

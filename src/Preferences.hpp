@@ -24,42 +24,63 @@
 # include <QByteArray>
 # include <QString>
 
+# include <cstddef>
+# include <cstdint>
+# include <algorithm>
+# include <limits>
+
 
 /// Manages preferences. Saves and loads them in XML format.
 /// Throws QtUtilities::Error or its descendant if error occurs.
 class Preferences
 {
 public:
-    typedef unsigned char StartupPolicyUnderlyingType;
-    enum class StartupPolicy : StartupPolicyUnderlyingType
-    {
-        doNothing, playbackPlay, playbackNext
-    };
+    struct Playback {
+        struct History {
+            static constexpr std::size_t maxMaxSize =
+                sizeof(std::size_t) > 2 && sizeof(int) > 2 ? 999 * 1001
+                : std::min<std::uintmax_t>(
+                    std::numeric_limits<std::size_t>::max(),
+                    std::numeric_limits<int>::max()) - 1;
 
-    static constexpr unsigned maxExternalPlayerTimeout = 9999;
-    static constexpr StartupPolicyUnderlyingType maxStartupPolicy = 2;
+            static constexpr unsigned maxNHiddenDirs = 99;
+            static constexpr int multipleItemsIndex = -1;
+
+            explicit History();
+
+            std::size_t maxSize;
+            bool copyPlayedEntryToTop;
+            bool saveToDiskImmediately;
+            unsigned nHiddenDirs;
+
+            /// Internal option.
+            int currentIndex;
+        }
+        history;
+
+        typedef unsigned char StartupPolicyUnderlyingType;
+        enum class StartupPolicy : StartupPolicyUnderlyingType
+        {
+            doNothing, playbackPlay, playbackNext
+        };
+
+        static constexpr unsigned maxExternalPlayerTimeout = 9999;
+        static constexpr StartupPolicyUnderlyingType maxStartupPolicy = 2;
+
+        explicit Playback();
+
+        unsigned externalPlayerTimeout;
+        bool autoSetExternalPlayerOptions;
+        bool nextFromHistory;
+        StartupPolicy startupPolicy;
+    }
+    playback;
+
+
     static constexpr unsigned maxVentoolCheckInterval = 9999;
 
-    struct PlayedItem {
-        /// playedItem > 0 corresponds to (itemId = playedItem - 1)
-        /// for ItemTree::Tree::getItemAbsolutePath().
-        static constexpr int none = 0, all = -1, customSelection = -2;
 
-        static QString toQString(int playedItem);
-    };
-
-
-    explicit Preferences(unsigned externalPlayerTimeout,
-                         bool autoSetExternalPlayerOptions,
-                         bool alwaysUseFallbackIcons,
-                         bool notificationAreaIcon,
-                         bool startToNotificationArea,
-                         bool closeToNotificationArea,
-                         StartupPolicy startupPolicy,
-                         unsigned char treeAutoUnfoldedLevels,
-                         bool treeAutoCleanup,
-                         bool savePreferencesToDiskImmediately,
-                         unsigned ventoolCheckInterval);
+    explicit Preferences();
 
     /// @brief Saves preferences to file filename.
     void save(const QString & filename) const;
@@ -69,25 +90,39 @@ public:
     /// undefined.
     void load(const QString & filename);
 
-    unsigned externalPlayerTimeout;
-    bool autoSetExternalPlayerOptions;
+
     AddingItems::Policy addingPolicy;
     bool alwaysUseFallbackIcons;
     bool notificationAreaIcon, startToNotificationArea, closeToNotificationArea;
-    StartupPolicy startupPolicy;
     unsigned char treeAutoUnfoldedLevels;
     bool treeAutoCleanup;
     bool savePreferencesToDiskImmediately;
     unsigned ventoolCheckInterval;
 
     /// Internal options follow.
-
-    /// Requirements are in struct PlayedItem.
-    int lastPlayedItem = PlayedItem::none;
     QByteArray preferencesWindowGeometry;
     QByteArray windowGeometry;
     QByteArray windowState;
 };
+
+
+bool operator == (const Preferences::Playback::History & lhs,
+                  const Preferences::Playback::History & rhs);
+
+inline bool operator != (const Preferences::Playback::History & lhs,
+                         const Preferences::Playback::History & rhs)
+{
+    return !(lhs == rhs);
+}
+
+bool operator == (const Preferences::Playback & lhs,
+                  const Preferences::Playback & rhs);
+
+inline bool operator != (const Preferences::Playback & lhs,
+                         const Preferences::Playback & rhs)
+{
+    return !(lhs == rhs);
+}
 
 bool operator == (const Preferences & lhs, const Preferences & rhs);
 

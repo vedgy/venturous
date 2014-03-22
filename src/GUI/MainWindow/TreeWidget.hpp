@@ -45,7 +45,7 @@ public:
         explicit Error(const std::string & sWhat) : std::runtime_error(sWhat) {}
     };
 
-    /// @brief itemTree and temporaryTree must remain valid
+    /// NOTE: itemTree and temporaryTree must remain valid
     /// throughout this TreeWidget's lifetime.
     explicit TreeWidget(const ItemTree::Tree & itemTree,
                         const std::unique_ptr<ItemTree::Tree> & temporaryTree,

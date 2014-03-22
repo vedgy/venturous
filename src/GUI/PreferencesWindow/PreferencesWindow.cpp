@@ -18,15 +18,17 @@
 
 # include "PreferencesWindow.hpp"
 
-# include "MainPreferencesPage.hpp"
+# include "GeneralPage.hpp"
+# include "PlaybackPage.hpp"
 # include "FilenamePatternsPage.hpp"
 # include "AddingPolicyPage.hpp"
 # include "Preferences.hpp"
 
 # include <QString>
-# include <QKeyEvent>
 # include <QWidget>
 # include <QScrollArea>
+# include <QTabWidget>
+# include <QKeyEvent>
 
 # include <functional>
 # include <algorithm>
@@ -46,12 +48,11 @@ void addScrollableTab(QTabWidget * parent,
 }
 
 
-PreferencesWindow::PreferencesWindow(Preferences & preferences,
-                                     const Icons::Theme & theme,
-                                     QWidget * const parent)
+PreferencesWindow::PreferencesWindow(
+    Preferences & preferences, const QIcon & addIcon, QWidget * const parent)
     : QTabWidget(parent), preferences_(preferences),
       tabs_ {{
-        new MainPreferencesPage, new FilenamePatternsPage(theme),
+        new GeneralPage, new PlaybackPage, new FilenamePatternsPage(addIcon),
         new AddingPolicyPage
     }
 } {
@@ -60,8 +61,9 @@ PreferencesWindow::PreferencesWindow(Preferences & preferences,
     setMinimumSize(200, 200);
     setWindowTitle(tr("%1 preferences").arg(APPLICATION_NAME));
     addScrollableTab(this, tabs_[0], tr("&General"));
-    addScrollableTab(this, tabs_[1], tr("&Filename patterns"));
-    addScrollableTab(this, tabs_[2], tr("&Directory adding policy"));
+    addScrollableTab(this, tabs_[1], tr("&Playback"));
+    addScrollableTab(this, tabs_[2], tr("&Filename patterns"));
+    addScrollableTab(this, tabs_[3], tr("&Directory adding policy"));
 }
 
 

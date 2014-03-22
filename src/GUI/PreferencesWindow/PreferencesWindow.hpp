@@ -19,15 +19,12 @@
 # ifndef VENTUROUS_PREFERENCES_WINDOW_HPP
 # define VENTUROUS_PREFERENCES_WINDOW_HPP
 
+# include <QIcon>
 # include <QTabWidget>
 
 # include <array>
 
 
-namespace Icons
-{
-class Theme;
-}
 class Preferences;
 class PreferencesPage;
 
@@ -35,8 +32,7 @@ class PreferencesWindow : public QTabWidget
 {
     Q_OBJECT
 public:
-    explicit PreferencesWindow(Preferences & preferences,
-                               const Icons::Theme & theme,
+    explicit PreferencesWindow(Preferences & preferences, const QIcon & addIcon,
                                QWidget * parent = nullptr);
 
     /// @brief Configures UI according to preferences_.
@@ -52,7 +48,7 @@ private:
 
     Preferences & preferences_;
 
-    const std::array<PreferencesPage *, 3> tabs_;
+    const std::array<PreferencesPage *, 4> tabs_;
 };
 
 # endif // VENTUROUS_PREFERENCES_WINDOW_HPP

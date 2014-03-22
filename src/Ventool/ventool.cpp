@@ -20,11 +20,11 @@
 
 # include <cstddef>
 # include <cassert>
-# include <iostream>
 # include <algorithm>
 # include <array>
 # include <tuple>
 # include <string>
+# include <iostream>
 
 
 /// "help" must always be the last command here.

@@ -73,7 +73,7 @@ set(Resources_Path resources)
 include_directories(
     ${QtCoreUtilities_PublicHeaders_Path} ${QtXmlUtilities_PublicHeaders_Path}
     ${TemplateUtilities_PublicHeaders_Path} ${VenturousCore_PublicHeaders_Path}
-    ${Sources_Path} ${GUI_Path} ${MainWindow_Path} ${PreferencesWindow_Path}
+    ${Sources_Path} ${GUI_Path} ${PreferencesWindow_Path} ${MainWindow_Path}
 )
 
 set(Sources
@@ -82,18 +82,20 @@ set(Sources
 
     ${GUI_Path}/Icons.cpp ${GUI_Path}/Actions.cpp
 
-    ${MainWindow_Path}/TreeWidget.cpp
+    ${PreferencesWindow_Path}/GeneralPage.cpp
+    ${PreferencesWindow_Path}/HistoryPreferencesFrame.cpp
+    ${PreferencesWindow_Path}/PlaybackPage.cpp
+    ${PreferencesWindow_Path}/PatternListWidget.cpp
+    ${PreferencesWindow_Path}/FilenamePatternsPage.cpp
+    ${PreferencesWindow_Path}/AddingPolicyPage.cpp
+    ${PreferencesWindow_Path}/PreferencesWindow.cpp
+
+    ${MainWindow_Path}/TreeWidget.cpp ${MainWindow_Path}/HistoryWidget.cpp
+    ${MainWindow_Path}/PlaybackComponent.cpp
     ${MainWindow_Path}/MainWindow.cpp ${MainWindow_Path}/MainWindow-init.cpp
     ${MainWindow_Path}/MainWindow-file.cpp
-    ${MainWindow_Path}/MainWindow-playback.cpp
     ${MainWindow_Path}/MainWindow-playlist.cpp
     ${MainWindow_Path}/MainWindow-help.cpp
-
-    ${PreferencesWindow_Path}/PreferencesWindow.cpp
-    ${PreferencesWindow_Path}/MainPreferencesPage.cpp
-    ${PreferencesWindow_Path}/FilenamePatternsPage.cpp
-    ${PreferencesWindow_Path}/PatternListWidget.cpp
-    ${PreferencesWindow_Path}/AddingPolicyPage.cpp
 )
 
 include(vedgTools/QtAddResources)

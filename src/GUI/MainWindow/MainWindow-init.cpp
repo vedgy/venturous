@@ -26,6 +26,7 @@
 # include "PreferencesWindow.hpp"
 # include "Actions.hpp"
 # include "Icons.hpp"
+# include "PlaybackComponent.hpp"
 
 # include <QtCoreUtilities/String.hpp>
 
@@ -129,15 +130,7 @@ const std::string MainWindow::itemsFilename =
 MainWindow::MainWindow(std::unique_ptr<QSharedMemory> sharedMemory,
                        QWidget * const parent, const Qt::WindowFlags flags)
     : QMainWindow(parent, flags), sharedMemory_(std::move(sharedMemory)),
-      toolBar_("Toolbar"), treeWidget_(itemTree_, temporaryTree_),
-      lastPlayedItemLabel(new QLabel(statusBar())),
-      savedPreferences_(mediaPlayer_.getExternalPlayerTimeout(),
-                        mediaPlayer_.getAutoSetOptions(),
-                        false, false, false, true,
-                        Preferences::StartupPolicy::doNothing,
-                        treeWidget_.getAutoUnfoldedLevels(), false, false,
-                        1000),
-      preferences_(savedPreferences_)
+      toolBar_("Toolbar"), treeWidget_(itemTree_, temporaryTree_)
 {
 # ifdef DEBUG_VENTUROUS_MAIN_WINDOW_INIT
     std::cout << "PREFERENCES_DIR = " << PREFERENCES_DIR << std::endl;
@@ -156,11 +149,11 @@ MainWindow::MainWindow(std::unique_ptr<QSharedMemory> sharedMemory,
 
         actions_.reset(new Actions(* theme));
         setWindowIcon(theme->venturous());
-        preferencesWindow_ = new PreferencesWindow(preferences_, * theme, this);
+        preferencesWindow_ = new PreferencesWindow(
+            preferences_, actions_->playlist.addFiles->icon(), this);
     }
 
     initTree();
-    connectSlots();
 
     initMenuBar(menuBar_, * actions_);
     setMenuBar(& menuBar_);
@@ -171,32 +164,16 @@ MainWindow::MainWindow(std::unique_ptr<QSharedMemory> sharedMemory,
 
     setCentralWidget(& treeWidget_);
 
-    statusBar()->addWidget(lastPlayedItemLabel);
+    playbackComponent_.reset(
+        new PlaybackComponent(* this, itemTree_, actions_->playback,
+                              preferences_.playback,
+                              QtUtilities::qStringToString(preferencesDir)));
 
-    {
-        const int item = preferences_.lastPlayedItem;
-        const QString itemAbsolutePath =
-            item > 0 && item <= itemTree_.itemCount() ?
-            QtUtilities::toQString(itemTree_.getItemAbsolutePath(item - 1))
-            : QString();
-        playedItemChanged(item, itemAbsolutePath);
-    }
+    connectSlots();
 
-
+    onPlayerStateChanged(playbackComponent_->isPlayerRunning());
     updateActionsState();
     preferencesChanged();
-
-    switch (preferences_.startupPolicy) {
-        case Preferences::StartupPolicy::playbackNext:
-            playbackNext();
-            break;
-        case Preferences::StartupPolicy::playbackPlay:
-            playbackPlay();
-            break;
-        case Preferences::StartupPolicy::doNothing:
-            // In other cases setWindowTitle() is always called indirectly.
-            setWindowTitle();
-    }
 
     restoreGeometry(preferences_.windowGeometry);
     restoreState(preferences_.windowState);
@@ -212,7 +189,7 @@ MainWindow::~MainWindow() = default;
 
 const QString MainWindow::preferencesFilename =
     preferencesDir + APPLICATION_NAME ".xml";
-const QString MainWindow::saveErrorPrefix =
+const QString MainWindow::savePreferencesErrorPrefix =
     QObject::tr("Saving preferences failed");
 
 
@@ -248,11 +225,7 @@ void MainWindow::initTree()
 
 void MainWindow::connectSlots()
 {
-    {
-        using namespace std::placeholders;
-        mediaPlayer_.setFinishedSlot(std::bind(& MainWindow::onPlayerFinished,
-                                               this, _1, _2, _3));
-    }
+
 
     connect(preferencesWindow_, SIGNAL(preferencesUpdated()),
             SLOT(onPreferencesUpdated()));
@@ -260,13 +233,7 @@ void MainWindow::connectSlots()
             SLOT(onPreferencesActivated()));
     connect(actions_->file.quit, SIGNAL(triggered(bool)), SLOT(onFileQuit()));
 
-    {
-        const Actions::Playback & p = actions_->playback;
-        connect(p.play, SIGNAL(triggered(bool)), SLOT(playbackPlay()));
-        connect(p.stop, SIGNAL(triggered(bool)), SLOT(playbackStop()));
-        connect(p.next, SIGNAL(triggered(bool)), SLOT(playbackNext()));
-        connect(p.playAll, SIGNAL(triggered(bool)), SLOT(onPlayAll()));
-    }
+
     {
         const Actions::Playlist & p = actions_->playlist;
         connect(p.editMode, SIGNAL(triggered(bool)),
@@ -303,7 +270,7 @@ void MainWindow::connectSlots()
     }
 
     connect(& treeWidget_, SIGNAL(itemActivated(QString)),
-            SLOT(onItemActivated(QString)));
+            playbackComponent_.get(), SLOT(onItemActivated(QString)));
 
     connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()),
             SLOT(onAboutToQuit()));

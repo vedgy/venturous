@@ -16,8 +16,8 @@
  Venturous.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-# include "Application.hpp"
 # include "MainWindow.hpp"
+# include "Application.hpp"
 
 # include <QString>
 # include <QSharedMemory>

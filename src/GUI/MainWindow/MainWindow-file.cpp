@@ -27,7 +27,7 @@ void MainWindow::onPreferencesUpdated()
             preferences_ != savedPreferences_) {
         if (handlePreferencesErrors([this] {
         preferences_.save(preferencesFilename);
-        }, saveErrorPrefix)) {
+        }, savePreferencesErrorPrefix)) {
             savedPreferences_ = preferences_;
         }
     }

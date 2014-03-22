@@ -18,58 +18,52 @@
 
 # include "Preferences.hpp"
 
+# include <VenturousCore/AddingItems.hpp>
+
 # include <QtXmlUtilities/Shortcuts.hpp>
 
-# include <VenturousCore/AddingItems.hpp>
+# include <QtCoreUtilities/Validation.hpp>
 
 # include <QString>
 # include <QStringList>
-# include <QObject>
 # include <QDomElement>
 # include <QDomDocument>
-
-# include <array>
-# include <tuple>
 
 
 namespace
 {
-const std::array<QString, 3> playedItemNames = {{
-        QObject::tr("none"), QObject::tr("all"), QObject::tr("custom selection")
-    }
-};
-constexpr int minPlayedItem =
-    - int(std::tuple_size<decltype(playedItemNames)>::value - 1);
-
-void assertValidPlayedItem(int playedItem)
+template <typename Number>
+bool copyUniqueChildsTextToMax(const QDomElement & e, const QString & tagName,
+                               Number & destination, Number maxValue)
 {
-    if (playedItem < minPlayedItem) {
-        throw QtUtilities::Error(
-            QObject::tr("played item is less than minimum allowed value "
-                        "(%1 < %2).").arg(playedItem).arg(minPlayedItem));
+    if (QtUtilities::Xml::copyUniqueChildsTextTo(e, tagName, destination)) {
+        QtUtilities::checkMaxValue(tagName, destination, maxValue);
+        return true;
     }
+    return false;
 }
+
 
 namespace Names
 {
-const QString root = APPLICATION_NAME,
+namespace Playback
+{
+namespace History
+{
+const QString localRoot = "History",
+              maxSize = "MaxSize",
+              copyPlayedEntryToTop = "CopyPlayedEntryToTop",
+              saveToDiskImmediately = "SaveToDiskImmediately",
+              nHiddenDirs = "HiddenDirsNumber",
+              currentIndex = "CurrentIndex";
+}
+
+const QString localRoot = "Playback",
               externalPlayerTimeout = "ExternalPlayerTimeout",
               autoSetExternalPlayerOptions = "AutoSetExternalPlayerOptions",
-              alwaysUseFallbackIcons = "AlwaysUseFallbackIcons",
-              notificationAreaIcon = "NotificationAreaIcon",
-              startToNotificationArea = "StartToNotificationArea",
-              closeToNotificationArea = "CloseToNotificationArea",
-              startupPolicy = "StartupPolicy",
-              treeAutoUnfoldedLevels = "TreeAutoUnfoldedLevels",
-              treeAutoCleanup = "TreeAutoCleanup",
-              savePreferencesToDiskImmediately =
-                  "SavePreferencesToDiskImmediately",
-                  ventoolCheckInterval = "VentoolCheckInterval",
-
-                  lastPlayedItem = "LastPlayedItem",
-                  preferencesWindowGeometry = "PreferencesWindowGeometry",
-                  windowGeometry = "WindowGeometry",
-                  windowState = "WindowState";
+              nextFromHistory = "NextFromHistory",
+              startupPolicy = "StartupPolicy";
+}
 
 namespace AddingItemsPolicy
 {
@@ -84,6 +78,20 @@ const QString localRoot = "AddingItemsPolicy",
 
 }
 
+const QString root = APPLICATION_NAME,
+              alwaysUseFallbackIcons = "AlwaysUseFallbackIcons",
+              notificationAreaIcon = "NotificationAreaIcon",
+              startToNotificationArea = "StartToNotificationArea",
+              closeToNotificationArea = "CloseToNotificationArea",
+              treeAutoUnfoldedLevels = "TreeAutoUnfoldedLevels",
+              treeAutoCleanup = "TreeAutoCleanup",
+              savePreferencesToDiskImmediately =
+                  "SavePreferencesToDiskImmediately",
+                  ventoolCheckInterval = "VentoolCheckInterval",
+
+                  preferencesWindowGeometry = "PreferencesWindowGeometry",
+                  windowGeometry = "WindowGeometry",
+                  windowState = "WindowState";
 }
 
 
@@ -98,6 +106,49 @@ void appendQStringList(QDomDocument & doc, QDomElement & e,
             QtUtilities::Xml::createElement(doc, itemTagName, s));
     }
     e.appendChild(localRoot);
+}
+
+void appendHistory(QDomDocument & doc, QDomElement & root,
+                   const Preferences::Playback::History & history)
+{
+    using namespace QtUtilities::Xml;
+    using namespace Names::Playback::History;
+    QDomElement e = doc.createElement(localRoot);
+
+    e.appendChild(createElement(doc, maxSize, history.maxSize));
+    e.appendChild(createElement(doc, copyPlayedEntryToTop,
+                                history.copyPlayedEntryToTop));
+    e.appendChild(createElement(doc, saveToDiskImmediately,
+                                history.saveToDiskImmediately));
+    e.appendChild(createElement(doc, nHiddenDirs, history.nHiddenDirs));
+    e.appendChild(createElement(doc, currentIndex, history.currentIndex));
+
+    root.appendChild(e);
+}
+
+void appendPlayback(QDomDocument & doc, QDomElement & root,
+                    const Preferences::Playback & playback)
+{
+    using namespace QtUtilities::Xml;
+    using namespace Names::Playback;
+    QDomElement e = doc.createElement(localRoot);
+
+    e.appendChild(createElement(doc, externalPlayerTimeout,
+                                playback.externalPlayerTimeout));
+    e.appendChild(createElement(doc, autoSetExternalPlayerOptions,
+                                playback.autoSetExternalPlayerOptions));
+
+    e.appendChild(createElement(doc, nextFromHistory,
+                                playback.nextFromHistory));
+    e.appendChild(
+        createElement(
+            doc, startupPolicy,
+            static_cast<Preferences::Playback::StartupPolicyUnderlyingType>(
+                playback.startupPolicy)));
+
+    appendHistory(doc, e, playback.history);
+
+    root.appendChild(e);
 }
 
 void appendAddingItemsPolicy(QDomDocument & doc, QDomElement & root,
@@ -133,6 +184,51 @@ void loadQStringList(const QDomElement & e, const QString & localRootTagName,
     }
 }
 
+void loadHistory(const QDomElement & root,
+                 Preferences::Playback::History & history)
+{
+    using namespace QtUtilities::Xml;
+    using namespace Names::Playback::History;
+    typedef Preferences::Playback::History H;
+
+    const QDomElement e = getUniqueChild(root, localRoot);
+
+    copyUniqueChildsTextToMax(e, maxSize, history.maxSize, H::maxMaxSize);
+    copyUniqueChildsTextTo(e, copyPlayedEntryToTop,
+                           history.copyPlayedEntryToTop);
+    copyUniqueChildsTextTo(e, saveToDiskImmediately,
+                           history.saveToDiskImmediately);
+    copyUniqueChildsTextToMax(e, nHiddenDirs,
+                              history.nHiddenDirs, H::maxNHiddenDirs);
+    copyUniqueChildsTextTo(e, currentIndex, history.currentIndex);
+    QtUtilities::checkRange(currentIndex, history.currentIndex,
+                            H::multipleItemsIndex, int(H::maxMaxSize));
+}
+
+void loadPlayback(const QDomElement & root, Preferences::Playback & playback)
+{
+    using namespace QtUtilities::Xml;
+    using namespace Names::Playback;
+    typedef Preferences::Playback P;
+
+    const QDomElement e = getUniqueChild(root, localRoot);
+
+    copyUniqueChildsTextToMax(
+        e, externalPlayerTimeout,
+        playback.externalPlayerTimeout, P::maxExternalPlayerTimeout);
+    copyUniqueChildsTextTo(e, autoSetExternalPlayerOptions,
+                           playback.autoSetExternalPlayerOptions);
+
+    copyUniqueChildsTextTo(e, nextFromHistory, playback.nextFromHistory);
+    {
+        P::StartupPolicyUnderlyingType p;
+        if (copyUniqueChildsTextToMax(e, startupPolicy, p, P::maxStartupPolicy))
+            playback.startupPolicy = static_cast<P::StartupPolicy>(p);
+    }
+
+    loadHistory(e, playback.history);
+}
+
 void loadAddingItemsPolicy(const QDomElement & root,
                            AddingItems::Policy & policy)
 {
@@ -149,78 +245,44 @@ void loadAddingItemsPolicy(const QDomElement & root,
     copyUniqueChildsTextTo(e, ifBothAddMediaDirs, policy.ifBothAddMediaDirs);
 }
 
+}
 
-template <typename Number>
-void checkMaxValue(const QString & name, Number value, Number maxValue)
+
+constexpr std::size_t Preferences::Playback::History::maxMaxSize;
+constexpr unsigned Preferences::Playback::History::maxNHiddenDirs;
+constexpr int Preferences::Playback::History::multipleItemsIndex;
+
+Preferences::Playback::History::History()
+    : maxSize(100), copyPlayedEntryToTop(false), saveToDiskImmediately(false),
+      nHiddenDirs(3), currentIndex(0)
 {
-    if (value > maxValue) {
-        throw QtUtilities::StringError(
-            name +
-            QObject::tr(" is greater than maximum allowed value (%1 > %2).").
-            arg(value).arg(maxValue));
-    }
 }
 
-template <typename Number>
-bool copyUniqueChildsTextTo(const QDomElement & e, const QString & tagName,
-                            Number & destination, Number maxValue)
+
+constexpr unsigned Preferences::Playback::maxExternalPlayerTimeout;
+constexpr Preferences::Playback::StartupPolicyUnderlyingType
+Preferences::Playback::maxStartupPolicy;
+
+Preferences::Playback::Playback()
+    : externalPlayerTimeout(2000), autoSetExternalPlayerOptions(true),
+      nextFromHistory(false), startupPolicy(StartupPolicy::doNothing)
 {
-    if (QtUtilities::Xml::copyUniqueChildsTextTo(e, tagName, destination)) {
-        checkMaxValue(tagName, destination, maxValue);
-        return true;
-    }
-    return false;
-}
-
 }
 
 
-constexpr unsigned Preferences::maxExternalPlayerTimeout;
-constexpr Preferences::StartupPolicyUnderlyingType
-Preferences::maxStartupPolicy;
 constexpr unsigned Preferences::maxVentoolCheckInterval;
 
-constexpr int Preferences::PlayedItem::none, Preferences::PlayedItem::all,
-          Preferences::PlayedItem::customSelection;
-
-QString Preferences::PlayedItem::toQString(const int playedItem)
+Preferences::Preferences()
+    : alwaysUseFallbackIcons(false),
+      notificationAreaIcon(false),
+      startToNotificationArea(false),
+      closeToNotificationArea(true),
+      treeAutoUnfoldedLevels(5),
+      treeAutoCleanup(false),
+      savePreferencesToDiskImmediately(false),
+      ventoolCheckInterval(1000)
 {
-    assertValidPlayedItem(playedItem);
-
-    return playedItem > 0 ? QString::number(playedItem) :
-           playedItemNames[- playedItem];
 }
-
-
-Preferences::Preferences(const unsigned externalPlayerTimeout,
-                         const bool autoSetExternalPlayerOptions,
-                         const bool alwaysUseFallbackIcons,
-                         const bool notificationAreaIcon,
-                         const bool startToNotificationArea,
-                         const bool closeToNotificationArea,
-                         const StartupPolicy startupPolicy,
-                         const unsigned char treeAutoUnfoldedLevels,
-                         const bool treeAutoCleanup,
-                         const bool savePreferencesToDiskImmediately,
-                         const unsigned ventoolCheckInterval)
-    : externalPlayerTimeout(externalPlayerTimeout),
-      autoSetExternalPlayerOptions(autoSetExternalPlayerOptions),
-      alwaysUseFallbackIcons(alwaysUseFallbackIcons),
-      notificationAreaIcon(notificationAreaIcon),
-      startToNotificationArea(startToNotificationArea),
-      closeToNotificationArea(closeToNotificationArea),
-      startupPolicy(startupPolicy),
-      treeAutoUnfoldedLevels(treeAutoUnfoldedLevels),
-      treeAutoCleanup(treeAutoCleanup),
-      savePreferencesToDiskImmediately(savePreferencesToDiskImmediately),
-      ventoolCheckInterval(ventoolCheckInterval)
-{
-    checkMaxValue(Names::externalPlayerTimeout, externalPlayerTimeout,
-                  maxExternalPlayerTimeout);
-    checkMaxValue(Names::ventoolCheckInterval, ventoolCheckInterval,
-                  maxVentoolCheckInterval);
-}
-
 
 void Preferences::save(const QString & filename) const
 {
@@ -228,10 +290,7 @@ void Preferences::save(const QString & filename) const
     QDomDocument doc = createDocument();
     QDomElement root = createRoot(doc, Names::root);
 
-    root.appendChild(createElement(doc, Names::externalPlayerTimeout,
-                                   externalPlayerTimeout));
-    root.appendChild(createElement(doc, Names::autoSetExternalPlayerOptions,
-                                   autoSetExternalPlayerOptions));
+    appendPlayback(doc, root, playback);
     appendAddingItemsPolicy(doc, root, addingPolicy);
 
     root.appendChild(createElement(doc, Names::alwaysUseFallbackIcons,
@@ -244,10 +303,6 @@ void Preferences::save(const QString & filename) const
     root.appendChild(createElement(doc, Names::closeToNotificationArea,
                                    closeToNotificationArea));
 
-    root.appendChild(createElement(doc, Names::startupPolicy,
-                                   static_cast<StartupPolicyUnderlyingType>(
-                                       startupPolicy)));
-
     root.appendChild(createElement(doc, Names::treeAutoUnfoldedLevels,
                                    treeAutoUnfoldedLevels));
     root.appendChild(createElement(doc, Names::treeAutoCleanup,
@@ -258,8 +313,6 @@ void Preferences::save(const QString & filename) const
     root.appendChild(createElement(doc, Names::ventoolCheckInterval,
                                    ventoolCheckInterval));
 
-
-    root.appendChild(createElement(doc, Names::lastPlayedItem, lastPlayedItem));
 
     root.appendChild(
         createElementFromByteArray(doc, Names::preferencesWindowGeometry,
@@ -278,10 +331,7 @@ void Preferences::load(const QString & filename)
     using namespace QtUtilities::Xml;
     const QDomElement root = loadRoot(filename, Names::root);
 
-    copyUniqueChildsTextTo(root, Names::externalPlayerTimeout,
-                           externalPlayerTimeout, maxExternalPlayerTimeout);
-    copyUniqueChildsTextTo(root, Names::autoSetExternalPlayerOptions,
-                           autoSetExternalPlayerOptions);
+    loadPlayback(root, playback);
     loadAddingItemsPolicy(root, addingPolicy);
 
     copyUniqueChildsTextTo(root, Names::alwaysUseFallbackIcons,
@@ -294,26 +344,15 @@ void Preferences::load(const QString & filename)
     copyUniqueChildsTextTo(root, Names::closeToNotificationArea,
                            closeToNotificationArea);
 
-    {
-        StartupPolicyUnderlyingType p;
-        if (copyUniqueChildsTextTo(
-                    root, Names::startupPolicy, p, maxStartupPolicy)) {
-            startupPolicy = static_cast<StartupPolicy>(p);
-        }
-    }
-
     copyUniqueChildsTextTo(root, Names::treeAutoUnfoldedLevels,
                            treeAutoUnfoldedLevels);
     copyUniqueChildsTextTo(root, Names::treeAutoCleanup, treeAutoCleanup);
 
     copyUniqueChildsTextTo(root, Names::savePreferencesToDiskImmediately,
                            savePreferencesToDiskImmediately);
-    copyUniqueChildsTextTo(root, Names::ventoolCheckInterval,
-                           ventoolCheckInterval, maxVentoolCheckInterval);
+    copyUniqueChildsTextToMax(root, Names::ventoolCheckInterval,
+                              ventoolCheckInterval, maxVentoolCheckInterval);
 
-
-    copyUniqueChildsTextTo(root, Names::lastPlayedItem, lastPlayedItem);
-    assertValidPlayedItem(lastPlayedItem);
 
     copyUniqueChildsTextToByteArray(
         root, Names::preferencesWindowGeometry, preferencesWindowGeometry);
@@ -323,26 +362,45 @@ void Preferences::load(const QString & filename)
 }
 
 
+bool operator == (const Preferences::Playback::History & lhs,
+                  const Preferences::Playback::History & rhs)
+{
+    return lhs.maxSize == rhs.maxSize &&
+           lhs.copyPlayedEntryToTop == rhs.copyPlayedEntryToTop &&
+           lhs.saveToDiskImmediately == rhs.saveToDiskImmediately &&
+           lhs.nHiddenDirs == rhs.nHiddenDirs &&
+           lhs.currentIndex == rhs.currentIndex;
+}
+
+bool operator == (const Preferences::Playback & lhs,
+                  const Preferences::Playback & rhs)
+{
+    return lhs.history == rhs.history &&
+           lhs.externalPlayerTimeout == rhs.externalPlayerTimeout &&
+           lhs.autoSetExternalPlayerOptions == rhs.autoSetExternalPlayerOptions
+           && lhs.nextFromHistory == rhs.nextFromHistory &&
+           lhs.startupPolicy == rhs.startupPolicy;
+}
 
 bool operator == (const Preferences & lhs, const Preferences & rhs)
 {
-    return
-        lhs.externalPlayerTimeout == rhs.externalPlayerTimeout &&
-        lhs.autoSetExternalPlayerOptions == rhs.autoSetExternalPlayerOptions &&
-        lhs.addingPolicy == rhs.addingPolicy &&
-        lhs.alwaysUseFallbackIcons == rhs.alwaysUseFallbackIcons &&
-        lhs.notificationAreaIcon == rhs.notificationAreaIcon &&
-        lhs.startToNotificationArea == rhs.startToNotificationArea &&
-        lhs.closeToNotificationArea == rhs.closeToNotificationArea &&
-        lhs.startupPolicy == rhs.startupPolicy &&
-        lhs.treeAutoUnfoldedLevels == rhs.treeAutoUnfoldedLevels &&
-        lhs.treeAutoCleanup == rhs.treeAutoCleanup &&
-        lhs.savePreferencesToDiskImmediately ==
-        rhs.savePreferencesToDiskImmediately &&
-        lhs.ventoolCheckInterval == rhs.ventoolCheckInterval &&
+    return lhs.playback == rhs.playback &&
+           lhs.addingPolicy == rhs.addingPolicy &&
 
-        lhs.lastPlayedItem == rhs.lastPlayedItem &&
-        lhs.preferencesWindowGeometry == rhs.preferencesWindowGeometry &&
-        lhs.windowGeometry == rhs.windowGeometry &&
-        lhs.windowState == rhs.windowState;
+           lhs.alwaysUseFallbackIcons == rhs.alwaysUseFallbackIcons &&
+
+           lhs.notificationAreaIcon == rhs.notificationAreaIcon &&
+           lhs.startToNotificationArea == rhs.startToNotificationArea &&
+           lhs.closeToNotificationArea == rhs.closeToNotificationArea &&
+
+           lhs.treeAutoUnfoldedLevels == rhs.treeAutoUnfoldedLevels &&
+           lhs.treeAutoCleanup == rhs.treeAutoCleanup &&
+
+           lhs.savePreferencesToDiskImmediately ==
+           rhs.savePreferencesToDiskImmediately &&
+           lhs.ventoolCheckInterval == rhs.ventoolCheckInterval &&
+
+           lhs.preferencesWindowGeometry == rhs.preferencesWindowGeometry &&
+           lhs.windowGeometry == rhs.windowGeometry &&
+           lhs.windowState == rhs.windowState;
 }

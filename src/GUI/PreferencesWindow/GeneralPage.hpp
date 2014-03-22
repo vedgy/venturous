@@ -16,34 +16,29 @@
  Venturous.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-# ifndef VENTUROUS_MAIN_PREFERENCES_PAGE_HPP
-# define VENTUROUS_MAIN_PREFERENCES_PAGE_HPP
+# ifndef VENTUROUS_GENERAL_PAGE_HPP
+# define VENTUROUS_GENERAL_PAGE_HPP
 
 # include "PreferencesPage.hpp"
 
 # include <QSpinBox>
 # include <QCheckBox>
-# include <QComboBox>
 
 
-class MainPreferencesPage : public PreferencesPage
+class GeneralPage : public PreferencesPage
 {
     Q_OBJECT
 public:
-    explicit MainPreferencesPage(QWidget * parent = nullptr,
-                                 Qt::WindowFlags f = 0);
+    explicit GeneralPage(QWidget * parent = nullptr, Qt::WindowFlags f = 0);
 
     void setUiPreferences(const Preferences & source) override;
     void writeUiPreferencesTo(Preferences & destination) const override;
 
 private:
-    QSpinBox timeoutSpinBox;
-    QCheckBox autoSetOptionsCheckBox;
     QCheckBox alwaysUseFallbackIconsCheckBox;
     QCheckBox notificationAreaIconCheckBox;
     QCheckBox startToNotificationAreaCheckBox;
     QCheckBox closeToNotificationAreaCheckBox;
-    QComboBox startupPolicyComboBox;
     QSpinBox treeAutoUnfoldedLevelsSpinBox;
     QCheckBox treeAutoCleanupCheckBox;
     QCheckBox saveToDiskImmediatelyCheckBox;
@@ -53,4 +48,4 @@ private slots:
     void onNotificationAreaIconCheckBoxToggled(bool checked);
 };
 
-# endif // VENTUROUS_MAIN_PREFERENCES_PAGE_HPP
+# endif // VENTUROUS_GENERAL_PAGE_HPP

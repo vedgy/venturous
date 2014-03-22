@@ -25,19 +25,16 @@
 # include <QtGlobal>
 
 
-namespace Icons
-{
-class Theme;
-}
 class Preferences;
 QT_FORWARD_DECLARE_CLASS(QString)
+QT_FORWARD_DECLARE_CLASS(QIcon)
 QT_FORWARD_DECLARE_CLASS(QGridLayout)
 
 class FilenamePatternsPage : public PreferencesPage
 {
     Q_OBJECT
 public:
-    explicit FilenamePatternsPage(const Icons::Theme & theme,
+    explicit FilenamePatternsPage(const QIcon & addIcon,
                                   QWidget * parent = nullptr,
                                   Qt::WindowFlags f = 0);
 
@@ -46,7 +43,7 @@ public:
 
 private:
     void addColumn(QGridLayout * layout, int column, const QString & caption,
-                   PatternListWidget & patternList, const Icons::Theme & theme);
+                   PatternListWidget & patternList, const QIcon & addIcon);
 
     void addCopyButton(QGridLayout * layout, int row, const QString & iconName,
                        const QString & toolTip, const char * slot);

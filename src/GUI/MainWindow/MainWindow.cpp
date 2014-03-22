@@ -21,6 +21,7 @@
 # include "PreferencesWindow.hpp"
 # include "Actions.hpp"
 # include "Preferences.hpp"
+# include "PlaybackComponent.hpp"
 
 # include <QtCoreUtilities/String.hpp>
 
@@ -86,7 +87,8 @@ void MainWindow::setWindowTitle()
 {
     QMainWindow::setWindowTitle(
         APPLICATION_NAME + tr(" - %1 playable items - %2").
-        arg(itemTree_.itemCount()).arg(getStatus(isPlayerRunning_)));
+        arg(itemTree_.itemCount()).
+        arg(getStatus(playbackComponent_->isPlayerRunning())));
 }
 
 void MainWindow::showNotificationAreaIcon()
@@ -105,7 +107,8 @@ void MainWindow::showNotificationAreaIcon()
                 SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
                 SLOT(onNotificationAreaIconActivated(
                          QSystemTrayIcon::ActivationReason)));
-        notificationAreaIcon_->setToolTip(getIconToolTip(isPlayerRunning_));
+        notificationAreaIcon_->setToolTip(
+            getIconToolTip(playbackComponent_->isPlayerRunning()));
     }
     notificationAreaIcon_->show();
 }
@@ -129,20 +132,16 @@ void MainWindow::hideWindowProperly()
         showMinimized();
 }
 
-void MainWindow::playerStateChanged(const bool isRunning)
+void MainWindow::onPlayerStateChanged(const bool isRunning)
 {
-    if (isPlayerRunning_ != isRunning) {
-        isPlayerRunning_ = isRunning;
-        setWindowTitle();
-        if (notificationAreaIcon_ != nullptr)
-            notificationAreaIcon_->setToolTip(getIconToolTip(isPlayerRunning_));
-    }
+    setWindowTitle();
+    if (notificationAreaIcon_ != nullptr)
+        notificationAreaIcon_->setToolTip(getIconToolTip(isRunning));
 }
 
 void MainWindow::preferencesChanged()
 {
-    mediaPlayer_.setExternalPlayerTimeout(preferences_.externalPlayerTimeout);
-    mediaPlayer_.setAutoSetOptions(preferences_.autoSetExternalPlayerOptions);
+    playbackComponent_->setPreferences(preferences_.playback);
 
     treeWidget_.setAutoUnfoldedLevels(preferences_.treeAutoUnfoldedLevels);
 
@@ -167,21 +166,6 @@ void MainWindow::preferencesChanged()
     dest.primaryActionChanged();
 }
 
-void MainWindow::playedItemChanged(const int playedItem,
-                                   const QString & itemAbsolutePath)
-{
-    QString text = itemAbsolutePath;
-    if (! text.isEmpty())
-        text += ' ';
-    text += QString("<b>(%1)</b>").arg(
-                Preferences::PlayedItem::toQString(playedItem));
-
-    lastPlayedItemLabel->setText(tr("Last played item: ") + text);
-    lastPlayedItemLabel->setToolTip(text);
-
-    preferences_.lastPlayedItem = playedItem;
-}
-
 void MainWindow::copyWindowGeometryAndStateToPreferences()
 {
     preferences_.windowGeometry = saveGeometry();
@@ -199,16 +183,16 @@ void MainWindow::timerEvent(QTimerEvent *)
     if (command != 0) {
         switch (command) {
             case 'P':
-                playbackPlay();
+                actions_->playback.play->trigger();
                 break;
             case 'S':
-                playbackStop();
+                actions_->playback.stop->trigger();
                 break;
             case 'N':
-                playbackNext();
+                actions_->playback.next->trigger();
                 break;
             case 'A':
-                onPlayAll();
+                actions_->playback.playAll->trigger();
                 break;
             case 'Q':
                 onFileQuit();
@@ -251,11 +235,13 @@ void MainWindow::closeEvent(QCloseEvent * const event)
             return;
         }
         copyWindowGeometryAndStateToPreferences();
+        /// TODO: create quit without delays!
         if (preferences_ != savedPreferences_) {
             handlePreferencesErrors([this] {
                 preferences_.save(preferencesFilename);
-            }, saveErrorPrefix);
+            }, savePreferencesErrorPrefix);
         }
+        playbackComponent_->quit();
         quitState_ = true;
         QCoreApplication::quit();
     }

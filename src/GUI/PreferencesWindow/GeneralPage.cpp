@@ -16,16 +16,17 @@
  Venturous.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-# include "MainPreferencesPage.hpp"
+# include "GeneralPage.hpp"
 
 # include "Preferences.hpp"
 
 # include <QString>
-# include <QStringList>
 # include <QObject>
-# include <QFormLayout>
-# include <QHBoxLayout>
+# include <QCheckBox>
 # include <QSpacerItem>
+# include <QLayout>
+# include <QHBoxLayout>
+# include <QFormLayout>
 
 # include <limits>
 
@@ -54,31 +55,10 @@ void addNotificationAreaSubOption(
 
 }
 
-MainPreferencesPage::MainPreferencesPage(
-    QWidget * const parent, const Qt::WindowFlags f)
+GeneralPage::GeneralPage(QWidget * const parent, const Qt::WindowFlags f)
     : PreferencesPage(parent, f)
 {
     QFormLayout * const layout = new QFormLayout(this);
-
-    timeoutSpinBox.setRange(0, Preferences::maxExternalPlayerTimeout);
-    timeoutSpinBox.setToolTip(
-        tr("Delay time between starting external player and quitting / "
-           "restarting it or setting recommended options.\n"
-           "This timeout is necessary because external player may not be "
-           "ready to accept commands immediately after start."));
-    timeoutSpinBox.setSuffix(tr("ms"));
-    layout->addRow(tr("External player timeout"), & timeoutSpinBox);
-
-    autoSetOptionsCheckBox.setToolTip(
-        tr("If checked, recommended external player options are set each time "
-           "player is launched.\n"
-           "Otherwise, it is user's responsibility to ensure that "
-           "external player options are correct."));
-    layout->addRow(tr("Always set external player options"),
-                   & autoSetOptionsCheckBox);
-
-    addSpacing(layout);
-
 
     alwaysUseFallbackIconsCheckBox.setToolTip(tr("If checked, fallback "
             "(application default) icons will always be used.\n"
@@ -112,14 +92,6 @@ MainPreferencesPage::MainPreferencesPage(
            "Otherwise, closing is equialent to quitting.").arg(
             APPLICATION_NAME),
         tr("Close"));
-
-    startupPolicyComboBox.addItems( {
-        tr("<no action>"), tr("Start playback"), tr("Play next item")
-    });
-    startupPolicyComboBox.setToolTip(
-        tr("Selected action will be executed on each %1 start.").arg(
-            APPLICATION_NAME));
-    layout->addRow(tr("Startup action"), & startupPolicyComboBox);
 
     addSpacing(layout);
 
@@ -160,19 +132,13 @@ MainPreferencesPage::MainPreferencesPage(
                    & checkIntervalSpinBox);
 }
 
-void MainPreferencesPage::setUiPreferences(const Preferences & source)
+void GeneralPage::setUiPreferences(const Preferences & source)
 {
-    timeoutSpinBox.setValue(source.externalPlayerTimeout);
-    autoSetOptionsCheckBox.setChecked(source.autoSetExternalPlayerOptions);
-
     alwaysUseFallbackIconsCheckBox.setChecked(source.alwaysUseFallbackIcons);
 
     notificationAreaIconCheckBox.setChecked(source.notificationAreaIcon);
     startToNotificationAreaCheckBox.setChecked(source.startToNotificationArea);
     closeToNotificationAreaCheckBox.setChecked(source.closeToNotificationArea);
-
-    startupPolicyComboBox.setCurrentIndex(static_cast<int>(
-            source.startupPolicy));
 
     treeAutoUnfoldedLevelsSpinBox.setValue(source.treeAutoUnfoldedLevels);
     treeAutoCleanupCheckBox.setChecked(source.treeAutoCleanup);
@@ -182,12 +148,8 @@ void MainPreferencesPage::setUiPreferences(const Preferences & source)
     checkIntervalSpinBox.setValue(source.ventoolCheckInterval);
 }
 
-void MainPreferencesPage::writeUiPreferencesTo(Preferences & destination) const
+void GeneralPage::writeUiPreferencesTo(Preferences & destination) const
 {
-    destination.externalPlayerTimeout = timeoutSpinBox.value();
-    destination.autoSetExternalPlayerOptions =
-        autoSetOptionsCheckBox.isChecked();
-
     destination.alwaysUseFallbackIcons =
         alwaysUseFallbackIconsCheckBox.isChecked();
 
@@ -196,9 +158,6 @@ void MainPreferencesPage::writeUiPreferencesTo(Preferences & destination) const
         startToNotificationAreaCheckBox.isChecked();
     destination.closeToNotificationArea =
         closeToNotificationAreaCheckBox.isChecked();
-
-    destination.startupPolicy = static_cast<Preferences::StartupPolicy>(
-                                    startupPolicyComboBox.currentIndex());
 
     destination.treeAutoUnfoldedLevels = treeAutoUnfoldedLevelsSpinBox.value();
     destination.treeAutoCleanup = treeAutoCleanupCheckBox.isChecked();
@@ -209,7 +168,7 @@ void MainPreferencesPage::writeUiPreferencesTo(Preferences & destination) const
 }
 
 
-void MainPreferencesPage::onNotificationAreaIconCheckBoxToggled(
+void GeneralPage::onNotificationAreaIconCheckBoxToggled(
     const bool checked)
 {
     startToNotificationAreaCheckBox.setEnabled(checked);
