@@ -48,6 +48,7 @@ public:
 
             explicit History();
 
+
             std::size_t maxSize;
             bool copyPlayedEntryToTop;
             bool saveToDiskImmediately;
@@ -64,12 +65,11 @@ public:
             doNothing, playbackPlay, playbackNext
         };
 
-        static constexpr unsigned maxExternalPlayerTimeout = 9999;
         static constexpr StartupPolicyUnderlyingType maxStartupPolicy = 2;
 
         explicit Playback();
 
-        unsigned externalPlayerTimeout;
+
         bool autoSetExternalPlayerOptions;
         bool nextFromHistory;
         StartupPolicy startupPolicy;

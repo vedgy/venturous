@@ -19,7 +19,6 @@
 # ifndef VENTUROUS_TREE_WIDGET_HPP
 # define VENTUROUS_TREE_WIDGET_HPP
 
-# include <QtGlobal>
 # include <QString>
 # include <QTreeWidget>
 
@@ -32,8 +31,6 @@ namespace ItemTree
 {
 class Tree;
 }
-QT_FORWARD_DECLARE_CLASS(QTreeWidgetItem)
-
 
 class TreeWidget : public QTreeWidget
 {

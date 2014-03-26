@@ -19,6 +19,7 @@
 # ifndef VENTUROUS_MAIN_WINDOW_HPP
 # define VENTUROUS_MAIN_WINDOW_HPP
 
+# include "WindowUtilities.hpp"
 # include "TreeWidget.hpp"
 # include "Preferences.hpp"
 
@@ -41,15 +42,7 @@ class Actions;
 class PreferencesWindow;
 class PlaybackComponent;
 QT_FORWARD_DECLARE_CLASS(QSharedMemory)
-QT_FORWARD_DECLARE_CLASS(QWidget)
 QT_FORWARD_DECLARE_CLASS(QLabel)
-
-
-namespace WindowUtilities
-{
-    void showAndActivateWindow(QWidget & window);
-}
-
 
 class MainWindow : public QMainWindow
 {
@@ -153,6 +146,7 @@ private:
     QToolBar toolBar_;
     TreeWidget treeWidget_;
 
+    WindowInputController inputController_;
     std::unique_ptr<PlaybackComponent> playbackComponent_;
 
     Preferences savedPreferences_, preferences_;
@@ -165,7 +159,7 @@ private:
     bool quitState_ = false;
 
 private slots:
-    void onPlayerStateChanged(bool isRunning);
+    void onPlayerStateChanged(bool isPlayerRunning);
 
     void onNotificationAreaIconActivated(QSystemTrayIcon::ActivationReason);
 

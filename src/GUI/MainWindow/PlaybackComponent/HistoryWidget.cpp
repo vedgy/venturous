@@ -18,6 +18,7 @@
 
 # include "HistoryWidget.hpp"
 
+# include "CommonTypes.hpp"
 # include "Preferences.hpp"
 
 # include <QtCoreUtilities/String.hpp>
@@ -25,20 +26,23 @@
 # include <QString>
 # include <QFont>
 # include <QListWidgetItem>
+# include <QKeyEvent>
 
 # include <cstddef>
 # include <cassert>
 # include <utility>
+# include <vector>
 # include <string>
 
 
 namespace
 {
-/// TODO: make publicly available for use in status bar.
+/// @param absolutePath Non-empty absolute path.
 /// @return absolutePath without first nHiddenDirs directories. If nHiddenDirs
 /// exceeds number of directories in absolutePath, filename is returned.
 QString getShortenedPath(const QString & absolutePath, unsigned nHiddenDirs)
 {
+    assert(! absolutePath.isEmpty());
     if (nHiddenDirs == 0)
         return absolutePath;
     // skipping first symbol due to ItemTree's path specifics.
@@ -63,16 +67,20 @@ void setShortenedTooltipToText(QListWidgetItem * item, unsigned nHiddenDirs)
 }
 
 
-HistoryWidget::HistoryWidget(PlayCommand playCommand,
+HistoryWidget::HistoryWidget(PlayExistingEntry playExistingEntry,
+                             CommonTypes::PlayItems playItems,
                              const Preferences::Playback::History & preferences,
                              QWidget * const parent)
-    : QListWidget(parent), playCommand_(std::move(playCommand)),
+    : QListWidget(parent), playExistingEntry_(std::move(playExistingEntry)),
+      playItems_(std::move(playItems)),
       copyPlayedEntryToTop_(preferences.copyPlayedEntryToTop),
-      saveToDiskImmediately_(preferences.saveToDiskImmediately),
       nHiddenDirs_(preferences.nHiddenDirs),
       currentEntryIndex_(preferences.currentIndex)
 {
     history_.setMaxSize(preferences.maxSize);
+    setSelectionMode(QAbstractItemView::ExtendedSelection);
+    connect(this, SIGNAL(itemActivated(QListWidgetItem *)),
+            SLOT(onUiItemActivated(QListWidgetItem *)));
 }
 
 void HistoryWidget::setPreferences(
@@ -85,7 +93,6 @@ void HistoryWidget::setPreferences(
             delete takeItem(i);
     }
     copyPlayedEntryToTop_ = preferences.copyPlayedEntryToTop;
-    saveToDiskImmediately_ = preferences.saveToDiskImmediately;
     if (nHiddenDirs_ != preferences.nHiddenDirs) {
         nHiddenDirs_ = preferences.nHiddenDirs;
         resetAllItemsText();
@@ -112,6 +119,22 @@ bool HistoryWidget::load(const std::string & filename)
 bool HistoryWidget::save(const std::string & filename) const
 {
     return history_.save(filename);
+}
+
+QString HistoryWidget::currentAbsolute() const
+{
+    const QListWidgetItem * const it = item(currentEntryIndex_);
+    if (it == nullptr)
+        return QString();
+    return it->toolTip();
+}
+
+QString HistoryWidget::currentShortened() const
+{
+    const QListWidgetItem * const it = item(currentEntryIndex_);
+    if (it == nullptr)
+        return QString();
+    return it->text();
 }
 
 void HistoryWidget::push(std::string entry)
@@ -172,8 +195,8 @@ std::string HistoryWidget::setCurrentEntry(const int index)
 
 void HistoryWidget::emphasizeCurrentEntry(const bool emphasized)
 {
-    if (currentEntryIndex_ >= 0 && currentEntryIndex_ < count()) {
-        QListWidgetItem * const it = item(currentEntryIndex_);
+    QListWidgetItem * const it = item(currentEntryIndex_);
+    if (it != nullptr) {
         QFont font = it->font();
         font.setBold(emphasized);
         it->setFont(font);
@@ -184,4 +207,62 @@ void HistoryWidget::resetAllItemsText()
 {
     for (int i = count() - 1; i >= 0; --i)
         setShortenedTooltipToText(item(i), nHiddenDirs_);
+}
+
+void HistoryWidget::keyPressEvent(QKeyEvent * const event)
+{
+    assert(history_.items().size() == std::size_t(count()));
+    switch (event->key()) {
+        case Qt::Key_Return:
+        case Qt::Key_Enter: {
+            const auto items = selectedItems();
+            if (! items.empty()) {
+                if (items.size() == 1)
+                    onUiItemActivated(items.back());
+                else {
+                    std::vector<std::string> entries;
+                    entries.reserve(items.size());
+                    for (const QListWidgetItem * const item : items)
+                        entries.emplace_back(history_.items()[row(item)]);
+                    playItems_(std::move(entries));
+                }
+            }
+        }
+        break;
+        case Qt::Key_Delete: {
+            const auto items = selectedItems();
+            if (! items.empty()) {
+                const QListWidgetItem * currentItem = item(currentEntryIndex_);
+                if (currentItem != nullptr && currentItem->isSelected()) {
+                    currentItem = nullptr;
+                    currentEntryIndex_ = -1;
+                }
+
+                std::vector<std::size_t> indices;
+                indices.reserve(items.size());
+                for (const QListWidgetItem * const item : items)
+                    indices.emplace_back(row(item));
+                history_.remove(indices);
+                for (const QListWidgetItem * const item : items)
+                    delete item;
+
+                if (currentItem != nullptr)
+                    currentEntryIndex_ = row(currentItem);
+            }
+        }
+        break;
+        default:
+            QListWidget::keyPressEvent(event);
+    }
+}
+
+void HistoryWidget::onUiItemActivated(QListWidgetItem * const item)
+{
+    if (copyPlayedEntryToTop_)
+        playItems_(CommonTypes::ItemCollection { history_.items()[row(item)] });
+    else {
+        const int index = row(item);
+        setCurrentEntry(index);
+        playExistingEntry_(history_.items()[index]);
+    }
 }

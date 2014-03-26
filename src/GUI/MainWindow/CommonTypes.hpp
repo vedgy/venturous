@@ -16,29 +16,20 @@
  Venturous.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-# ifndef VENTUROUS_PLAYBACK_PAGE_HPP
-# define VENTUROUS_PLAYBACK_PAGE_HPP
+# ifndef VENTUROUS_COMMON_TYPES_HPP
+# define VENTUROUS_COMMON_TYPES_HPP
 
-# include "PreferencesPage.hpp"
-# include "HistoryPreferencesFrame.hpp"
-
-# include <QCheckBox>
-# include <QComboBox>
+# include <functional>
+# include <vector>
+# include <string>
 
 
-class PlaybackPage : public PreferencesPage
+namespace CommonTypes
 {
-public:
-    explicit PlaybackPage(QWidget * parent = nullptr, Qt::WindowFlags f = 0);
+/// Collection of items to be played.
+typedef std::vector<std::string> ItemCollection;
+/// Method, which starts playing ItemCollection parameter.
+typedef std::function<void(ItemCollection)> PlayItems;
+}
 
-    void setUiPreferences(const Preferences & source) override;
-    void writeUiPreferencesTo(Preferences & destination) const override;
-
-private:
-    QCheckBox autoSetOptionsCheckBox;
-    QCheckBox nextFromHistoryCheckBox;
-    QComboBox startupPolicyComboBox;
-    HistoryPreferencesFrame historyFrame_;
-};
-
-# endif // VENTUROUS_PLAYBACK_PAGE_HPP
+# endif // VENTUROUS_COMMON_TYPES_HPP

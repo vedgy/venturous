@@ -59,7 +59,6 @@ const QString localRoot = "History",
 }
 
 const QString localRoot = "Playback",
-              externalPlayerTimeout = "ExternalPlayerTimeout",
               autoSetExternalPlayerOptions = "AutoSetExternalPlayerOptions",
               nextFromHistory = "NextFromHistory",
               startupPolicy = "StartupPolicy";
@@ -133,8 +132,6 @@ void appendPlayback(QDomDocument & doc, QDomElement & root,
     using namespace Names::Playback;
     QDomElement e = doc.createElement(localRoot);
 
-    e.appendChild(createElement(doc, externalPlayerTimeout,
-                                playback.externalPlayerTimeout));
     e.appendChild(createElement(doc, autoSetExternalPlayerOptions,
                                 playback.autoSetExternalPlayerOptions));
 
@@ -213,9 +210,6 @@ void loadPlayback(const QDomElement & root, Preferences::Playback & playback)
 
     const QDomElement e = getUniqueChild(root, localRoot);
 
-    copyUniqueChildsTextToMax(
-        e, externalPlayerTimeout,
-        playback.externalPlayerTimeout, P::maxExternalPlayerTimeout);
     copyUniqueChildsTextTo(e, autoSetExternalPlayerOptions,
                            playback.autoSetExternalPlayerOptions);
 
@@ -259,13 +253,12 @@ Preferences::Playback::History::History()
 }
 
 
-constexpr unsigned Preferences::Playback::maxExternalPlayerTimeout;
 constexpr Preferences::Playback::StartupPolicyUnderlyingType
 Preferences::Playback::maxStartupPolicy;
 
 Preferences::Playback::Playback()
-    : externalPlayerTimeout(2000), autoSetExternalPlayerOptions(true),
-      nextFromHistory(false), startupPolicy(StartupPolicy::doNothing)
+    : autoSetExternalPlayerOptions(true), nextFromHistory(false),
+      startupPolicy(StartupPolicy::doNothing)
 {
 }
 
@@ -376,7 +369,6 @@ bool operator == (const Preferences::Playback & lhs,
                   const Preferences::Playback & rhs)
 {
     return lhs.history == rhs.history &&
-           lhs.externalPlayerTimeout == rhs.externalPlayerTimeout &&
            lhs.autoSetExternalPlayerOptions == rhs.autoSetExternalPlayerOptions
            && lhs.nextFromHistory == rhs.nextFromHistory &&
            lhs.startupPolicy == rhs.startupPolicy;

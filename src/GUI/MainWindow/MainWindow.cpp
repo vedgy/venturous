@@ -18,10 +18,11 @@
 
 # include "MainWindow-inl.hpp"
 
+# include "WindowUtilities.hpp"
+# include "PlaybackComponent.hpp"
 # include "PreferencesWindow.hpp"
 # include "Actions.hpp"
 # include "Preferences.hpp"
-# include "PlaybackComponent.hpp"
 
 # include <QtCoreUtilities/String.hpp>
 
@@ -34,7 +35,6 @@
 # include <QMessageBox>
 # include <QCloseEvent>
 # include <QKeyEvent>
-# include <QWidget>
 # include <QLabel>
 # include <QSystemTrayIcon>
 
@@ -53,24 +53,6 @@ QString getIconToolTip(bool isPlayerRunning)
 
 }
 
-
-namespace WindowUtilities
-{
-void showAndActivateWindow(QWidget & window)
-{
-    const Qt::WindowStates state = window.windowState();
-    if (state & Qt::WindowMinimized) {
-        if (state & Qt::WindowMaximized)
-            window.showMaximized();
-        else
-            window.showNormal();
-    }
-    else
-        window.show();
-    window.activateWindow();
-}
-
-}
 
 
 void MainWindow::showLoadingPlaylistErrorMessage(
@@ -115,8 +97,12 @@ void MainWindow::showNotificationAreaIcon()
 
 void MainWindow::hideNotificationAreaIcon()
 {
-    if (notificationAreaIcon_ != nullptr)
-        notificationAreaIcon_->hide();
+    if (notificationAreaIcon_ != nullptr) {
+        if (notificationAreaIcon_->isVisible()) {
+            notificationAreaIcon_->hide();
+            show();
+        }
+    }
 }
 
 void MainWindow::showWindowProperly()
@@ -132,11 +118,11 @@ void MainWindow::hideWindowProperly()
         showMinimized();
 }
 
-void MainWindow::onPlayerStateChanged(const bool isRunning)
+void MainWindow::onPlayerStateChanged(const bool isPlayerRunning)
 {
     setWindowTitle();
     if (notificationAreaIcon_ != nullptr)
-        notificationAreaIcon_->setToolTip(getIconToolTip(isRunning));
+        notificationAreaIcon_->setToolTip(getIconToolTip(isPlayerRunning));
 }
 
 void MainWindow::preferencesChanged()
@@ -174,6 +160,9 @@ void MainWindow::copyWindowGeometryAndStateToPreferences()
 
 void MainWindow::timerEvent(QTimerEvent *)
 {
+    if (inputController_.blocked())
+        return;
+
     sharedMemory_->lock();
     const char command = *(const char *)sharedMemory_->constData();
     if (command != 0)
@@ -221,6 +210,9 @@ void MainWindow::keyPressEvent(QKeyEvent * const event)
 
 void MainWindow::closeEvent(QCloseEvent * const event)
 {
+    if (inputController_.blocked())
+        return;
+
     if (preferences_.notificationAreaIcon &&
             preferences_.closeToNotificationArea && ! quitState_) {
         hide();
@@ -234,8 +226,10 @@ void MainWindow::closeEvent(QCloseEvent * const event)
             event->ignore();
             return;
         }
+        inputController_.blockInput(true);
         copyWindowGeometryAndStateToPreferences();
-        /// TODO: create quit without delays!
+        preferences_.playback.history.currentIndex =
+            playbackComponent_->currentHistoryEntryIndex();
         if (preferences_ != savedPreferences_) {
             handlePreferencesErrors([this] {
                 preferences_.save(preferencesFilename);
@@ -286,9 +280,19 @@ void MainWindow::onBothMediaDirStateChanged()
 
 void MainWindow::onAboutToQuit()
 {
+    /// TODO: make quitState_ of enum type: noQuit, quitting, quitted.
+    /// if (quitState_ != quitted) { ... }
     if (! quitState_) {
+        quitState_ = true;
+        if (isPreferencesWindowOpen_)
+            preferencesWindow_->close();
         if (temporaryTree_ != nullptr)
             applyChanges();
-        onFileQuit();
+        copyWindowGeometryAndStateToPreferences();
+        preferences_.playback.history.currentIndex =
+            playbackComponent_->currentHistoryEntryIndex();
+        if (preferences_ != savedPreferences_)
+            preferences_.save(preferencesFilename);
+        QCoreApplication::quit();
     }
 }

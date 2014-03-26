@@ -18,6 +18,8 @@
 
 # include "MainWindow-inl.hpp"
 
+# include "WindowUtilities.hpp"
+# include "PlaybackComponent.hpp"
 # include "PreferencesWindow.hpp"
 
 
@@ -25,6 +27,9 @@ void MainWindow::onPreferencesUpdated()
 {
     if (preferences_.savePreferencesToDiskImmediately &&
             preferences_ != savedPreferences_) {
+        copyWindowGeometryAndStateToPreferences();
+        preferences_.playback.history.currentIndex =
+            playbackComponent_->currentHistoryEntryIndex();
         if (handlePreferencesErrors([this] {
         preferences_.save(preferencesFilename);
         }, savePreferencesErrorPrefix)) {
@@ -41,7 +46,6 @@ void MainWindow::onPreferencesActivated()
         WindowUtilities::showAndActivateWindow(* preferencesWindow_);
         return;
     }
-    copyWindowGeometryAndStateToPreferences();
     preferencesWindow_->setUiPreferences();
     isPreferencesWindowOpen_ = true;
     preferencesWindow_->show();

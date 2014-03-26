@@ -43,10 +43,10 @@ set(CMAKE_AUTOMOC ON)
 
 if(DEBUG_VENTUROUS)
     add_definitions(
-        -DDEBUG_VENTUROUS_ICONS
-        -DDEBUG_VENTUROUS_TREE_WIDGET -DDEBUG_VENTUROUS_MAIN_WINDOW_INIT
+        -DDEBUG_VENTUROUS_MAIN -DDEBUG_VENTUROUS_ICONS
+        -DDEBUG_VENTUROUS_PLAYBACK_COMPONENT -DDEBUG_VENTUROUS_TREE_WIDGET
+        -DDEBUG_VENTUROUS_MAIN_WINDOW_INIT
         -DDEBUG_VENTUROUS_MAIN_WINDOW_PLAYLIST
-        -DDEBUG_VENTUROUS_MAIN
     )
     set(EXECUTABLE_ARGS "")
 else()
@@ -66,14 +66,17 @@ add_definitions(
 
 set(Sources_Path src)
 set(GUI_Path ${Sources_Path}/GUI)
-set(MainWindow_Path ${GUI_Path}/MainWindow)
 set(PreferencesWindow_Path ${GUI_Path}/PreferencesWindow)
+set(MainWindow_Path ${GUI_Path}/MainWindow)
+set(PlaybackComponent_Path ${MainWindow_Path}/PlaybackComponent)
+set(PlaylistComponent_Path ${MainWindow_Path}/PlaylistComponent)
 set(Resources_Path resources)
 
 include_directories(
     ${QtCoreUtilities_PublicHeaders_Path} ${QtXmlUtilities_PublicHeaders_Path}
     ${TemplateUtilities_PublicHeaders_Path} ${VenturousCore_PublicHeaders_Path}
     ${Sources_Path} ${GUI_Path} ${PreferencesWindow_Path} ${MainWindow_Path}
+    ${PlaybackComponent_Path} ${PlaylistComponent_Path}
 )
 
 set(Sources
@@ -90,8 +93,10 @@ set(Sources
     ${PreferencesWindow_Path}/AddingPolicyPage.cpp
     ${PreferencesWindow_Path}/PreferencesWindow.cpp
 
-    ${MainWindow_Path}/TreeWidget.cpp ${MainWindow_Path}/HistoryWidget.cpp
-    ${MainWindow_Path}/PlaybackComponent.cpp
+    ${PlaybackComponent_Path}/HistoryWidget.cpp
+    ${PlaybackComponent_Path}/PlaybackComponent.cpp
+    ${PlaylistComponent_Path}/TreeWidget.cpp
+    ${MainWindow_Path}/WindowUtilities.cpp
     ${MainWindow_Path}/MainWindow.cpp ${MainWindow_Path}/MainWindow-init.cpp
     ${MainWindow_Path}/MainWindow-file.cpp
     ${MainWindow_Path}/MainWindow-playlist.cpp

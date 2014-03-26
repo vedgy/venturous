@@ -16,8 +16,15 @@
  Venturous.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+# ifdef DEBUG_VENTUROUS_PLAYBACK_COMPONENT
+# include <iostream>
+# endif
+
+
 # include "PlaybackComponent.hpp"
 
+# include "CommonTypes.hpp"
+# include "InputController.hpp"
 # include "Preferences.hpp"
 
 # include <VenturousCore/ItemTree-inl.hpp>
@@ -35,7 +42,6 @@
 
 # include <utility>
 # include <functional>
-# include <vector>
 # include <string>
 
 
@@ -43,37 +49,24 @@ namespace
 {
 QString historyWindowName() { return QObject::tr("History"); }
 
-/// @brief Shows error message and asks user if playback should be continued.
-/// @param parent Is used as an owner of message box.
-/// @param title Title of the message box.
-/// @param errorMessage Message to be displayed before question.
-/// @return true if playback should be continued.
-bool criticalContinuePlaybackQuestion(
-    QWidget * parent, const QString & title, const QString & errorMessage)
-{
-    const auto selectedButton =
-        QMessageBox::critical(
-            parent, title, errorMessage + QObject::tr("\n\tContinue playback?"),
-            QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-
-    return selectedButton == QMessageBox::Yes;
-}
-
 }
 
 
 
 PlaybackComponent::PlaybackComponent(
     QMainWindow & mainWindow, const ItemTree::Tree & tree,
-    const Actions::Playback & actions,
+    const Actions::Playback & actions, InputController & inputController,
     const Preferences::Playback & preferences,
     const std::string & preferencesDir)
     : mainWindow_(mainWindow), tree_(tree), actions_(actions),
+      inputController_(inputController),
       historyFilename_(preferencesDir + "history"),
       lastPlayedItemLabel_(new QLabel(mainWindow.statusBar())),
       historyWidget_(
-          std::bind(& PlaybackComponent::play, this, std::placeholders::_1),
-          preferences.history)
+          std::bind(& PlaybackComponent::playFromHistory, this,
+                    std::placeholders::_1),
+    [this](CommonTypes::ItemCollection items) { play(std::move(items)); },
+preferences.history)
 {
     setPreferencesExceptHistory(preferences);
     {
@@ -84,7 +77,7 @@ PlaybackComponent::PlaybackComponent(
 
     mainWindow.statusBar()->addWidget(lastPlayedItemLabel_);
 
-    // Do nothing in case of failure, because history is not very important
+    // Do nothing in case of failure because history is not very important
     // and file may not exist.
     historyWidget_.load(historyFilename_);
     {
@@ -100,7 +93,7 @@ PlaybackComponent::PlaybackComponent(
     connect(actions.next, SIGNAL(triggered(bool)), SLOT(playbackNext()));
     connect(actions.playAll, SIGNAL(triggered(bool)), SLOT(onPlayAll()));
 
-    playedItemChanged(historyWidget_.current());
+    currentHistoryEntryChanged();
 
     typedef Preferences::Playback::StartupPolicy StartupPolicy;
     switch (preferences.startupPolicy) {
@@ -115,6 +108,12 @@ PlaybackComponent::PlaybackComponent(
     }
 }
 
+PlaybackComponent::~PlaybackComponent()
+{
+    if (! isHistorySaved_)
+        historyWidget_.save(historyFilename_);
+}
+
 void PlaybackComponent::setPreferences(
     const Preferences::Playback & preferences)
 {
@@ -122,38 +121,37 @@ void PlaybackComponent::setPreferences(
     setPreferencesExceptHistory(preferences);
 }
 
-void PlaybackComponent::play(const PlaybackComponent::ItemCollection & items)
+void PlaybackComponent::play(std::string item)
 {
-    mediaPlayer_.start(items);
+    mediaPlayer_.start(item);
+    pushToHistory(std::move(item));
+    currentHistoryEntryChanged();
     setPlayerState(true);
-    playedItemChanged();
+}
+
+void PlaybackComponent::play(CommonTypes::ItemCollection items)
+{
+    if (items.size() == 1)
+        play(std::move(items.back()));
+    else {
+        mediaPlayer_.start(std::move(items));
+        historyWidget_.playedMultipleItems();
+        currentHistoryEntryChanged();
+        setPlayerState(true);
+    }
 }
 
 void PlaybackComponent::quit()
 {
-    while (! historyWidget_.save(historyFilename_)) {
-        const auto selectedButton =
-            QMessageBox::critical(& mainWindow_, historyWindowName(),
-                                  tr("Saving history failed."),
-                                  QMessageBox::Retry | QMessageBox::Cancel,
-                                  QMessageBox::Cancel);
-        if (selectedButton == QMessageBox::Cancel)
-            break;
-    }
-}
-
-void PlaybackComponent::quitWithoutBlocking()
-{
-    historyWidget_.save(historyFilename_);
+    if (isPlayerRunning_)
+        playbackStop();
+    saveHistory();
 }
 
 
 void PlaybackComponent::onItemActivated(const QString absolutePath)
 {
-    const std::string item = QtUtilities::qStringToString(absolutePath);
-    mediaPlayer_.start(item);
-    setPlayerState(true);
-    playedItemChanged(item);
+    play(QtUtilities::qStringToString(absolutePath));
 }
 
 
@@ -161,23 +159,26 @@ void PlaybackComponent::onItemActivated(const QString absolutePath)
 void PlaybackComponent::setPreferencesExceptHistory(
     const Preferences::Playback & preferences)
 {
-    mediaPlayer_.setExternalPlayerTimeout(preferences.externalPlayerTimeout);
+    saveHistoryToDiskImmediately_ = preferences.history.saveToDiskImmediately;
+    if (saveHistoryToDiskImmediately_)
+        saveHistory();
     mediaPlayer_.setAutoSetOptions(preferences.autoSetExternalPlayerOptions);
     nextFromHistory_ = preferences.nextFromHistory;
 }
 
 void PlaybackComponent::onPlayerFinished(
     const bool crashExit, const int exitCode,
-    const std::vector<std::string> missingFilesAndDirs)
+    std::vector<std::string> missingFilesAndDirs)
 {
-    if (crashExit &&
-            ! criticalContinuePlaybackQuestion(
-                & mainWindow_, tr("External player error"),
-                tr("%1 crashed with exit code %2.")
-                .arg(QtUtilities::toQString(MediaPlayer::playerName()))
-                .arg(exitCode))) {
-        setPlayerState(false);
-        return;
+    if (crashExit) {
+        QString message =
+            tr("%1 crashed with exit code %2.")
+            .arg(QtUtilities::toQString(MediaPlayer::playerName()))
+            .arg(exitCode);
+        if (! criticalContinuePlaybackQuestion(
+        tr("External player error"), std::move(message))) {
+            return;
+        }
     }
 
     if (! missingFilesAndDirs.empty()) {
@@ -188,9 +189,7 @@ void PlaybackComponent::onPlayerFinished(
         message[message.size() - 1] = '.';
 
         if (! criticalContinuePlaybackQuestion(
-                    & mainWindow_, tr("Missing files or directories"),
-                    message)) {
-            setPlayerState(false);
+        tr("Missing files or directories"), std::move(message))) {
             return;
         }
     }
@@ -198,19 +197,39 @@ void PlaybackComponent::onPlayerFinished(
     playbackNext();
 }
 
-void PlaybackComponent::playedItemChanged(const std::string & item)
+bool PlaybackComponent::criticalContinuePlaybackQuestion(
+    const QString & title, const QString & errorMessage)
+{
+    setPlayerState(false);
+    const auto selectedButton =
+        inputController_.showMessage(
+            title, errorMessage + QObject::tr("\n\tContinue playback?"),
+            QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+    return selectedButton == QMessageBox::Yes;
+}
+
+void PlaybackComponent::playFromHistory(const std::string entry)
+{
+    mediaPlayer_.start(entry);
+    currentHistoryEntryChanged();
+    setPlayerState(true);
+}
+
+void PlaybackComponent::currentHistoryEntryChanged()
 {
     QString textPrefix = tr("Last played item: ");
-    if (item.empty()) {
-        historyWidget_.playedMultipleItems();
+    const QString entry = historyWidget_.currentAbsolute();
+    if (entry.isEmpty()) {
         lastPlayedItemLabel_->setText(std::move(textPrefix) + tr("<unknown>"));
-        lastPlayedItemLabel_->setToolTip(tr("Unknown item(s)"));
+        lastPlayedItemLabel_->setToolTip(
+            tr("Unknown item(s).\n"
+               "This means that multiple items were played or that last played "
+               "item was removed from history."));
     }
     else {
-        historyWidget_.push(item);
-        const QString qItem = QtUtilities::toQString(item);
-        lastPlayedItemLabel_->setText(std::move(textPrefix) + qItem);
-        lastPlayedItemLabel_->setToolTip(qItem);
+        lastPlayedItemLabel_->setText(std::move(textPrefix) +
+                                      historyWidget_.currentShortened());
+        lastPlayedItemLabel_->setToolTip(entry);
     }
 }
 
@@ -221,6 +240,30 @@ void PlaybackComponent::setPlayerState(const bool isRunning)
         actions_.play->setEnabled(! isRunning);
         emit playerStateChanged(isRunning);
     }
+}
+
+void PlaybackComponent::saveHistory()
+{
+    if (! isHistorySaved_) {
+        while (! historyWidget_.save(historyFilename_)) {
+            const auto selectedButton =
+                inputController_.showMessage(
+                    historyWindowName(), tr("Saving history failed."),
+                    QMessageBox::Retry | QMessageBox::Ignore,
+                    QMessageBox::Ignore);
+            if (selectedButton != QMessageBox::Retry)
+                return;
+        }
+        isHistorySaved_ = true;
+    }
+}
+
+void PlaybackComponent::pushToHistory(std::string item)
+{
+    historyWidget_.push(std::move(item));
+    isHistorySaved_ = false;
+    if (saveHistoryToDiskImmediately_)
+        saveHistory();
 }
 
 
@@ -238,18 +281,13 @@ void PlaybackComponent::playbackStop()
 
 void PlaybackComponent::playbackNext()
 {
-    if (tree_.itemCount() > 0) {
-        const std::string item = randomItemChooser_.randomPath(tree_);
-        mediaPlayer_.start(item);
-        setPlayerState(true);
-        playedItemChanged(item);
-    }
+    if (tree_.itemCount() > 0)
+        play(randomItemChooser_.randomPath(tree_));
     else
         playbackStop();
 }
 
 void PlaybackComponent::onPlayAll()
 {
-    play(tree_.getAllItems<std::vector<std::string>>());
+    play(tree_.getAllItems<CommonTypes::ItemCollection>());
 }
-

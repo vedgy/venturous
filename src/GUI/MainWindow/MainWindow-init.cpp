@@ -23,10 +23,10 @@
 
 # include "MainWindow-inl.hpp"
 
-# include "PreferencesWindow.hpp"
-# include "Actions.hpp"
-# include "Icons.hpp"
 # include "PlaybackComponent.hpp"
+# include "PreferencesWindow.hpp"
+# include "Icons.hpp"
+# include "Actions.hpp"
 
 # include <QtCoreUtilities/String.hpp>
 
@@ -130,7 +130,8 @@ const std::string MainWindow::itemsFilename =
 MainWindow::MainWindow(std::unique_ptr<QSharedMemory> sharedMemory,
                        QWidget * const parent, const Qt::WindowFlags flags)
     : QMainWindow(parent, flags), sharedMemory_(std::move(sharedMemory)),
-      toolBar_("Toolbar"), treeWidget_(itemTree_, temporaryTree_)
+      toolBar_("Toolbar"), treeWidget_(itemTree_, temporaryTree_),
+      inputController_(* this)
 {
 # ifdef DEBUG_VENTUROUS_MAIN_WINDOW_INIT
     std::cout << "PREFERENCES_DIR = " << PREFERENCES_DIR << std::endl;
@@ -144,7 +145,7 @@ MainWindow::MainWindow(std::unique_ptr<QSharedMemory> sharedMemory,
 
     initPreferences();
     {
-        std::unique_ptr<Icons::Theme> theme(
+        std::unique_ptr<const Icons::Theme> theme(
             new Icons::Theme(preferences_.alwaysUseFallbackIcons));
 
         actions_.reset(new Actions(* theme));
@@ -166,7 +167,7 @@ MainWindow::MainWindow(std::unique_ptr<QSharedMemory> sharedMemory,
 
     playbackComponent_.reset(
         new PlaybackComponent(* this, itemTree_, actions_->playback,
-                              preferences_.playback,
+                              inputController_, preferences_.playback,
                               QtUtilities::qStringToString(preferencesDir)));
 
     connectSlots();
@@ -225,8 +226,6 @@ void MainWindow::initTree()
 
 void MainWindow::connectSlots()
 {
-
-
     connect(preferencesWindow_, SIGNAL(preferencesUpdated()),
             SLOT(onPreferencesUpdated()));
     connect(actions_->file.preferences, SIGNAL(triggered(bool)),
@@ -271,6 +270,9 @@ void MainWindow::connectSlots()
 
     connect(& treeWidget_, SIGNAL(itemActivated(QString)),
             playbackComponent_.get(), SLOT(onItemActivated(QString)));
+
+    connect(playbackComponent_.get(), SIGNAL(playerStateChanged(bool)),
+            SLOT(onPlayerStateChanged(bool)));
 
     connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()),
             SLOT(onAboutToQuit()));

@@ -19,6 +19,7 @@
 # ifndef VENTUROUS_PLAYBACK_COMPONENT_HPP
 # define VENTUROUS_PLAYBACK_COMPONENT_HPP
 
+# include "CommonTypes.hpp"
 # include "HistoryWidget.hpp"
 # include "Actions.hpp"
 # include "Preferences.hpp"
@@ -34,6 +35,7 @@
 # include <string>
 
 
+class InputController;
 QT_FORWARD_DECLARE_CLASS(QLabel)
 QT_FORWARD_DECLARE_CLASS(QMainWindow)
 
@@ -41,35 +43,41 @@ class PlaybackComponent : public QObject
 {
     Q_OBJECT
 public:
-    typedef std::vector<std::string> ItemCollection;
-
-    /// NOTE: mainWindow, tree and actions must remain valid
+    /// NOTE: mainWindow, tree, actions and inputController must remain valid
     /// throughout this PlaybackComponent's lifetime.
     explicit PlaybackComponent(QMainWindow & mainWindow,
                                const ItemTree::Tree & tree,
                                const Actions::Playback & actions,
+                               InputController & inputController,
                                const Preferences::Playback &,
                                const std::string & preferencesDir);
+
+    ~PlaybackComponent();
 
     void setPreferences(const Preferences::Playback &);
 
     bool isPlayerRunning() const { return isPlayerRunning_; }
 
-    void play(const ItemCollection &);
+    int currentHistoryEntryIndex() const {
+        return historyWidget_.currentEntryIndex();
+    }
+
+    /// @brief Starts playing item and pushes it to history.
+    void play(std::string item);
+
+    /// @brief Starts playing items and adjusts history.
+    void play(CommonTypes::ItemCollection items);
 
     /// @brief Should be called before normal quit. Can block execution.
     void quit();
-
-    /// @brief Should be called before urgent quit. Does not block execution.
-    void quitWithoutBlocking();
 
 public slots:
     /// TODO: remove after allowing multiple items selection in TreeWidget.
     void onItemActivated(QString absolutePath);
 
 signals:
-    /// isRunning is always equal to isPlayerRunning().
-    void playerStateChanged(bool isRunning);
+    /// isPlayerRunning is always equal to isPlayerRunning().
+    void playerStateChanged(bool isPlayerRunning);
 
 private:
     void setPreferencesExceptHistory(const Preferences::Playback &);
@@ -77,23 +85,44 @@ private:
     void onPlayerFinished(bool crashExit, int exitCode,
                           std::vector<std::string> missingFilesAndDirs);
 
-    /// @brief Must be called after played item is changed.
-    /// @param item Absolute path to played item. Must be passed if and only if
-    /// exactly one item is played.
-    void playedItemChanged(const std::string & item = std::string());
+    /// @brief Shows error message and asks user if playback should be
+    /// continued.
+    /// @param title Title of the message box.
+    /// @param errorMessage Message to be displayed before question.
+    /// @return true if playback should be continued.
+    /// WARNING: if this method returns false, return from calling method
+    /// immediately, because this object could be already destroyed.
+    bool criticalContinuePlaybackQuestion(
+        const QString & title, const QString & errorMessage);
+
+    /// @brief Starts playing entry. Does not call historyWidget_.push().
+    void playFromHistory(std::string entry);
+
+    /// @brief Must be called after current history entry is changed.
+    void currentHistoryEntryChanged();
 
     /// @brief If isPlayerRunning_ != isRunning, sets isPlayerRunning_ to
-    /// isRunning and emits playerStateChanged(isRunning).
+    /// isRunning and performs other accompanying actions.
     void setPlayerState(bool isRunning);
+
+    /// @brief Saves history if (! isHistorySaved_). Can block execution.
+    void saveHistory();
+
+    /// @brief Pushes item to history; handles saveHistoryToDiskImmediately_
+    /// and isHistorySaved_.
+    void pushToHistory(std::string item);
+
 
     QMainWindow & mainWindow_;
     const ItemTree::Tree & tree_;
     const Actions::Playback & actions_;
+    InputController & inputController_;
     const std::string historyFilename_;
 
-    /// TODO: use.
+    bool saveHistoryToDiskImmediately_;
     bool nextFromHistory_;
     bool isPlayerRunning_ = false;
+    bool isHistorySaved_ = true;
 
     ItemTree::RandomItemChooser randomItemChooser_;
     MediaPlayer mediaPlayer_;

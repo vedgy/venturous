@@ -31,15 +31,6 @@ PlaybackPage::PlaybackPage(QWidget * const parent, const Qt::WindowFlags f)
 {
     QFormLayout * const layout = new QFormLayout(this);
 
-    timeoutSpinBox.setRange(0, Preferences::Playback::maxExternalPlayerTimeout);
-    timeoutSpinBox.setToolTip(
-        tr("Delay time between starting external player and quitting / "
-           "restarting it or setting recommended options.\n"
-           "This timeout is necessary because external player may not be "
-           "ready to accept commands immediately after start."));
-    timeoutSpinBox.setSuffix(tr("ms"));
-    layout->addRow(tr("External player timeout"), & timeoutSpinBox);
-
     autoSetOptionsCheckBox.setToolTip(
         tr("If checked, recommended external player options are set each time "
            "player is launched.\n"
@@ -73,7 +64,6 @@ void PlaybackPage::setUiPreferences(const Preferences & source)
 {
     const Preferences::Playback & playback = source.playback;
 
-    timeoutSpinBox.setValue(playback.externalPlayerTimeout);
     autoSetOptionsCheckBox.setChecked(playback.autoSetExternalPlayerOptions);
     nextFromHistoryCheckBox.setChecked(playback.nextFromHistory);
     startupPolicyComboBox.setCurrentIndex(static_cast<int>(
@@ -86,7 +76,6 @@ void PlaybackPage::writeUiPreferencesTo(Preferences & destination) const
 {
     Preferences::Playback & playback = destination.playback;
 
-    playback.externalPlayerTimeout = timeoutSpinBox.value();
     playback.autoSetExternalPlayerOptions = autoSetOptionsCheckBox.isChecked();
     playback.nextFromHistory = nextFromHistoryCheckBox.isChecked();
     playback.startupPolicy = static_cast<Preferences::Playback::StartupPolicy>(

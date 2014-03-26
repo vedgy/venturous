@@ -122,6 +122,7 @@ GeneralPage::GeneralPage(QWidget * const parent, const Qt::WindowFlags f)
                    & saveToDiskImmediatelyCheckBox);
 
     checkIntervalSpinBox.setRange(0, Preferences::maxVentoolCheckInterval);
+    checkIntervalSpinBox.setSingleStep(10);
     checkIntervalSpinBox.setToolTip(
         tr("Time interval between subsequent checks for %1 commands.\n"
            "Shorter interval makes reactions to %1 commands more prompt.\n"

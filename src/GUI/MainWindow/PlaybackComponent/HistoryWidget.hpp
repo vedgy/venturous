@@ -19,6 +19,7 @@
 # ifndef VENTUROUS_HISTORY_WIDGET_HPP
 # define VENTUROUS_HISTORY_WIDGET_HPP
 
+# include "CommonTypes.hpp"
 # include "Preferences.hpp"
 
 # include <VenturousCore/History.hpp>
@@ -26,7 +27,6 @@
 # include <QListWidget>
 
 # include <functional>
-# include <vector>
 # include <string>
 
 
@@ -34,14 +34,15 @@ class HistoryWidget : public QListWidget
 {
     Q_OBJECT
 public:
-    /// TODO: add another command with history index to allow honoring
-    /// copyPlayedEntryToTop_.
-    typedef std::vector<std::string> ItemCollection;
-    typedef std::function<void(const ItemCollection &)> PlayCommand;
+    typedef std::function<void(std::string)> PlayExistingEntry;
 
-    /// @param playCommand Method, which starts playing items from
-    /// ItemCollection parameter in external player.
-    explicit HistoryWidget(PlayCommand playCommand,
+    /// @param playExistingEntry Method, which starts playing entry from
+    /// history. It must not be pushed in history after playing.
+    /// @param playItems Method, which starts playing ItemCollection parameter.
+    /// If item(s) actually get(s) played, HistoryWidget must be notified
+    /// about this via push() or playedMultipleItems().
+    explicit HistoryWidget(PlayExistingEntry playExistingEntry,
+                           CommonTypes::PlayItems playItems,
                            const Preferences::Playback::History & preferences,
                            QWidget * parent = nullptr);
 
@@ -63,6 +64,13 @@ public:
     std::string current() const { return entryAt(currentEntryIndex_); }
     std::string next() { return setCurrentEntry(currentEntryIndex_ - 1); }
 
+    /// @return Current history entry or empty string if there is no current
+    /// entry.
+    QString currentAbsolute() const;
+    /// @return Shortened version of currentAbsolute(). This version is
+    /// displayed in the list.
+    QString currentShortened() const;
+
     /// @brief Adds entry to the history and sets currentEntryIndex_ to 0.
     void push(std::string entry);
 
@@ -82,27 +90,33 @@ private:
     /// otherwise returns empty string.
     std::string setCurrentEntry(int index);
 
-    /// @brief emphasizes/deemphasizes current entry if it exists.
+    /// @brief Emphasizes/deemphasizes current entry if it exists.
     void emphasizeCurrentEntry(bool emphasized = true);
 
     /// @brief Resets text of all items based on tooltip (absolute path is
     /// stored in each item's tooltip) and nHiddenDirs_.
     void resetAllItemsText();
 
-    const PlayCommand playCommand_;
+    void keyPressEvent(QKeyEvent *) override;
+
+
+    const PlayExistingEntry playExistingEntry_;
+    const CommonTypes::PlayItems playItems_;
     History history_;
 
     bool copyPlayedEntryToTop_;
-    bool saveToDiskImmediately_;
     unsigned nHiddenDirs_;
     /// Identical to Preferences::Playback::History::currentIndex, but is
     /// changed more frequently.
     /// If currentEntryIndex_ >= history_.items().size(), it means that
     /// maxSize() was changed and current item is unknown. In this case
     /// previous() and current() would definitely return empty string, but
-    /// next() could return history_.items().back() if
+    /// next() would return history_.items().back() if
     /// currentIndex_ == history_.items().size().
     int currentEntryIndex_;
+
+private slots:
+    void onUiItemActivated(QListWidgetItem * item);
 };
 
 # endif // VENTUROUS_HISTORY_WIDGET_HPP

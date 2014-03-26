@@ -44,6 +44,7 @@ HistoryPreferencesFrame::HistoryPreferencesFrame(
     typedef Preferences::Playback::History History;
 
     maxSizeSpinBox.setRange(0, History::maxMaxSize);
+    maxSizeSpinBox.setSingleStep(10);
     maxSizeSpinBox.setToolTip(
         tr("Maximum number of entries in history.\n"
            "The oldest entry is removed when this limit is reached."));
