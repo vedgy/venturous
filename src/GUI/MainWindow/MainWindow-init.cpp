@@ -16,14 +16,15 @@
  Venturous.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-# ifdef DEBUG_VENTUROUS_MAIN_WINDOW_INIT
+# ifdef DEBUG_VENTUROUS_MAIN_WINDOW
 # include <iostream>
 # endif
 
 
-# include "MainWindow-inl.hpp"
+# include "MainWindow.hpp"
 
 # include "PlaybackComponent.hpp"
+# include "PlaylistComponent.hpp"
 # include "PreferencesWindow.hpp"
 # include "Icons.hpp"
 # include "Actions.hpp"
@@ -44,6 +45,7 @@
 # include <QStatusBar>
 # include <QLabel>
 
+# include <cassert>
 # include <utility>
 # include <functional>
 # include <memory>
@@ -124,24 +126,18 @@ void initToolBar(QToolBar & toolBar, const Actions & actions)
 }
 
 
-const std::string MainWindow::itemsFilename =
-    QtUtilities::qStringToString(preferencesDir) + "items";
-
 MainWindow::MainWindow(std::unique_ptr<QSharedMemory> sharedMemory,
                        QWidget * const parent, const Qt::WindowFlags flags)
     : QMainWindow(parent, flags), sharedMemory_(std::move(sharedMemory)),
-      toolBar_("Toolbar"), treeWidget_(itemTree_, temporaryTree_),
-      inputController_(* this)
+      toolBar_("Toolbar"), inputController_(* this)
 {
-# ifdef DEBUG_VENTUROUS_MAIN_WINDOW_INIT
+# ifdef DEBUG_VENTUROUS_MAIN_WINDOW
     std::cout << "PREFERENCES_DIR = " << PREFERENCES_DIR << std::endl;
-    std::cout << "itemsFilename = " << itemsFilename << std::endl;
     std::cout << "preferencesFilename = " <<
               QtUtilities::qStringToString(preferencesFilename) << std::endl;
 # endif
 
-    if (sharedMemory_ == nullptr)
-        throw Error("valid shared memory expected, nullptr found.");
+    assert(sharedMemory_ && "Valid shared memory expected, nullptr found.");
 
     initPreferences();
     {
@@ -154,8 +150,6 @@ MainWindow::MainWindow(std::unique_ptr<QSharedMemory> sharedMemory,
             preferences_, actions_->playlist.addFiles->icon(), this);
     }
 
-    initTree();
-
     initMenuBar(menuBar_, * actions_);
     setMenuBar(& menuBar_);
 
@@ -163,17 +157,27 @@ MainWindow::MainWindow(std::unique_ptr<QSharedMemory> sharedMemory,
     initToolBar(toolBar_, * actions_);
     addToolBar(& toolBar_);
 
-    setCentralWidget(& treeWidget_);
+    const std::string preferencesDirString =
+        QtUtilities::qStringToString(preferencesDir);
+
+    playlistComponent_.reset(
+        new PlaylistComponent(* this, actions_->playlist, inputController_,
+                              preferences_, preferencesDirString));
 
     playbackComponent_.reset(
-        new PlaybackComponent(* this, itemTree_, actions_->playback,
-                              inputController_, preferences_.playback,
-                              QtUtilities::qStringToString(preferencesDir)));
+        new PlaybackComponent(* this, playlistComponent_->tree(),
+                              actions_->playback, inputController_,
+                              preferences_.playback, preferencesDirString));
+
+    playlistComponent_->setPlayItems(
+    [this](CommonTypes::ItemCollection items) {
+        playbackComponent_->play(std::move(items));
+    });
 
     connectSlots();
 
     onPlayerStateChanged(playbackComponent_->isPlayerRunning());
-    updateActionsState();
+    /// FIXME: not all preferences should be reset.
     preferencesChanged();
 
     restoreGeometry(preferences_.windowGeometry);
@@ -185,7 +189,12 @@ MainWindow::MainWindow(std::unique_ptr<QSharedMemory> sharedMemory,
     }
 }
 
-MainWindow::~MainWindow() = default;
+MainWindow::~MainWindow()
+{
+# ifdef DEBUG_VENTUROUS_MAIN_WINDOW
+    std::cout << "Entered MainWindow destructor." << std::endl;
+# endif
+}
 
 
 const QString MainWindow::preferencesFilename =
@@ -207,23 +216,6 @@ void MainWindow::initPreferences()
     }
 }
 
-void MainWindow::initTree()
-{
-    const std::string errorMessage = itemTree_.load(itemsFilename);
-    if (errorMessage.empty()) {
-        itemTree_.nodesChanged();
-        treeWidget_.updateTree();
-    }
-    else {
-        itemTree_.topLevelNodes().clear();
-        itemTree_.nodesChanged();
-        showLoadingPlaylistErrorMessage(
-            errorMessage,
-            tr("If you have not yet created (and saved) %1 playlist for "
-               "current user, ignore this error.").arg(APPLICATION_NAME));
-    }
-}
-
 void MainWindow::connectSlots()
 {
     connect(preferencesWindow_, SIGNAL(preferencesUpdated()),
@@ -231,27 +223,6 @@ void MainWindow::connectSlots()
     connect(actions_->file.preferences, SIGNAL(triggered(bool)),
             SLOT(onPreferencesActivated()));
     connect(actions_->file.quit, SIGNAL(triggered(bool)), SLOT(onFileQuit()));
-
-
-    {
-        const Actions::Playlist & p = actions_->playlist;
-        connect(p.editMode, SIGNAL(triggered(bool)),
-                SLOT(onEditModeStateChanged()));
-        connect(p.applyChanges, SIGNAL(triggered(bool)), SLOT(applyChanges()));
-        connect(p.cancelChanges, SIGNAL(triggered(bool)),
-                SLOT(cancelChanges()));
-
-        connect(p.addFiles, SIGNAL(triggered(bool)), SLOT(onAddFiles()));
-        connect(p.addDirectory, SIGNAL(triggered(bool)),
-                SLOT(onAddDirectory()));
-        connect(p.cleanUp, SIGNAL(triggered(bool)), SLOT(onCleanUp()));
-        connect(p.clear, SIGNAL(triggered(bool)), SLOT(onClear()));
-        connect(p.restorePrevious, SIGNAL(triggered(bool)),
-                SLOT(onRestorePrevious()));
-
-        connect(p.load, SIGNAL(triggered(bool)), SLOT(onLoad()));
-        connect(p.saveAs, SIGNAL(triggered(bool)), SLOT(onSaveAs()));
-    }
 
     connect(actions_->help.help, SIGNAL(triggered(bool)), SLOT(onHelpHelp()));
     connect(actions_->help.about, SIGNAL(triggered(bool)), SLOT(onHelpAbout()));
@@ -268,7 +239,10 @@ void MainWindow::connectSlots()
                 SLOT(onBothMediaDirStateChanged()));
     }
 
-    connect(& treeWidget_, SIGNAL(itemActivated(QString)),
+    connect(playlistComponent_.get(), SIGNAL(treeChanged()),
+            SLOT(setWindowTitle()));
+
+    connect(playlistComponent_.get(), SIGNAL(itemActivated(QString)),
             playbackComponent_.get(), SLOT(onItemActivated(QString)));
 
     connect(playbackComponent_.get(), SIGNAL(playerStateChanged(bool)),

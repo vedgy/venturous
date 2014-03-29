@@ -18,9 +18,15 @@
 
 # include "WindowUtilities.hpp"
 
+# include <QString>
+# include <QStringList>
 # include <QPointer>
 # include <QWidget>
+# include <QDialog>
 # include <QMessageBox>
+# include <QFileDialog>
+
+# include <iostream>
 
 
 namespace WindowUtilities
@@ -60,24 +66,56 @@ void WindowInputController::blockInput(const bool block)
     }
 }
 
-int WindowInputController::showMessage(
+
+int WindowInputController::showMessageImplementation(
     const QString & title, const QString & text,
-    QMessageBox::StandardButtons buttons,
-    QMessageBox::StandardButton defaultButton, QMessageBox::Icon icon)
+    const QMessageBox::StandardButtons buttons,
+    const QMessageBox::StandardButton defaultButton,
+    const QMessageBox::Icon icon)
 {
     blockInput(true);
 
     QPointer<QMessageBox> messageBox = new QMessageBox(
         icon, title, text, buttons, & window_);
-    messageBox->setDefaultButton(defaultButton);
-    messageBox->setEscapeButton(defaultButton);
+    if (defaultButton != QMessageBox::NoButton) {
+        messageBox->setDefaultButton(defaultButton);
+        messageBox->setEscapeButton(defaultButton);
+    }
     messageBox->setAttribute(Qt::WA_DeleteOnClose, false);
 
     const auto selectedButton = messageBox->exec();
-    if (messageBox == nullptr)
-        return QMessageBox::NoButton; // window_ is already destroyed!
+    if (messageBox == nullptr) {
+        std::cerr << "Message box was destroyed unexpectedly!" << std::endl;
+        return QMessageBox::NoButton; // window_ must be already destroyed!!!
+    }
 
     messageBox->deleteLater();
     blockInput(false);
     return selectedButton;
+}
+
+QStringList WindowInputController::getFileOrDirNames(
+    const QString & caption, const QFileDialog::AcceptMode acceptMode,
+    const QFileDialog::FileMode fileMode)
+{
+    blockInput(true);
+
+    QPointer<QFileDialog> fileDialog = new QFileDialog(& window_, caption);
+    fileDialog->setAcceptMode(acceptMode);
+    if (acceptMode == QFileDialog::AcceptOpen)
+        fileDialog->setOption(QFileDialog::ReadOnly, true);
+    fileDialog->setFileMode(fileMode);
+    fileDialog->setOption(QFileDialog::DontUseNativeDialog, true);
+    fileDialog->setAttribute(Qt::WA_DeleteOnClose, false);
+
+    const auto dialogCode = fileDialog->exec();
+    if (fileDialog == nullptr) {
+        std::cerr << "File dialog was destroyed unexpectedly!" << std::endl;
+        return QStringList(); // window_ must be already destroyed!!!
+    }
+
+    fileDialog->deleteLater();
+    blockInput(false);
+    return dialogCode == QDialog::Accepted ?
+           fileDialog->selectedFiles() : QStringList();
 }

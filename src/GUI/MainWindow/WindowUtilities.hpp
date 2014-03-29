@@ -43,13 +43,18 @@ public:
     /// Sets blocked_ to block.
     void blockInput(bool block) override;
 
-    int showMessage(
+private:
+    int showMessageImplementation(
         const QString & title, const QString & text,
         QMessageBox::StandardButtons buttons,
         QMessageBox::StandardButton defaultButton,
-        QMessageBox::Icon icon = QMessageBox::Critical) override;
+        QMessageBox::Icon icon) override;
 
-private:
+    QStringList getFileOrDirNames(const QString & caption,
+                                  QFileDialog::AcceptMode acceptMode,
+                                  QFileDialog::FileMode fileMode) override;
+
+
     QWidget & window_;
     /// Blocked input flag.
     bool blocked_ = false;

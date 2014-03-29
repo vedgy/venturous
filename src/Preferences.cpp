@@ -269,7 +269,7 @@ Preferences::Preferences()
     : alwaysUseFallbackIcons(false),
       notificationAreaIcon(false),
       startToNotificationArea(false),
-      closeToNotificationArea(true),
+      closeToNotificationArea(false),
       treeAutoUnfoldedLevels(5),
       treeAutoCleanup(false),
       savePreferencesToDiskImmediately(false),

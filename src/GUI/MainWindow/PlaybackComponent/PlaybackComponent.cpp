@@ -16,15 +16,11 @@
  Venturous.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-# ifdef DEBUG_VENTUROUS_PLAYBACK_COMPONENT
-# include <iostream>
-# endif
-
-
 # include "PlaybackComponent.hpp"
 
 # include "CommonTypes.hpp"
 # include "InputController.hpp"
+# include "Actions.hpp"
 # include "Preferences.hpp"
 
 # include <VenturousCore/ItemTree-inl.hpp>
@@ -43,6 +39,7 @@
 # include <utility>
 # include <functional>
 # include <string>
+# include <iostream>
 
 
 namespace
@@ -58,8 +55,7 @@ PlaybackComponent::PlaybackComponent(
     const Actions::Playback & actions, InputController & inputController,
     const Preferences::Playback & preferences,
     const std::string & preferencesDir)
-    : mainWindow_(mainWindow), tree_(tree), actions_(actions),
-      inputController_(inputController),
+    : tree_(tree), actions_(actions), inputController_(inputController),
       historyFilename_(preferencesDir + "history"),
       lastPlayedItemLabel_(new QLabel(mainWindow.statusBar())),
       historyWidget_(
@@ -110,8 +106,10 @@ preferences.history)
 
 PlaybackComponent::~PlaybackComponent()
 {
-    if (! isHistorySaved_)
-        historyWidget_.save(historyFilename_);
+    if (! isHistorySaved_) {
+        if (! historyWidget_.save(historyFilename_))
+            std::cerr << "Saving history failed." << std::endl;
+    }
 }
 
 void PlaybackComponent::setPreferences(
@@ -159,11 +157,11 @@ void PlaybackComponent::onItemActivated(const QString absolutePath)
 void PlaybackComponent::setPreferencesExceptHistory(
     const Preferences::Playback & preferences)
 {
+    mediaPlayer_.setAutoSetOptions(preferences.autoSetExternalPlayerOptions);
+    nextFromHistory_ = preferences.nextFromHistory;
     saveHistoryToDiskImmediately_ = preferences.history.saveToDiskImmediately;
     if (saveHistoryToDiskImmediately_)
         saveHistory();
-    mediaPlayer_.setAutoSetOptions(preferences.autoSetExternalPlayerOptions);
-    nextFromHistory_ = preferences.nextFromHistory;
 }
 
 void PlaybackComponent::onPlayerFinished(

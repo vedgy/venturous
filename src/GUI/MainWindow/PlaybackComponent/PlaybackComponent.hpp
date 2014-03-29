@@ -39,6 +39,7 @@ class InputController;
 QT_FORWARD_DECLARE_CLASS(QLabel)
 QT_FORWARD_DECLARE_CLASS(QMainWindow)
 
+/// WARNING: each method can block execution if not stated otherwise.
 class PlaybackComponent : public QObject
 {
     Q_OBJECT
@@ -51,20 +52,20 @@ public:
                                InputController & inputController,
                                const Preferences::Playback &,
                                const std::string & preferencesDir);
-
+    /// NOTE: does not block execution.
     ~PlaybackComponent();
 
     void setPreferences(const Preferences::Playback &);
 
+    /// NOTE: does not block execution.
     bool isPlayerRunning() const { return isPlayerRunning_; }
-
+    /// NOTE: does not block execution.
     int currentHistoryEntryIndex() const {
         return historyWidget_.currentEntryIndex();
     }
 
     /// @brief Starts playing item and pushes it to history.
     void play(std::string item);
-
     /// @brief Starts playing items and adjusts history.
     void play(CommonTypes::ItemCollection items);
 
@@ -77,6 +78,7 @@ public slots:
 
 signals:
     /// isPlayerRunning is always equal to isPlayerRunning().
+    /// WARNING: signal receiver must not block execution.
     void playerStateChanged(bool isPlayerRunning);
 
 private:
@@ -90,22 +92,23 @@ private:
     /// @param title Title of the message box.
     /// @param errorMessage Message to be displayed before question.
     /// @return true if playback should be continued.
-    /// WARNING: if this method returns false, return from calling method
-    /// immediately, because this object could be already destroyed.
     bool criticalContinuePlaybackQuestion(
         const QString & title, const QString & errorMessage);
 
     /// @brief Starts playing entry. Does not call historyWidget_.push().
+    /// NOTE: does not block execution.
     void playFromHistory(std::string entry);
 
     /// @brief Must be called after current history entry is changed.
+    /// NOTE: does not block execution.
     void currentHistoryEntryChanged();
 
     /// @brief If isPlayerRunning_ != isRunning, sets isPlayerRunning_ to
     /// isRunning and performs other accompanying actions.
+    /// NOTE: does not block execution.
     void setPlayerState(bool isRunning);
 
-    /// @brief Saves history if (! isHistorySaved_). Can block execution.
+    /// @brief Saves history if (! isHistorySaved_).
     void saveHistory();
 
     /// @brief Pushes item to history; handles saveHistoryToDiskImmediately_
@@ -113,7 +116,6 @@ private:
     void pushToHistory(std::string item);
 
 
-    QMainWindow & mainWindow_;
     const ItemTree::Tree & tree_;
     const Actions::Playback & actions_;
     InputController & inputController_;
@@ -131,7 +133,9 @@ private:
     HistoryWidget historyWidget_;
 
 private slots:
+    /// NOTE: does not block execution.
     void playbackPlay();
+    /// NOTE: does not block execution.
     void playbackStop();
     void playbackNext();
     void onPlayAll();

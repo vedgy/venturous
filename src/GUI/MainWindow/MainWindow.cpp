@@ -16,10 +16,16 @@
  Venturous.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-# include "MainWindow-inl.hpp"
+# ifdef DEBUG_VENTUROUS_MAIN_WINDOW
+# include <iostream>
+# endif
+
+
+# include "MainWindow.hpp"
 
 # include "WindowUtilities.hpp"
 # include "PlaybackComponent.hpp"
+# include "PlaylistComponent.hpp"
 # include "PreferencesWindow.hpp"
 # include "Actions.hpp"
 # include "Preferences.hpp"
@@ -55,21 +61,12 @@ QString getIconToolTip(bool isPlayerRunning)
 
 
 
-void MainWindow::showLoadingPlaylistErrorMessage(
-    const std::string & errorMessage, const QString & suffix)
-{
-    QString message = tr("Error: ") + QtUtilities::toQString(errorMessage);
-    if (! suffix.isEmpty())
-        message += '\n' + suffix;
-    QMessageBox::critical(this, tr("Loading playlist failed"), message);
-}
-
 
 void MainWindow::setWindowTitle()
 {
     QMainWindow::setWindowTitle(
         APPLICATION_NAME + tr(" - %1 playable items - %2").
-        arg(itemTree_.itemCount()).
+        arg(playlistComponent_->tree().itemCount()).
         arg(getStatus(playbackComponent_->isPlayerRunning())));
 }
 
@@ -127,9 +124,8 @@ void MainWindow::onPlayerStateChanged(const bool isPlayerRunning)
 
 void MainWindow::preferencesChanged()
 {
+    playlistComponent_->setPreferences(preferences_);
     playbackComponent_->setPreferences(preferences_.playback);
-
-    treeWidget_.setAutoUnfoldedLevels(preferences_.treeAutoUnfoldedLevels);
 
     if (preferences_.notificationAreaIcon)
         showNotificationAreaIcon();
@@ -210,6 +206,9 @@ void MainWindow::keyPressEvent(QKeyEvent * const event)
 
 void MainWindow::closeEvent(QCloseEvent * const event)
 {
+# ifdef DEBUG_VENTUROUS_MAIN_WINDOW
+    std::cout << "Entered MainWindow::closeEvent." << std::endl;
+# endif
     if (inputController_.blocked())
         return;
 
@@ -221,11 +220,16 @@ void MainWindow::closeEvent(QCloseEvent * const event)
     else {
         if (isPreferencesWindowOpen_)
             preferencesWindow_->close();
-        if (! ensureAskOutOfEditMode()) {
+        if (! playlistComponent_->quit()) {
             quitState_ = false;
             event->ignore();
             return;
         }
+
+# ifdef DEBUG_VENTUROUS_MAIN_WINDOW
+        std::cout << "MainWindow::closeEvent: quit is inevitable." << std::endl;
+# endif
+
         inputController_.blockInput(true);
         copyWindowGeometryAndStateToPreferences();
         preferences_.playback.history.currentIndex =
@@ -283,16 +287,23 @@ void MainWindow::onAboutToQuit()
     /// TODO: make quitState_ of enum type: noQuit, quitting, quitted.
     /// if (quitState_ != quitted) { ... }
     if (! quitState_) {
+# ifdef DEBUG_VENTUROUS_MAIN_WINDOW
+        std::cout << "Urgent quit was requested."
+                  " MainWindow::closeEvent was bypassed." << std::endl;
+# endif
+
         quitState_ = true;
         if (isPreferencesWindowOpen_)
             preferencesWindow_->close();
-        if (temporaryTree_ != nullptr)
-            applyChanges();
         copyWindowGeometryAndStateToPreferences();
         preferences_.playback.history.currentIndex =
             playbackComponent_->currentHistoryEntryIndex();
-        if (preferences_ != savedPreferences_)
-            preferences_.save(preferencesFilename);
+        if (preferences_ != savedPreferences_) {
+            handlePreferencesErrors([this] {
+                preferences_.save(preferencesFilename);
+            }, savePreferencesErrorPrefix, true);
+        }
+
         QCoreApplication::quit();
     }
 }

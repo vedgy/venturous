@@ -16,7 +16,7 @@
  Venturous.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-# include "MainWindow-inl.hpp"
+# include "MainWindow.hpp"
 
 # include "WindowUtilities.hpp"
 # include "PlaybackComponent.hpp"

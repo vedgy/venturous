@@ -20,42 +20,33 @@
 # define VENTUROUS_MAIN_WINDOW_HPP
 
 # include "WindowUtilities.hpp"
-# include "TreeWidget.hpp"
 # include "Preferences.hpp"
 
-# include <VenturousCore/ItemTree.hpp>
-# include <VenturousCore/MediaPlayer.hpp>
+# include <QtCoreUtilities/Error.hpp>
+# include <QtCoreUtilities/String.hpp>
 
 # include <QtGlobal>
 # include <QString>
-# include <QMainWindow>
+# include <QMessageBox>
 # include <QMenuBar>
 # include <QToolBar>
+# include <QMainWindow>
 # include <QSystemTrayIcon>
 
-# include <string>
-# include <stdexcept>
 # include <memory>
+# include <iostream>
 
 
 class Actions;
 class PreferencesWindow;
+class PlaylistComponent;
 class PlaybackComponent;
 QT_FORWARD_DECLARE_CLASS(QSharedMemory)
-QT_FORWARD_DECLARE_CLASS(QLabel)
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 public:
-    class Error : public std::runtime_error
-    {
-    public:
-        explicit Error(const std::string & sWhat) : std::runtime_error(sWhat) {}
-    };
-
-    static const std::string itemsFilename;
-
     explicit MainWindow(std::unique_ptr<QSharedMemory> sharedMemory,
                         QWidget * parent = nullptr, Qt::WindowFlags flags = 0);
 
@@ -66,17 +57,7 @@ private:
     static const QString savePreferencesErrorPrefix;
 
     void initPreferences();
-    void initTree();
     void connectSlots();
-
-    /// @brief Shows QMessageBox with given errorMessage.
-    /// @param suffix If it is not empty, ('\n' + suffix) is appended to default
-    /// error message.
-    void showLoadingPlaylistErrorMessage(const std::string & errorMessage,
-                                         const QString & suffix = QString());
-
-    /// Must be called after itemTree_.itemCount() or isPlayerRunning_ change.
-    void setWindowTitle();
 
     void showNotificationAreaIcon();
     void hideNotificationAreaIcon();
@@ -87,43 +68,16 @@ private:
     /// minimizes window.
     void hideWindowProperly();
 
-    /// Must be called after switching edit mode.
-    void updateActionsState();
-    /// WARNING: call this method only in edit mode.
-    /// @return (* temporaryTree_ == itemTree_).
-    bool noChanges() const;
-    void enterEditMode();
-    /// Use this method if noChanges() was just checked and equal to false.
-    /// @return true if changes were saved successfully.
-    bool applyChangesChanged();
-    /// Use this method if noChanges() was just checked.
-    /// @param noChanges Set this parameter to noChanges().
-    void cancelChanges(bool noChanges);
-    bool enterAskEditMode();
-    bool leaveAskEditMode();
-    bool leaveAskChangedEditMode();
-    bool leaveAskUnchangedEditMode();
-    bool ensureAskInEditMode();
-    bool ensureAskOutOfEditMode();
-
-    /// @brief Saves temporaryTree_ to itemsFilename.
-    /// @return true on success, false on failure (error).
-    bool saveTemporaryTree() const;
-
-
-    /// @brief Calls ensureAskInEditMode(). If edit mode is set, calls
-    /// filenameGetter() and if acquired filename is not empty, tries to load
-    /// temporaryTree_ from it.
-    /// @tparam FilenameGetter Must be a callable object,
-    /// which returns [const] QString [&[&]].
-    template <typename FilenameGetter>
-    void loadTemporaryPlaylist(FilenameGetter filenameGetter);
-
     /// @brief Calls callable object f, catches and handles QtUtilities::Error.
+    /// @param errorPrefix Text, which will be displayed before
+    /// QtUtilities::Error::message().
+    /// @param silentMode Makes a difference only in case of error.
+    /// If true, error message is printed to stderr and method returns false.
+    /// Otherwise, execution is blocked and user is allowed to retry operation.
     /// @return true on success, false on failure (error).
     template <typename F>
-    bool handlePreferencesErrors(F f, const QString & errorPrefix);
-
+    bool handlePreferencesErrors(F f, const QString & errorPrefix,
+                                 bool silentMode = false);
 
     /// @brief Must be called after preferences_ are changed.
     void preferencesChanged();
@@ -138,15 +92,12 @@ private:
     /// instance.
     std::unique_ptr<QSharedMemory> sharedMemory_;
 
-    ItemTree::Tree itemTree_;
-    std::unique_ptr<ItemTree::Tree> temporaryTree_;
-
     std::unique_ptr<Actions> actions_;
     QMenuBar menuBar_;
     QToolBar toolBar_;
-    TreeWidget treeWidget_;
 
     WindowInputController inputController_;
+    std::unique_ptr<PlaylistComponent> playlistComponent_;
     std::unique_ptr<PlaybackComponent> playbackComponent_;
 
     Preferences savedPreferences_, preferences_;
@@ -159,6 +110,9 @@ private:
     bool quitState_ = false;
 
 private slots:
+    /// Must be called after itemTree_.itemCount() or isPlayerRunning_ change.
+    void setWindowTitle();
+
     void onPlayerStateChanged(bool isPlayerRunning);
 
     void onNotificationAreaIconActivated(QSystemTrayIcon::ActivationReason);
@@ -166,19 +120,6 @@ private slots:
     void onPreferencesUpdated();
     void onPreferencesActivated();
     void onFileQuit();
-
-    void onEditModeStateChanged();
-    void applyChanges();
-    void cancelChanges();
-
-    void onAddFiles();
-    void onAddDirectory();
-    void onCleanUp();
-    void onClear();
-    void onRestorePrevious();
-
-    void onLoad();
-    void onSaveAs();
 
     void onHelpHelp();
     void onHelpAbout();
@@ -190,5 +131,31 @@ private slots:
 
     void onAboutToQuit();
 };
+
+template <typename F>
+bool MainWindow::handlePreferencesErrors(
+    F f, const QString & errorPrefix, const bool silentMode)
+{
+    while (true) {
+        try {
+            f();
+            return true;
+        }
+        catch (const QtUtilities::Error & error) {
+            const QString message = errorPrefix + ": " + error.message();
+            if (silentMode) {
+                std::cerr << QtUtilities::qStringToString(message) << std::endl;
+                return false;
+            }
+            const auto selectedButton =
+                QMessageBox::critical(this, tr("Preferences error"), message,
+                                      QMessageBox::Retry | QMessageBox::Cancel,
+                                      QMessageBox::Cancel);
+
+            if (selectedButton != QMessageBox::Retry)
+                return false;
+        }
+    }
+}
 
 # endif // VENTUROUS_MAIN_WINDOW_HPP

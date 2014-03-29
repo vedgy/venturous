@@ -76,6 +76,7 @@ public:
 signals:
     /// @brief Is emitted after user activates some item in this TreeWidget.
     /// @param absolutePath Path to activated item.
+    /// NOTE: execution may be blocked by signal receiver.
     void itemActivated(QString absolutePath);
 
 private:

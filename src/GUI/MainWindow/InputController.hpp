@@ -20,7 +20,11 @@
 # define VENTUROUS_INPUT_CONTROLLER_HPP
 
 # include <QString>
+# include <QStringList>
 # include <QMessageBox>
+# include <QFileDialog>
+
+# include <cassert>
 
 
 class InputController
@@ -38,21 +42,56 @@ public:
     /// @param text Text of the message box.
     /// @param buttons Buttons to be displayed in the message box.
     /// @param defaultButton Button, which will be set as default and escape
-    /// button of the message box.
+    /// button of the message box unless it is equal to QMessageBox::NoButton.
     /// @param icon Message box's icon.
-    /// @return If message box was destroyed too early, QMessageBox::NoButton.
-    /// In this case it is advised to return from calling method immediately,
-    /// because *everything* is probably already destroyed.
-    /// If message box was not destroyed beforehand, returns button, selected by
-    /// user.
-    virtual int showMessage(
+    /// @return Button, which was selected by user. If QMessageBox::NoButton is
+    /// returned, it means that message box was closed abnormally. It is advised
+    /// to return from calling function without blocking execution in this case.
+    int showMessage(
         const QString & title, const QString & text,
-        QMessageBox::StandardButtons buttons,
-        QMessageBox::StandardButton defaultButton,
-        QMessageBox::Icon icon = QMessageBox::Critical) = 0;
+        QMessageBox::StandardButtons buttons = QMessageBox::Ok,
+        QMessageBox::StandardButton defaultButton = QMessageBox::NoButton,
+        QMessageBox::Icon icon = QMessageBox::Critical) {
+        return showMessageImplementation(
+                   title, text, buttons, defaultButton, icon);
+    }
+
+    /// @brief Asks user for file or directory.
+    /// @param caption Caption of the file dialog.
+    /// @return File or directory name, selected by user. If no item was
+    /// selected, that is, operation was cancelled, empty string.
+    /// WARNING: never pass fileMode equal to QFileDialog::ExistingFiles.
+    QString getFileOrDirName(const QString & caption,
+                             QFileDialog::AcceptMode acceptMode,
+                             QFileDialog::FileMode fileMode) {
+        assert(fileMode != QFileDialog::ExistingFiles);
+        const QStringList names = getFileOrDirNames(
+                                      caption, acceptMode, fileMode);
+        assert(names.size() <= 1 &&
+               "More than one name must never appear here!");
+        return names.empty() ? QString() : names.back();
+    }
+
+    /// @brief Asks user for one or more files to be opened for reading.
+    /// @param caption Caption of the file dialog.
+    /// @return List of file names, selected by user. If no item was
+    /// selected, that is, operation was cancelled, empty list.
+    QStringList getOpenFileNames(const QString & caption) {
+        return getFileOrDirNames(caption, QFileDialog::AcceptOpen,
+                                 QFileDialog::ExistingFiles);
+    }
 
 protected:
     ~InputController() = default;
+
+    virtual int showMessageImplementation(
+        const QString & title, const QString & text,
+        QMessageBox::StandardButtons buttons,
+        QMessageBox::StandardButton defaultButton, QMessageBox::Icon icon) = 0;
+
+    virtual QStringList getFileOrDirNames(const QString & caption,
+                                          QFileDialog::AcceptMode acceptMode,
+                                          QFileDialog::FileMode fileMode) = 0;
 };
 
 # endif // VENTUROUS_INPUT_CONTROLLER_HPP

@@ -25,9 +25,10 @@
 # include <array>
 
 
-class Preferences;
 class PreferencesPage;
+class Preferences;
 
+/// Allows user to change preferences. Never blocks execution.
 class PreferencesWindow : public QTabWidget
 {
     Q_OBJECT
@@ -40,6 +41,7 @@ public:
 
 signals:
     /// @brief Is emitted after preferences_ value is updated (from closeEvent).
+    /// NOTE: execution may be blocked by signal receiver.
     void preferencesUpdated();
 
 private:
