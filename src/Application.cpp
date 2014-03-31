@@ -16,6 +16,11 @@
  Venturous.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+# ifdef DEBUG_VENTUROUS_APPLICATION
+# include <iostream>
+# endif
+
+
 # include "Application.hpp"
 
 
@@ -24,4 +29,11 @@ Application::Application(int & argc, char ** argv) : QApplication(argc, argv)
     setApplicationVersion("pre-0.9");
     setAttribute(Qt::AA_DontShowIconsInMenus, false);
     setQuitOnLastWindowClosed(false);
+}
+
+Application::~Application()
+{
+# ifdef DEBUG_VENTUROUS_APPLICATION
+    std::cout << "Entered Application destructor." << std::endl;
+# endif
 }

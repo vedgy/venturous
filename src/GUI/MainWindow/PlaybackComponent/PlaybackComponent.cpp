@@ -23,8 +23,6 @@
 # include "Actions.hpp"
 # include "Preferences.hpp"
 
-# include <VenturousCore/ItemTree-inl.hpp>
-
 # include <QtCoreUtilities/String.hpp>
 
 # include <QString>
@@ -32,7 +30,6 @@
 # include <QAction>
 # include <QMessageBox>
 # include <QDockWidget>
-# include <QLabel>
 # include <QStatusBar>
 # include <QMainWindow>
 
@@ -51,13 +48,12 @@ QString historyWindowName() { return QObject::tr("History"); }
 
 
 PlaybackComponent::PlaybackComponent(
-    QMainWindow & mainWindow, const ItemTree::Tree & tree,
-    const Actions::Playback & actions, InputController & inputController,
+    QMainWindow & mainWindow, const Actions::Playback & actions,
+    InputController & inputController,
     const Preferences::Playback & preferences,
     const std::string & preferencesDir)
-    : tree_(tree), actions_(actions), inputController_(inputController),
+    : actions_(actions), inputController_(inputController),
       historyFilename_(preferencesDir + "history"),
-      lastPlayedItemLabel_(new QLabel(mainWindow.statusBar())),
       historyWidget_(
           std::bind(& PlaybackComponent::playFromHistory, this,
                     std::placeholders::_1),
@@ -71,7 +67,7 @@ preferences.history)
             std::bind(& PlaybackComponent::onPlayerFinished, this, _1, _2, _3));
     }
 
-    mainWindow.statusBar()->addWidget(lastPlayedItemLabel_);
+    mainWindow.statusBar()->addWidget(& lastPlayedItemLabel_);
 
     // Do nothing in case of failure because history is not very important
     // and file may not exist.
@@ -86,29 +82,17 @@ preferences.history)
 
     connect(actions.play, SIGNAL(triggered(bool)), SLOT(playbackPlay()));
     connect(actions.stop, SIGNAL(triggered(bool)), SLOT(playbackStop()));
-    connect(actions.next, SIGNAL(triggered(bool)), SLOT(playbackNext()));
-    connect(actions.playAll, SIGNAL(triggered(bool)), SLOT(onPlayAll()));
+    connect(& historyWidget_, SIGNAL(historyChanged()),
+            SLOT(onHistoryChanged()));
 
     currentHistoryEntryChanged();
-
-    typedef Preferences::Playback::StartupPolicy StartupPolicy;
-    switch (preferences.startupPolicy) {
-        case StartupPolicy::playbackNext:
-            playbackNext();
-            break;
-        case StartupPolicy::playbackPlay:
-            playbackPlay();
-            break;
-        case StartupPolicy::doNothing:
-            break;
-    }
 }
 
 PlaybackComponent::~PlaybackComponent()
 {
     if (! isHistorySaved_) {
         if (! historyWidget_.save(historyFilename_))
-            std::cerr << "Saving history failed." << std::endl;
+            std::cerr << ERROR_PREFIX "Saving history failed." << std::endl;
     }
 }
 
@@ -122,7 +106,8 @@ void PlaybackComponent::setPreferences(
 void PlaybackComponent::play(std::string item)
 {
     mediaPlayer_.start(item);
-    pushToHistory(std::move(item));
+    historyWidget_.push(std::move(item));
+    onHistoryChanged();
     currentHistoryEntryChanged();
     setPlayerState(true);
 }
@@ -137,6 +122,16 @@ void PlaybackComponent::play(CommonTypes::ItemCollection items)
         currentHistoryEntryChanged();
         setPlayerState(true);
     }
+}
+
+bool PlaybackComponent::playNextFromHistory()
+{
+    std::string next = historyWidget_.next();
+    if (next.empty())
+        return false;
+    playFromHistory(std::move(next));
+    checkHistoryWidgetChanges();
+    return true;
 }
 
 void PlaybackComponent::quit()
@@ -158,7 +153,6 @@ void PlaybackComponent::setPreferencesExceptHistory(
     const Preferences::Playback & preferences)
 {
     mediaPlayer_.setAutoSetOptions(preferences.autoSetExternalPlayerOptions);
-    nextFromHistory_ = preferences.nextFromHistory;
     saveHistoryToDiskImmediately_ = preferences.history.saveToDiskImmediately;
     if (saveHistoryToDiskImmediately_)
         saveHistory();
@@ -192,7 +186,7 @@ void PlaybackComponent::onPlayerFinished(
         }
     }
 
-    playbackNext();
+    actions_.next->trigger();
 }
 
 bool PlaybackComponent::criticalContinuePlaybackQuestion(
@@ -218,16 +212,16 @@ void PlaybackComponent::currentHistoryEntryChanged()
     QString textPrefix = tr("Last played item: ");
     const QString entry = historyWidget_.currentAbsolute();
     if (entry.isEmpty()) {
-        lastPlayedItemLabel_->setText(std::move(textPrefix) + tr("<unknown>"));
-        lastPlayedItemLabel_->setToolTip(
+        lastPlayedItemLabel_.setText(std::move(textPrefix) + tr("<unknown>"));
+        lastPlayedItemLabel_.setToolTip(
             tr("Unknown item(s).\n"
                "This means that multiple items were played or that last played "
                "item was removed from history."));
     }
     else {
-        lastPlayedItemLabel_->setText(std::move(textPrefix) +
-                                      historyWidget_.currentShortened());
-        lastPlayedItemLabel_->setToolTip(entry);
+        lastPlayedItemLabel_.setText(std::move(textPrefix) +
+                                     historyWidget_.currentShortened());
+        lastPlayedItemLabel_.setToolTip(entry);
     }
 }
 
@@ -238,6 +232,12 @@ void PlaybackComponent::setPlayerState(const bool isRunning)
         actions_.play->setEnabled(! isRunning);
         emit playerStateChanged(isRunning);
     }
+}
+
+void PlaybackComponent::checkHistoryWidgetChanges()
+{
+    if (historyWidget_.isHistoryChangedBySettingCurrentEntry())
+        onHistoryChanged();
 }
 
 void PlaybackComponent::saveHistory()
@@ -256,14 +256,13 @@ void PlaybackComponent::saveHistory()
     }
 }
 
-void PlaybackComponent::pushToHistory(std::string item)
+
+void PlaybackComponent::onHistoryChanged()
 {
-    historyWidget_.push(std::move(item));
     isHistorySaved_ = false;
     if (saveHistoryToDiskImmediately_)
         saveHistory();
 }
-
 
 void PlaybackComponent::playbackPlay()
 {
@@ -275,17 +274,4 @@ void PlaybackComponent::playbackStop()
 {
     mediaPlayer_.quit();
     setPlayerState(false);
-}
-
-void PlaybackComponent::playbackNext()
-{
-    if (tree_.itemCount() > 0)
-        play(randomItemChooser_.randomPath(tree_));
-    else
-        playbackStop();
-}
-
-void PlaybackComponent::onPlayAll()
-{
-    play(tree_.getAllItems<CommonTypes::ItemCollection>());
 }

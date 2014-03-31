@@ -43,9 +43,10 @@ set(CMAKE_AUTOMOC ON)
 
 if(DEBUG_VENTUROUS)
     add_definitions(
-        -DDEBUG_VENTUROUS_MAIN -DDEBUG_VENTUROUS_ICONS
+        -DDEBUG_VENTUROUS_APPLICATION -DDEBUG_VENTUROUS_MAIN
+        -DDEBUG_VENTUROUS_ICONS -DDEBUG_VENTUROUS_PREFERENCES_COMPONENT
         -DDEBUG_VENTUROUS_TREE_WIDGET -DDEBUG_VENTUROUS_PLAYLIST_COMPONENT
-        -DDEBUG_VENTUROUS_MAIN_WINDOW
+        -DDEBUG_VENTUROUS_WINDOW_UTILITIES -DDEBUG_VENTUROUS_MAIN_WINDOW
     )
     set(EXECUTABLE_ARGS "")
 else()
@@ -57,6 +58,7 @@ stringAppendSlashIfAbsent(PREFERENCES_DIR)
 
 add_definitions(
     -DPREFERENCES_DIR=\"${PREFERENCES_DIR}\"
+    -DERROR_PREFIX=\"**\ ${Target_Name}\ CRITICAL\ **\ \"
     -DAPPLICATION_NAME=\"${Target_Name}\"
     -DTOOL_NAME=\"${Tool_Name}\"
     -DSHARED_MEMORY_KEY=\"oS2huoventurousyiOventoolhJkNQqC{\"
@@ -67,15 +69,17 @@ set(Sources_Path src)
 set(GUI_Path ${Sources_Path}/GUI)
 set(PreferencesWindow_Path ${GUI_Path}/PreferencesWindow)
 set(MainWindow_Path ${GUI_Path}/MainWindow)
-set(PlaylistComponent_Path ${MainWindow_Path}/PlaylistComponent)
+set(PreferencesComponent_Path ${MainWindow_Path}/PreferencesComponent)
 set(PlaybackComponent_Path ${MainWindow_Path}/PlaybackComponent)
+set(PlaylistComponent_Path ${MainWindow_Path}/PlaylistComponent)
 set(Resources_Path resources)
 
 include_directories(
     ${QtCoreUtilities_PublicHeaders_Path} ${QtXmlUtilities_PublicHeaders_Path}
     ${TemplateUtilities_PublicHeaders_Path} ${VenturousCore_PublicHeaders_Path}
     ${Sources_Path} ${GUI_Path} ${PreferencesWindow_Path} ${MainWindow_Path}
-    ${PlaylistComponent_Path} ${PlaybackComponent_Path}
+    ${PreferencesComponent_Path} ${PlaybackComponent_Path}
+    ${PlaylistComponent_Path}
 )
 
 set(Sources
@@ -92,13 +96,13 @@ set(Sources
     ${PreferencesWindow_Path}/AddingPolicyPage.cpp
     ${PreferencesWindow_Path}/PreferencesWindow.cpp
 
-    ${PlaylistComponent_Path}/TreeWidget.cpp
-    ${PlaylistComponent_Path}/PlaylistComponent.cpp
+    ${PreferencesComponent_Path}/PreferencesComponent.cpp
     ${PlaybackComponent_Path}/HistoryWidget.cpp
     ${PlaybackComponent_Path}/PlaybackComponent.cpp
+    ${PlaylistComponent_Path}/TreeWidget.cpp
+    ${PlaylistComponent_Path}/PlaylistComponent.cpp
     ${MainWindow_Path}/WindowUtilities.cpp
     ${MainWindow_Path}/MainWindow.cpp ${MainWindow_Path}/MainWindow-init.cpp
-    ${MainWindow_Path}/MainWindow-file.cpp
     ${MainWindow_Path}/MainWindow-help.cpp
 )
 

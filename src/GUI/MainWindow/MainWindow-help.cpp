@@ -16,8 +16,14 @@
  Venturous.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+# ifdef DEBUG_VENTUROUS_MAIN_WINDOW
+# include <iostream>
+# endif
+
+
 # include "MainWindow.hpp"
 
+# include "InputController.hpp"
 # include "Icons.hpp"
 
 # include <VenturousCore/MediaPlayer.hpp>
@@ -50,13 +56,13 @@ void MainWindow::onHelpHelp()
         tr("Could not %3 %1 directory in %2.").arg(dirName, dir.absolutePath());
 
     if (! dir.exists(dirName) && ! dir.mkdir(dirName)) {
-        QMessageBox::critical(this, errorTitle,
-                              dirErrorMessage.arg(tr("create")));
+        inputController_.showMessage(errorTitle,
+                                     dirErrorMessage.arg(tr("create")));
         return;
     }
     if (! dir.cd(dirName)) {
-        QMessageBox::critical(this, errorTitle,
-                              dirErrorMessage.arg(tr("enter")));
+        inputController_.showMessage(errorTitle,
+                                     dirErrorMessage.arg(tr("enter")));
         return;
     }
 
@@ -64,24 +70,28 @@ void MainWindow::onHelpHelp()
         if (! dir.exists(filename)) {
             const QString absoluteName = dir.filePath(filename);
             if (! QFile::copy(Icons::getAbsolutePath(filename), absoluteName)) {
-                QMessageBox::critical(
-                    this, errorTitle,
+                inputController_.showMessage(
+                    errorTitle,
                     tr("Could not create file %1.").arg(absoluteName));
                 return;
             }
         }
     }
-    QDesktopServices::openUrl(QUrl(dir.filePath(filenames.front()),
-                                   QUrl::StrictMode));
+    const QString url = dir.filePath(filenames.front());
+    if (! QDesktopServices::openUrl(QUrl(url, QUrl::StrictMode))) {
+        inputController_.showMessage(errorTitle,
+                                     tr("Could not open URL: ") + url);
+    }
 }
 
 void MainWindow::onHelpAbout()
 {
+    inputController_.blockInput(true);
     QMessageBox::about(
         this, tr("About ") + APPLICATION_NAME,
         "<b>" APPLICATION_NAME "</b> " + tr("version") + " <b>" +
         QCoreApplication::applicationVersion() + "</b>" +
-        tr(" - wrapper for %1, which manages playlist and queue.").arg(
+        tr(" - random playback manager for %1.").arg(
             QtUtilities::toQString(MediaPlayer::playerName())) +
         QString::fromUtf8(
             "<br><br>© 2014 Igor Kushnir &lt;igorkuo AT Google mail&gt;.<br>") +
@@ -90,4 +100,9 @@ void MainWindow::onHelpAbout()
         tr("Report bugs and request features at ") +
         "<a href='https://github.com/vedgy/venturous/issues'>"
         "Venturous GitHub repository</a>.");
+
+# ifdef DEBUG_VENTUROUS_MAIN_WINDOW
+    std::cout << "\"About\" message box was closed." << std::endl;
+# endif
+    inputController_.blockInput(false);
 }

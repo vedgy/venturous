@@ -121,6 +121,14 @@ bool HistoryWidget::save(const std::string & filename) const
     return history_.save(filename);
 }
 
+std::string HistoryWidget::current()
+{
+    const std::string entry = entryAt(currentEntryIndex_);
+    if (! entry.empty() && copyPlayedEntryToTop_)
+        push(entry);
+    return entry;
+}
+
 QString HistoryWidget::currentAbsolute() const
 {
     const QListWidgetItem * const it = item(currentEntryIndex_);
@@ -166,8 +174,11 @@ void HistoryWidget::playedMultipleItems()
 
 void HistoryWidget::clearHistory()
 {
-    history_.clear();
-    QListWidget::clear();
+    if (! history_.items().empty()) {
+        history_.clear();
+        QListWidget::clear();
+        emit historyChanged();
+    }
 }
 
 
@@ -186,9 +197,13 @@ std::string HistoryWidget::setCurrentEntry(const int index)
 {
     const std::string entry = entryAt(index);
     if (! entry.empty()) {
-        emphasizeCurrentEntry(false);
-        currentEntryIndex_ = index;
-        emphasizeCurrentEntry();
+        if (copyPlayedEntryToTop_)
+            push(entry);
+        else {
+            emphasizeCurrentEntry(false);
+            currentEntryIndex_ = index;
+            emphasizeCurrentEntry();
+        }
     }
     return entry;
 }
@@ -248,6 +263,8 @@ void HistoryWidget::keyPressEvent(QKeyEvent * const event)
 
                 if (currentItem != nullptr)
                     currentEntryIndex_ = row(currentItem);
+
+                emit historyChanged();
             }
         }
         break;
@@ -258,11 +275,7 @@ void HistoryWidget::keyPressEvent(QKeyEvent * const event)
 
 void HistoryWidget::onUiItemActivated(QListWidgetItem * const item)
 {
-    if (copyPlayedEntryToTop_)
-        playItems_(CommonTypes::ItemCollection { history_.items()[row(item)] });
-    else {
-        const int index = row(item);
-        setCurrentEntry(index);
-        playExistingEntry_(history_.items()[index]);
-    }
+    playExistingEntry_(setCurrentEntry(row(item)));
+    if (isHistoryChangedBySettingCurrentEntry())
+        emit historyChanged();
 }

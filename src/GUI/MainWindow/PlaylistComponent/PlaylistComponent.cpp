@@ -17,15 +17,18 @@
 */
 
 # ifdef DEBUG_VENTUROUS_PLAYLIST_COMPONENT
+# include <QtCoreUtilities/String.hpp>
 # include <iostream>
 # endif
 
 # include "PlaylistComponent.hpp"
 
+# include "CommonTypes.hpp"
 # include "InputController.hpp"
 # include "Actions.hpp"
 # include "Preferences.hpp"
 
+# include <VenturousCore/ItemTree-inl.hpp>
 # include <VenturousCore/AddingItems.hpp>
 
 # include <QtCoreUtilities/String.hpp>
@@ -40,7 +43,6 @@
 # include <QMessageBox>
 # include <QMainWindow>
 
-# include <cassert>
 # include <utility>
 # include <algorithm>
 # include <iostream>
@@ -54,20 +56,14 @@ QString savingFailed() { return QObject::tr("Saving playlist failed."); }
 QString editModeTitle() { return QObject::tr("Edit mode"); }
 QString defaultPath() { return QDir::homePath(); }
 
-void assertValidTemporaryTree(
-    const std::unique_ptr<ItemTree::Tree> & temporaryTree)
-{
-    assert(temporaryTree && "Valid temporaryTree_ expected, nullptr found.");
-}
-
 }
 
 PlaylistComponent::PlaylistComponent(
-    QMainWindow & mainWindow, const Actions::Playlist & actions,
+    QMainWindow & mainWindow, const Actions & actions,
     InputController & inputController, const Preferences & preferences,
-    const std::string & preferencesDir)
-    : actions_(actions), inputController_(inputController),
-      addingPolicy_(preferences.addingPolicy),
+    CommonTypes::PlayItems playItems, const std::string & preferencesDir)
+    : actions_(actions.playlist), inputController_(inputController),
+      addingPolicy_(preferences.addingPolicy), playItems_(std::move(playItems)),
       itemsFilename_(preferencesDir + "items"),
       qItemsFilename_(QtUtilities::toQString(itemsFilename_)),
       qBackupItemsFilename_(qItemsFilename_ + ".backup"),
@@ -75,7 +71,7 @@ PlaylistComponent::PlaylistComponent(
       treeWidget_(itemTree_, temporaryTree_)
 {
 # ifdef DEBUG_VENTUROUS_PLAYLIST_COMPONENT
-    std::cout << "itemsFilename = " << itemsFilename_ << std::endl;
+    std::cout << "itemsFilename_ = " << itemsFilename_ << std::endl;
 # endif
     treeWidget_.setAutoUnfoldedLevels(preferences.treeAutoUnfoldedLevels);
 
@@ -95,33 +91,31 @@ PlaylistComponent::PlaylistComponent(
 
     mainWindow.setCentralWidget(& treeWidget_);
 
-    connect(actions.editMode, SIGNAL(triggered(bool)),
+    connect(actions.playback.playAll, SIGNAL(triggered(bool)),
+            SLOT(onPlayAll()));
+
+    connect(actions_.editMode, SIGNAL(triggered(bool)),
             SLOT(onEditModeStateChanged()));
-    connect(actions.applyChanges, SIGNAL(triggered(bool)),
+    connect(actions_.applyChanges, SIGNAL(triggered(bool)),
             SLOT(applyChanges()));
-    connect(actions.cancelChanges, SIGNAL(triggered(bool)),
+    connect(actions_.cancelChanges, SIGNAL(triggered(bool)),
             SLOT(cancelChanges()));
 
-    connect(actions.addFiles, SIGNAL(triggered(bool)), SLOT(onAddFiles()));
-    connect(actions.addDirectory, SIGNAL(triggered(bool)),
+    connect(actions_.addFiles, SIGNAL(triggered(bool)), SLOT(onAddFiles()));
+    connect(actions_.addDirectory, SIGNAL(triggered(bool)),
             SLOT(onAddDirectory()));
-    connect(actions.cleanUp, SIGNAL(triggered(bool)), SLOT(onCleanUp()));
-    connect(actions.clear, SIGNAL(triggered(bool)), SLOT(onClear()));
-    connect(actions.restorePrevious, SIGNAL(triggered(bool)),
+    connect(actions_.cleanUp, SIGNAL(triggered(bool)), SLOT(onCleanUp()));
+    connect(actions_.clear, SIGNAL(triggered(bool)), SLOT(onClear()));
+    connect(actions_.restorePrevious, SIGNAL(triggered(bool)),
             SLOT(onRestorePrevious()));
 
-    connect(actions.load, SIGNAL(triggered(bool)), SLOT(onLoad()));
-    connect(actions.saveAs, SIGNAL(triggered(bool)), SLOT(onSaveAs()));
+    connect(actions_.load, SIGNAL(triggered(bool)), SLOT(onLoad()));
+    connect(actions_.saveAs, SIGNAL(triggered(bool)), SLOT(onSaveAs()));
 
     connect(& treeWidget_, SIGNAL(itemActivated(QString)),
             SIGNAL(itemActivated(QString)));
 
     updateActionsState();
-}
-
-void PlaylistComponent::setPlayItems(CommonTypes::PlayItems playItems)
-{
-    playItems_ = std::move(playItems);
 }
 
 PlaylistComponent::~PlaylistComponent()
@@ -130,7 +124,8 @@ PlaylistComponent::~PlaylistComponent()
         return;
     const bool renamed = prepareForApplyingChanges();
     if (! saveTemporaryTree()) {
-        std::cerr << QtUtilities::qStringToString(savingFailed()) << std::endl;
+        std::cerr << ERROR_PREFIX <<
+                  QtUtilities::qStringToString(savingFailed()) << std::endl;
         if (renamed)
             restoreBackupFile();
     }
@@ -140,6 +135,15 @@ void PlaylistComponent::setPreferences(const Preferences & preferences)
 {
     treeWidget_.setAutoUnfoldedLevels(preferences.treeAutoUnfoldedLevels);
     treeAutoCleanup_ = preferences.treeAutoCleanup;
+}
+
+bool PlaylistComponent::playRandomItem()
+{
+    if (itemTree_.itemCount() > 0) {
+        playItems_( { randomItemChooser_.randomPath(itemTree_) });
+        return true;
+    }
+    return false;
 }
 
 bool PlaylistComponent::quit()
@@ -166,7 +170,7 @@ void PlaylistComponent::updateActionsState()
 
 bool PlaylistComponent::noChanges() const
 {
-    assertValidTemporaryTree(temporaryTree_);
+    treeWidget_.assertValidTemporaryTree();
     return * temporaryTree_ == itemTree_;
 }
 
@@ -179,7 +183,7 @@ void PlaylistComponent::enterEditMode()
 
 bool PlaylistComponent::prepareForApplyingChanges()
 {
-    assertValidTemporaryTree(temporaryTree_);
+    treeWidget_.assertValidTemporaryTree();
     temporaryTree_->nodesChanged();
     if (treeAutoCleanup_)
         temporaryTree_->cleanUp();
@@ -304,6 +308,11 @@ bool PlaylistComponent::saveTemporaryTree() const
     return temporaryTree_->save(itemsFilename_);
 }
 
+
+void PlaylistComponent::onPlayAll()
+{
+    playItems_(itemTree_.getAllItems<CommonTypes::ItemCollection>());
+}
 
 void PlaylistComponent::onEditModeStateChanged()
 {

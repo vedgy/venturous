@@ -38,7 +38,7 @@ class InputController;
 class Preferences;
 namespace AddingItems
 {
-    struct Policy;
+struct Policy;
 }
 QT_FORWARD_DECLARE_CLASS(QMainWindow)
 
@@ -50,20 +50,25 @@ public:
     /// NOTE: mainWindow, actions, inputController and preferences must remain
     /// valid throughout this PlaylistComponent's lifetime.
     explicit PlaylistComponent(QMainWindow & mainWindow,
-                               const Actions::Playlist & actions,
+                               const Actions & actions,
                                InputController & inputController,
                                const Preferences & preferences,
+                               CommonTypes::PlayItems playItems,
                                const std::string & preferencesDir);
-    /// NOTE: does not block execution.
-    void setPlayItems(CommonTypes::PlayItems playItems);
     /// NOTE: does not block execution.
     ~PlaylistComponent();
     /// NOTE: does not block execution.
     void setPreferences(const Preferences &);
+    /// @return Number of playable items in playlist.
     /// NOTE: does not block execution.
-    const ItemTree::Tree & tree() const { return itemTree_; }
+    int itemCount() const { return itemTree_.itemCount(); }
 
-    /// @brief Should be called before normal quit. Can block execution.
+    /// @brief If itemTree_ is not empty, selects random item and starts
+    /// playing it.
+    /// @return true if playback was started, false otherwise
+    bool playRandomItem();
+
+    /// @brief Should be called before normal quit.
     /// @return true if quit is allowed, false if user cancelled it.
     bool quit();
 
@@ -134,7 +139,7 @@ private:
     const Actions::Playlist & actions_;
     InputController & inputController_;
     const AddingItems::Policy & addingPolicy_;
-    CommonTypes::PlayItems playItems_ = [](CommonTypes::ItemCollection) {};
+    const CommonTypes::PlayItems playItems_;
     const std::string itemsFilename_;
     const QString qItemsFilename_;
     const QString qBackupItemsFilename_;
@@ -143,10 +148,13 @@ private:
 
     ItemTree::Tree itemTree_;
     std::unique_ptr<ItemTree::Tree> temporaryTree_;
+    ItemTree::RandomItemChooser randomItemChooser_;
 
     TreeWidget treeWidget_;
 
 private slots:
+    void onPlayAll();
+
     void onEditModeStateChanged();
     void applyChanges();
     /// NOTE: does not block execution.

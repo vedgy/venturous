@@ -73,6 +73,11 @@ public:
 
     int getAutoUnfoldedLevels() const { return autoUnfoldedLevels_; }
 
+    void assertValidTemporaryTree() const {
+        if (! temporaryTree_)
+            throw Error("valid temporaryTree_ expected, nullptr found.");
+    }
+
 signals:
     /// @brief Is emitted after user activates some item in this TreeWidget.
     /// @param absolutePath Path to activated item.
@@ -89,11 +94,6 @@ private:
 
     /// @brief Unfolds or folds items, depending on autoUnfoldedLevels_.
     void autoUnfold();
-
-    void assertValidTemporaryTree() const {
-        if (! temporaryTree_)
-            throw Error("valid temporaryTree_ expected, nullptr found.");
-    }
 
     void keyPressEvent(QKeyEvent *) override;
 

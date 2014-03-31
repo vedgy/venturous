@@ -35,6 +35,7 @@ public:
     /// Reacting to QCoreApplication::aboutToQuit - immediate quit - is allowed.
     /// Reacting to MediaPayer::FinishedSlot is also allowed.
     /// @param block If true, input will be blocked; if false - unblocked.
+    /// WARNING: recursive blocking and redundant unblocking are forbidden.
     virtual void blockInput(bool block) = 0;
 
     /// @brief Shows message box and handles input blocking/unblocking.

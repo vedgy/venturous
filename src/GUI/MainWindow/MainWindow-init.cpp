@@ -23,11 +23,12 @@
 
 # include "MainWindow.hpp"
 
-# include "PlaybackComponent.hpp"
 # include "PlaylistComponent.hpp"
-# include "PreferencesWindow.hpp"
+# include "PlaybackComponent.hpp"
+# include "PreferencesComponent.hpp"
 # include "Icons.hpp"
 # include "Actions.hpp"
+# include "Preferences.hpp"
 
 # include <QtCoreUtilities/String.hpp>
 
@@ -35,19 +36,16 @@
 # include <QObject>
 # include <QSharedMemory>
 # include <QDir>
-# include <QFile>
 # include <QCoreApplication>
 # include <QAction>
+# include <QSizePolicy>
 # include <QMenu>
 # include <QMenuBar>
-# include <QMessageBox>
-# include <QSizePolicy>
-# include <QStatusBar>
+# include <QToolBar>
 # include <QLabel>
 
 # include <cassert>
 # include <utility>
-# include <functional>
 # include <memory>
 
 
@@ -129,25 +127,26 @@ void initToolBar(QToolBar & toolBar, const Actions & actions)
 MainWindow::MainWindow(std::unique_ptr<QSharedMemory> sharedMemory,
                        QWidget * const parent, const Qt::WindowFlags flags)
     : QMainWindow(parent, flags), sharedMemory_(std::move(sharedMemory)),
-      toolBar_("Toolbar"), inputController_(* this)
+      toolBar_(tr("Toolbar")), inputController_(* this)
 {
 # ifdef DEBUG_VENTUROUS_MAIN_WINDOW
     std::cout << "PREFERENCES_DIR = " << PREFERENCES_DIR << std::endl;
-    std::cout << "preferencesFilename = " <<
-              QtUtilities::qStringToString(preferencesFilename) << std::endl;
 # endif
-
     assert(sharedMemory_ && "Valid shared memory expected, nullptr found.");
 
-    initPreferences();
+    connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()),
+            SLOT(onAboutToQuit()));
+
+    preferencesComponent_.reset(
+        new PreferencesComponent(inputController_, preferencesDir));
+
+    const Preferences & preferences = preferencesComponent_->preferences;
     {
         std::unique_ptr<const Icons::Theme> theme(
-            new Icons::Theme(preferences_.alwaysUseFallbackIcons));
+            new Icons::Theme(preferences.alwaysUseFallbackIcons));
 
         actions_.reset(new Actions(* theme));
         setWindowIcon(theme->venturous());
-        preferencesWindow_ = new PreferencesWindow(
-            preferences_, actions_->playlist.addFiles->icon(), this);
     }
 
     initMenuBar(menuBar_, * actions_);
@@ -160,73 +159,40 @@ MainWindow::MainWindow(std::unique_ptr<QSharedMemory> sharedMemory,
     const std::string preferencesDirString =
         QtUtilities::qStringToString(preferencesDir);
 
-    playlistComponent_.reset(
-        new PlaylistComponent(* this, actions_->playlist, inputController_,
-                              preferences_, preferencesDirString));
-
     playbackComponent_.reset(
-        new PlaybackComponent(* this, playlistComponent_->tree(),
-                              actions_->playback, inputController_,
-                              preferences_.playback, preferencesDirString));
-
-    playlistComponent_->setPlayItems(
+        new PlaybackComponent(* this, actions_->playback, inputController_,
+                              preferences.playback, preferencesDirString));
+    /// WARNING: repeated execution blocking is possible here!
+    playlistComponent_.reset(
+        new PlaylistComponent(* this, * actions_, inputController_,
+                              preferences,
     [this](CommonTypes::ItemCollection items) {
         playbackComponent_->play(std::move(items));
-    });
-
-    connectSlots();
-
-    onPlayerStateChanged(playbackComponent_->isPlayerRunning());
-    /// FIXME: not all preferences should be reset.
-    preferencesChanged();
-
-    restoreGeometry(preferences_.windowGeometry);
-    restoreState(preferences_.windowState);
-
-    if (!(preferences_.notificationAreaIcon &&
-            preferences_.startToNotificationArea)) {
-        show();
-    }
-}
-
-MainWindow::~MainWindow()
-{
-# ifdef DEBUG_VENTUROUS_MAIN_WINDOW
-    std::cout << "Entered MainWindow destructor." << std::endl;
-# endif
-}
+    },
+    preferencesDirString));
 
 
-const QString MainWindow::preferencesFilename =
-    preferencesDir + APPLICATION_NAME ".xml";
-const QString MainWindow::savePreferencesErrorPrefix =
-    QObject::tr("Saving preferences failed");
+    connect(preferencesComponent_.get(), SIGNAL(aboutToSave()),
+            SLOT(copyInternalOptionsToPreferences()));
+    connect(preferencesComponent_.get(), SIGNAL(preferencesChanged()),
+            SLOT(onPreferencesChanged()));
 
+    connect(playbackComponent_.get(), SIGNAL(playerStateChanged(bool)),
+            SLOT(onPlayerStateChanged(bool)));
 
-void MainWindow::initPreferences()
-{
-    if (QFile::exists(preferencesFilename)) {
-        if (handlePreferencesErrors([this] {
-        savedPreferences_.load(preferencesFilename);
-        }, tr("Loading preferences failed"))) {
-            preferences_ = savedPreferences_;
-        }
-        else
-            savedPreferences_ = preferences_;
-    }
-}
+    connect(playlistComponent_.get(), SIGNAL(treeChanged()),
+            SLOT(setWindowTitle()));
+    playbackComponent_->connect(
+        playlistComponent_.get(), SIGNAL(itemActivated(QString)),
+        SLOT(onItemActivated(QString)));
 
-void MainWindow::connectSlots()
-{
-    connect(preferencesWindow_, SIGNAL(preferencesUpdated()),
-            SLOT(onPreferencesUpdated()));
-    connect(actions_->file.preferences, SIGNAL(triggered(bool)),
-            SLOT(onPreferencesActivated()));
     connect(actions_->file.quit, SIGNAL(triggered(bool)), SLOT(onFileQuit()));
-
+    connect(actions_->file.preferences, SIGNAL(triggered(bool)),
+            SLOT(onFilePreferences()));
+    connect(actions_->playback.next, SIGNAL(triggered(bool)),
+            SLOT(onPlaybackNext()));
     connect(actions_->help.help, SIGNAL(triggered(bool)), SLOT(onHelpHelp()));
     connect(actions_->help.about, SIGNAL(triggered(bool)), SLOT(onHelpAbout()));
-
     {
         const Actions::AddingPolicy & a = actions_->addingPolicy;
         connect(a.audioFile, SIGNAL(triggered(bool)),
@@ -239,15 +205,26 @@ void MainWindow::connectSlots()
                 SLOT(onBothMediaDirStateChanged()));
     }
 
-    connect(playlistComponent_.get(), SIGNAL(treeChanged()),
-            SLOT(setWindowTitle()));
+    setPreferencesNoComponents();
+    onPlayerStateChanged(playbackComponent_->isPlayerRunning());
 
-    connect(playlistComponent_.get(), SIGNAL(itemActivated(QString)),
-            playbackComponent_.get(), SLOT(onItemActivated(QString)));
+    restoreGeometry(preferences.windowGeometry);
+    restoreState(preferences.windowState);
+    if (!(preferences.notificationAreaIcon &&
+            preferences.startToNotificationArea)) {
+        show();
+    }
 
-    connect(playbackComponent_.get(), SIGNAL(playerStateChanged(bool)),
-            SLOT(onPlayerStateChanged(bool)));
-
-    connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()),
-            SLOT(onAboutToQuit()));
+    typedef Preferences::Playback::StartupPolicy StartupPolicy;
+    switch (preferences.playback.startupPolicy) {
+        case StartupPolicy::playbackNext:
+            /// WARNING: repeated execution blocking is possible here!
+            onPlaybackNext();
+            break;
+        case StartupPolicy::playbackPlay:
+            actions_->playback.play->trigger();
+            break;
+        case StartupPolicy::doNothing:
+            break;
+    }
 }

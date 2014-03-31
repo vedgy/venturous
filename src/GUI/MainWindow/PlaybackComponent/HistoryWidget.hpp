@@ -36,11 +36,12 @@ class HistoryWidget : public QListWidget
 public:
     typedef std::function<void(std::string)> PlayExistingEntry;
 
-    /// @param playExistingEntry Method, which starts playing entry from
+    /// @param playExistingEntry function, which starts playing entry from
     /// history. It must not be pushed in history after playing.
-    /// @param playItems Method, which starts playing ItemCollection parameter.
-    /// If item(s) actually get(s) played, HistoryWidget must be notified
-    /// about this via push() or playedMultipleItems().
+    /// WARNING: playExistingEntry must not block execution.
+    /// @param playItems Function, which starts playing ItemCollection
+    /// parameter. If item(s) actually get(s) played, HistoryWidget must be
+    /// notified about this via push() or playedMultipleItems().
     explicit HistoryWidget(PlayExistingEntry playExistingEntry,
                            CommonTypes::PlayItems playItems,
                            const Preferences::Playback::History & preferences,
@@ -61,8 +62,18 @@ public:
     int currentEntryIndex() const { return currentEntryIndex_; }
 
     std::string previous() { return setCurrentEntry(currentEntryIndex_ + 1); }
-    std::string current() const { return entryAt(currentEntryIndex_); }
+    /// @brief If currentEntryIndex_ points to existing entry, copies this entry
+    /// to history top if (copyPlayedEntryToTop_ == true) and returns its path.
+    /// Otherwise returns empty string.
+    std::string current();
     std::string next() { return setCurrentEntry(currentEntryIndex_ - 1); }
+
+    /// @brief Should be queried after successful setting current entry via
+    /// previous(), current() or next().
+    /// @return true if setting current entry changes history.
+    bool isHistoryChangedBySettingCurrentEntry() const {
+        return copyPlayedEntryToTop_;
+    }
 
     /// @return Current history entry or empty string if there is no current
     /// entry.
@@ -79,15 +90,22 @@ public:
     void playedMultipleItems();
 
 public slots:
+    /// WARNING: can block execution.
     void clearHistory();
+
+signals:
+    /// @brief Is emitted after history is changed via GUI (adding or manual
+    /// removing items in list widget) or clearHistory() slot.
+    /// NOTE: execution may be blocked by signal receiver.
+    void historyChanged();
 
 private:
     /// @return Entry path at specified index or empty string if there is no
     /// such entry.
     std::string entryAt(int index) const;
-    /// @brief If there is an entry at specified index, points
-    /// currentEntryIndex_ to it and returns its path,
-    /// otherwise returns empty string.
+    /// @brief If there is an entry at specified index, makes it current
+    /// (either by copying to top or just changing currentEntryIndex_) and
+    /// returns its path, otherwise returns empty string.
     std::string setCurrentEntry(int index);
 
     /// @brief Emphasizes/deemphasizes current entry if it exists.
@@ -97,6 +115,7 @@ private:
     /// stored in each item's tooltip) and nHiddenDirs_.
     void resetAllItemsText();
 
+    /// WARNING: can block execution.
     void keyPressEvent(QKeyEvent *) override;
 
 
@@ -116,6 +135,7 @@ private:
     int currentEntryIndex_;
 
 private slots:
+    /// WARNING: can block execution.
     void onUiItemActivated(QListWidgetItem * item);
 };
 

@@ -17,6 +17,7 @@
 */
 
 # ifdef DEBUG_VENTUROUS_TREE_WIDGET
+# include <QtCoreUtilities/String.hpp>
 # include <iostream>
 # endif
 

@@ -28,7 +28,7 @@ namespace CommonTypes
 {
 /// Collection of items to be played.
 typedef std::vector<std::string> ItemCollection;
-/// Method, which starts playing ItemCollection parameter.
+/// Function, which starts playing ItemCollection parameter.
 typedef std::function<void(ItemCollection)> PlayItems;
 }
 

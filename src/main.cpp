@@ -58,10 +58,8 @@ int main(int argc, char * argv[])
     }
 
     MainWindow mainWindow(std::move(shared));
-
 # ifdef DEBUG_VENTUROUS_MAIN
     std::cout << "MainWindow constructed." << std::endl;
 # endif
-
     return app.exec();
 }

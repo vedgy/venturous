@@ -24,19 +24,18 @@
 # include "Actions.hpp"
 # include "Preferences.hpp"
 
-# include <VenturousCore/ItemTree.hpp>
 # include <VenturousCore/MediaPlayer.hpp>
 
 # include <QtGlobal>
 # include <QString>
 # include <QObject>
+# include <QLabel>
 
 # include <vector>
 # include <string>
 
 
 class InputController;
-QT_FORWARD_DECLARE_CLASS(QLabel)
 QT_FORWARD_DECLARE_CLASS(QMainWindow)
 
 /// WARNING: each method can block execution if not stated otherwise.
@@ -44,10 +43,10 @@ class PlaybackComponent : public QObject
 {
     Q_OBJECT
 public:
-    /// NOTE: mainWindow, tree, actions and inputController must remain valid
+    /// NOTE: mainWindow, actions and inputController must remain valid
     /// throughout this PlaybackComponent's lifetime.
+    /// NOTE: does not block execution.
     explicit PlaybackComponent(QMainWindow & mainWindow,
-                               const ItemTree::Tree & tree,
                                const Actions::Playback & actions,
                                InputController & inputController,
                                const Preferences::Playback &,
@@ -69,7 +68,11 @@ public:
     /// @brief Starts playing items and adjusts history.
     void play(CommonTypes::ItemCollection items);
 
-    /// @brief Should be called before normal quit. Can block execution.
+    /// @brief If there is next item in history, starts playing it and returns
+    /// true. Otherwise, does not block execution and returns false.
+    bool playNextFromHistory();
+
+    /// @brief Should be called before normal quit.
     void quit();
 
 public slots:
@@ -108,37 +111,37 @@ private:
     /// NOTE: does not block execution.
     void setPlayerState(bool isRunning);
 
+    /// @brief Should be called after successful setting HistoryWidget current
+    /// entry via previous(), current() or next(), when ready to block
+    /// execution.
+    void checkHistoryWidgetChanges();
+
     /// @brief Saves history if (! isHistorySaved_).
     void saveHistory();
 
-    /// @brief Pushes item to history; handles saveHistoryToDiskImmediately_
-    /// and isHistorySaved_.
-    void pushToHistory(std::string item);
 
-
-    const ItemTree::Tree & tree_;
     const Actions::Playback & actions_;
     InputController & inputController_;
     const std::string historyFilename_;
 
     bool saveHistoryToDiskImmediately_;
-    bool nextFromHistory_;
     bool isPlayerRunning_ = false;
     bool isHistorySaved_ = true;
 
-    ItemTree::RandomItemChooser randomItemChooser_;
     MediaPlayer mediaPlayer_;
 
-    QLabel * const lastPlayedItemLabel_;
+    QLabel lastPlayedItemLabel_;
     HistoryWidget historyWidget_;
 
 private slots:
+    /// @brief Sets isHistorySaved_ to false, handles
+    /// saveHistoryToDiskImmediately_.
+    void onHistoryChanged();
+
     /// NOTE: does not block execution.
     void playbackPlay();
     /// NOTE: does not block execution.
     void playbackStop();
-    void playbackNext();
-    void onPlayAll();
 };
 
 # endif // VENTUROUS_PLAYBACK_COMPONENT_HPP

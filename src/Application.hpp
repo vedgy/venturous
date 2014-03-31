@@ -26,6 +26,7 @@ class Application : public QApplication
 {
 public:
     explicit Application(int & argc, char ** argv);
+    ~Application();
 };
 
 # endif // VENTUROUS_APPLICATION_HPP
