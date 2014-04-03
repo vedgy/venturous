@@ -25,19 +25,19 @@
 
 
 <a id="Overview"><h2>Overview</h2></a>
-    <p>Venturous is a wrapper, which uses media player's command line interface.
+    <p>Venturous is a wrapper that uses media player's command line interface.
     Currently only Audacious media player is supported, but adding support for
     other players should be quite simple.</p>
     <p>Venturous is built around one feature, which is missing in most (maybe
     even all) media players: user-defined items for random playback. This
-    feature is especially useful for grouping separate tracks, which are
+    feature is especially useful for grouping separate tracks that are
     actually parts of one composition. For example parts of classical music
     compositions (movements) are often distributed as separate tracks. It is
     usually desirable to listen to movements in succession and in a proper
     order.</p>
     <p>Venturous features tree-like playlist, which reflects files' and
     directories' location. Each item (file or directory) in playlist tree can be
-    marked as playable. Items, which are marked as playable, can be sent to
+    marked as playable. Items that are marked as playable can be sent to
     external player's temporary playlist. Normal workflow is the following:
     after item is played by external player, Venturous selects next random
     playable item, sends it to new temporary playlist and starts playback. So,
@@ -79,26 +79,26 @@
 
 <a id="AddingFiles"><h2>Adding files to playlist</h2></a>
     <p>Adding files can be done in playlist edit mode. There are menu actions
-    (Playlist menu) and toolbar buttons, which allow adding individual files
+    (Playlist menu) and toolbar buttons that allow adding individual files
     or recursively add directories. There are also options on toolbar and in
-    preferences, which influence adding directories policy.</p>
+    preferences that influence adding directories policy.</p>
     <p>Venturous adds two types of items in playlist tree: files and media dirs.
     "Add files" or "Add media dirs" checkboxes in "Directory adding policy" tab
     of Preferences must be checked to enable adding these items. Alternatively,
     adding these items can be enabled/disabled via corresponding toolbar
     buttons: "Consider adding files", "Consider adding media dirs".</p>
     <p>Naturally, not all files or directories will be added in playlist tree.
-    Only files, which match checked "File patterns", and directories, which
-    contain (directly!) files, which match "Media directory file patterns", will
+    Only files that match checked "File patterns" and directories that
+    contain (directly!) files that match "Media directory file patterns" will
     be added. These patterns can be configured in "Filename patterns" tab of
     Preferences. Only meta data patterns are enabled in "File patterns" by
     default. This means that only *.cue files will be added as playable items.
     All audio patterns, supported by Audacious, are enabled in
-    "Media directory file patterns" by default. This means that all directories,
-    which directly contain audio files, will be added as playable items
+    "Media directory file patterns" by default. This means that all directories
+    that directly contain audio files will be added as playable items
     (assuming that "Add media dirs" is enabled).</p>
     <p>A conflict situation is possible with adding directories: when both
-    adding files and media dirs is enabled, and media dir contains files, which
+    adding files and media dirs is enabled, and media dir contains files that
     match "File patterns". Adding both directory and its files might be
     undesirable. This situation is designated as "If both...". There are two
     checkboxes in "Directory adding policy" tab of Preferences for fine-tuning
@@ -112,7 +112,7 @@
             file. How to add these all to Venturous playlist?
             It can be done as follows:
             <ol>
-                <li>Separate music, which belongs to these categories, in 3
+                <li>Separate music that belongs to these categories in 3
                 directories. Let us name them "files", "dirs" and "cue".</li>
                 <li>Check "Add media dirs" in "Directory adding policy" tab of
                 Preferences (or "Consider adding media directories" on toolbar).
@@ -138,7 +138,7 @@
     name in order to enter edit mode. Multiple rows selection with CTRL or SHIFT
     keys is allowed in edit mode. Selected items can be removed by pressing
     Delete key. If item is removed, all its descendants are also removed
-    recursively. When user triggers action, which requires edit or non-edit tree
+    recursively. When user triggers action that requires edit or non-edit tree
     mode enabled, and if this mode is not currently active, dialog appears,
     asking if user wants to switch edit mode.</p>
     <p>Single item can be checked/unchecked by mouse-clicking or pressing Space
@@ -149,10 +149,10 @@
     <a href="#AddingFiles">Adding files to playlist</a></p>
     There are several additional actions in Playlist menu:
         <ol>
-            <li>"Clean up" - removes all items, which are not playable and have
+            <li>"Clean up" - removes all items that are not playable and have
             no playable descendants.</li>
             <li>"Clear" - removes all items from playlist.</li>
-            <li>"Restore previous" - restores playlist, which was used before
+            <li>"Restore previous" - restores playlist that was used before
             the last saved playlist.</li>
             <li>"Load ..." - loads previously saved playlist. Note: loading
             "items" file from Venturous preferences directory is equivalent to
@@ -165,7 +165,7 @@
     playback. Click "Apply changes" action in Playlist menu to save changes
     and start using edited playlist. Click "Cancel changes" in the same menu to
     cancel editing without saving. Alternatively, unchecking "Edit mode" in
-    menu or toolbar will trigger dialog, which asks whether changes have to be
+    menu or toolbar will trigger dialog that asks whether changes have to be
     saved.</p>
     <p>It is also possible to manually edit playlist tree. It is stored in
     &lt;Venturous preferences directory&gt;/items file in plain text format.
@@ -214,7 +214,7 @@
 
 
 <a id="Ventool"><h2>Ventool and global shortcuts</h2></a>
-    <p>Command line tool, which controls Venturous, is built and installed
+    <p>Command line tool that controls Venturous is built and installed
     with Venturous by default (switching off BUILD_VENTOOL CMake option during
     Venturous build process prevents building and installing it). All available
     Ventool commands can be found by running "ventool help" from terminal.</p>
@@ -280,7 +280,7 @@
         OFF to use Qt5. Qt4 is preferred (for now) because of font
         rendering issues in Qt5.</li>
         <li>"PREFERENCES_DIR" : STRING (default: "~/.config/venturous") -
-            directory, which contains user preferences and playlist
+            directory that contains user preferences and playlist
             (here '~' expands to current user's HOME directory).</li>
         <li>"ALWAYS_EMBED_ICONS" : BOOLEAN (default: ON) -
         if disabled, embedding icons will be done only in Windows. It is not
@@ -337,7 +337,7 @@
     <ul>
         <li>Resizing and moving Venturous and preferences window is possible.
         </li>
-        <li>Venturous toolbar has a handle, which allows to detach and move it.
+        <li>Venturous toolbar has a handle that allows to detach and move it.
         Toolbar can be attached to any window side (top, bottom, left or right).
         In order to attach toolbar to desired Venturous window side, its handle
         has to be dragged to the corresponding edge of the window.</li>

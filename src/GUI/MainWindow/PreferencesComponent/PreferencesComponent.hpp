@@ -74,7 +74,7 @@ signals:
 
 private:
     /// @brief Calls callable object f, catches and handles QtUtilities::Error.
-    /// @param errorPrefix Text, which will be displayed before
+    /// @param errorPrefix Text that will be displayed before
     /// QtUtilities::Error::message().
     /// @param silentMode Makes a difference only in case of error.
     /// If true, error message is printed to stderr and method returns false.

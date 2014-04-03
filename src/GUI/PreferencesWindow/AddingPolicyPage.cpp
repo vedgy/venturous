@@ -33,8 +33,8 @@ void addIfBothSubOption(
 {
     subOption.setText(QObject::tr("If both are present, add %1").arg(itemType));
     subOption.setToolTip(
-        QObject::tr("This option is considered if files, which match file "
-                    "patterns, are found in media directory.\n"
+        QObject::tr("This option is considered if files that match file "
+                    "patterns are found in media directory.\n"
                     "If checked, %1 will be added to playlist.").arg(itemType));
 
     QHBoxLayout * rowLayout = new QHBoxLayout;
@@ -54,8 +54,8 @@ AddingPolicyPage::AddingPolicyPage(
 {
     QVBoxLayout * const layout = new QVBoxLayout(this);
 
-    addFilesCheckBox.setToolTip(tr("If checked, files, which match file "
-                                   "patterns, are considered playable items."));
+    addFilesCheckBox.setToolTip(tr("If checked, files that match file "
+                                   "patterns are considered playable items."));
     layout->addWidget(& addFilesCheckBox);
 
     addMediaDirsCheckBox.setToolTip(tr("If checked, media directories are "

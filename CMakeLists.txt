@@ -14,7 +14,7 @@ include(vedgTools/CMakeLicense)
 include(vedgTools/ExecutableQtStart)
 
 set(PREFERENCES_DIR ~/.config/venturous CACHE STRING
-            "Directory, which contains user preferences and playlist.")
+            "Directory that contains user preferences and playlist.")
 option(ALWAYS_EMBED_ICONS
         "Always bundle icons with the executable. If disabled, embedding will be done only for WIN32 target."
             ON)

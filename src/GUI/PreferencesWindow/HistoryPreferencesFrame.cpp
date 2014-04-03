@@ -51,7 +51,7 @@ HistoryPreferencesFrame::HistoryPreferencesFrame(
     layout->addRow(tr("Maximum size"), & maxSizeSpinBox);
 
     copyPlayedEntryToTopCheckBox.setToolTip(
-        tr("If checked, entry, which was played from history, is copied to the "
+        tr("If checked, entry that was played from history is copied to the "
            "history top.\n"
            "Otherwise, history pointer is moved to custom-played entry."));
     layout->addRow(tr("Copy played entry to top"),

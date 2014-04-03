@@ -29,7 +29,7 @@ class Theme;
 }
 QT_FORWARD_DECLARE_CLASS(QAction)
 
-/// NOTE: each action's parent is the class, which contains it.
+/// NOTE: each action's parent is the class that contains it.
 /// For example playAll's parent is playback.
 struct Actions {
     explicit Actions(const Icons::Theme & theme);

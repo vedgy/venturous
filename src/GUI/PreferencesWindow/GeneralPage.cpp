@@ -100,7 +100,7 @@ GeneralPage::GeneralPage(QWidget * const parent, const Qt::WindowFlags f)
         0, std::numeric_limits < decltype(
             Preferences::treeAutoUnfoldedLevels) >::max());
     treeAutoUnfoldedLevelsSpinBox.setToolTip(tr("Number of items in playlist "
-            "tree, which will be unfolded by default."));
+            "tree that will be unfolded by default."));
     layout->addRow(tr("Auto unfolded levels in the tree"),
                    & treeAutoUnfoldedLevelsSpinBox);
 

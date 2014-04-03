@@ -35,7 +35,7 @@ public:
     /// @brief Sets UI values from source.
     virtual void setUiPreferences(const Preferences & source) = 0;
 
-    /// @brief Copies preferenses, which are handled by this widget,
+    /// @brief Copies preferenses that are handled by this widget,
     /// from UI to destination.
     virtual void writeUiPreferencesTo(Preferences & destination) const = 0;
 };

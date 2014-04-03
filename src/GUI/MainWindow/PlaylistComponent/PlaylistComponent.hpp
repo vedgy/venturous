@@ -130,8 +130,8 @@ private:
     /// @brief Calls ensureAskInEditMode(). If edit mode is set, calls
     /// filenameGetter() and if acquired filename is not empty, tries to load
     /// temporaryTree_ from it.
-    /// @tparam FilenameGetter Must be a callable object,
-    /// which returns [const] QString [&[&]].
+    /// @tparam FilenameGetter Must be a callable object
+    /// that returns [const] QString [&[&]].
     template <typename FilenameGetter>
     void loadTemporaryPlaylist(FilenameGetter filenameGetter);
 

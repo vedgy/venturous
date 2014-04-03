@@ -42,10 +42,10 @@ public:
     /// @param title Title of the message box.
     /// @param text Text of the message box.
     /// @param buttons Buttons to be displayed in the message box.
-    /// @param defaultButton Button, which will be set as default and escape
+    /// @param defaultButton Button that will be set as default and escape
     /// button of the message box unless it is equal to QMessageBox::NoButton.
     /// @param icon Message box's icon.
-    /// @return Button, which was selected by user. If QMessageBox::NoButton is
+    /// @return Button that was selected by user. If QMessageBox::NoButton is
     /// returned, it means that message box was closed abnormally. It is advised
     /// to return from calling function without blocking execution in this case.
     int showMessage(

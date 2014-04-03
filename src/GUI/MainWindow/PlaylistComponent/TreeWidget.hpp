@@ -67,8 +67,8 @@ public:
     bool editMode() const { return editMode_; }
 
 
-    /// @brief Determines number of items (>= 0) in tree,
-    /// which will be unfolded by default.
+    /// @brief Determines number of items (>= 0) in tree
+    /// that will be unfolded by default.
     void setAutoUnfoldedLevels(int autoUnfoldedLevels);
 
     int getAutoUnfoldedLevels() const { return autoUnfoldedLevels_; }

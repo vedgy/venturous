@@ -47,7 +47,7 @@ bool isChecked(const QTreeWidgetItem * item)
     return item->checkState(0) == Qt::Checked;
 }
 
-/// @brief Creates structure, which matches node's structure,
+/// @brief Creates structure that matches node's structure
 /// and places it under parent as a root.
 template <class Parent>
 void createTreeWidgetItem(

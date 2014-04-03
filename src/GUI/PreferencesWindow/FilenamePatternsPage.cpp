@@ -37,7 +37,7 @@ FilenamePatternsPage::FilenamePatternsPage(const QIcon & addIcon,
     QGridLayout * const layout = new QGridLayout(this);
 
     const QString filesMatchPatterns =
-        QObject::tr("Files, which match checked patterns, ");
+        QObject::tr("Files that match checked patterns ");
     const QString copySelectedPatterns =
         QObject::tr("Copy selected patterns from %1 to %2 column.");
     const QString left = QObject::tr("left"), right = QObject::tr("right");

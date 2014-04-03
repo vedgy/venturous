@@ -1,13 +1,13 @@
 ## Introduction
 
-<b>Venturous</b> is a GUI wrapper, which uses media player's
+<b>Venturous</b> is a GUI wrapper that uses media player's
 command line interface.
 Currently only Audacious media player is supported, but adding support for
 other players should be quite simple.
 
 Venturous is built around one feature, which is missing in most (maybe
 even all) media players: user-defined items for random playback. This
-feature is especially useful for grouping separate tracks, which are
+feature is especially useful for grouping separate tracks that are
 actually parts of one composition. For example parts of classical music
 compositions (movements) are often distributed as separate tracks. It is
 usually desirable to listen to movements in succession and in a proper order.
@@ -38,7 +38,7 @@ And run:
 
     ./update_and_configure_submodules
 
-After that follow instructions, which appear at the end of
+Follow instructions that appear at the end of
 `update_and_configure_submodules` output.
 
 ### Troubleshooting

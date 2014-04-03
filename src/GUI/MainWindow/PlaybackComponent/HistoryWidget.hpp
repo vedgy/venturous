@@ -36,10 +36,10 @@ class HistoryWidget : public QListWidget
 public:
     typedef std::function<void(std::string)> PlayExistingEntry;
 
-    /// @param playExistingEntry function, which starts playing entry from
+    /// @param playExistingEntry function that starts playing entry from
     /// history. It must not be pushed in history after playing.
     /// WARNING: playExistingEntry must not block execution.
-    /// @param playItems Function, which starts playing ItemCollection
+    /// @param playItems Function that starts playing ItemCollection
     /// parameter. If item(s) actually get(s) played, HistoryWidget must be
     /// notified about this via push() or playedMultipleItems().
     explicit HistoryWidget(PlayExistingEntry playExistingEntry,
