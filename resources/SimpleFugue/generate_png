@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -e
+cd "$( dirname "${BASH_SOURCE[0]}" )"
+source set_paths
+cd "$path_to_theme/scripts"
+./generate_specified_png "$icon_list_abs_path"

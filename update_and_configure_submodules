@@ -11,7 +11,7 @@ print_help()
     echo 'This script accepts following options:
         "download-png", "generate-png", "qt4", "qt5", "help", "--".'
     echo '"download-png" and "qt4" are assumed if not specified.'
-    echo 'Options, which appear later, override preceding ones.'
+    echo 'Options that appear later override preceding ones.'
     echo 'Options after "--" are ignored.'
     echo 'Option may be prefixed with "--" (GNU-style long-options) or not, your choice.'
     exit 1
@@ -51,18 +51,16 @@ cd modules/vedgTools/QtXmlUtilities
 git submodule init TemplateUtilities
 git submodule update TemplateUtilities
 
-cd ../../SimpleFugue
+cd ../../..
+script_path="resources/SimpleFugue"
 if [[ "$generate_png" == true ]] ; then
-    ./generate_all_png
+    "$script_path/generate_png"
 else
-    ./download_all_png
+    "$script_path/download_png"
 fi
-cd ../../
 
 dir_name=build
-if [ ! -d $dir_name ]; then
-    mkdir $dir_name
-fi
+mkdir -p $dir_name
 cd $dir_name
 
 if [[ "$qt4" == true ]] ; then

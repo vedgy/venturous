@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+icon_list_abs_path=$(pwd)"/icon_list"
+path_to_theme="../../modules/SimpleFugue"

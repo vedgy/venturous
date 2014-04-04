@@ -29,12 +29,18 @@
 
 # include "Icons.hpp"
 
+# include <QtCoreUtilities/String.hpp>
+
 # include <QSize>
 # include <QList>
 # include <QString>
+# include <QStringList>
+# include <QFile>
+# include <QTextStream>
 # include <QIcon>
 
 # include <cstddef>
+# include <utility>
 # include <array>
 # include <tuple>
 
@@ -49,23 +55,54 @@ bool isEmpty(const QIcon & icon)
     return icon.availableSizes().empty();
 }
 
-# ifdef EMBEDDED_ICONS
-QString getContext(std::size_t iconId)
-{
-    if (iconId >= addingPolicyStartIndex)
-        return "mimetypes";
-    switch (iconId) {
-        case 0:
-            return "apps";
-        case 1:
-            return "categories";
-        case playlistStartIndex + 4:
-            return "places";
-        default:
-            return "actions";
+struct IconName {
+    QString context, name;
+
+    IconName() = default;
+
+    explicit IconName(const QString & line) {
+        const QStringList parts = line.split('/', QString::KeepEmptyParts);
+        if (parts.size() != 2)
+            throw Icons::Theme::Error("invalid line format in icon list.");
+        context = std::move(parts.front());
+        name = std::move(parts.back());
     }
+};
+template <std::size_t N>
+using IconNames = std::array<IconName, N>;
+
+template <std::size_t N>
+IconNames<N> getNames()
+{
+    IconNames<N> names;
+    std::size_t index = 0;
+    const QString filename = Icons::getAbsolutePath("icon_list");
+    QFile source(filename);
+    if (! source.open(QFile::ReadOnly)) {
+        throw Icons::Theme::Error(
+            "could not open " + QtUtilities::qStringToString(filename) +
+            " for reading.");
+    }
+
+    QTextStream stream(& source);
+    QString line;
+    do {
+        line = stream.readLine().trimmed();
+        if (! line.isEmpty()) {
+            if (index == names.size())
+                throw Icons::Theme::Error("too many icons.");
+            names[index] = IconName(line);
+            ++index;
+        }
+    }
+    while (! line.isNull());
+
+    if (index != names.size())
+        throw Icons::Theme::Error("not enough icons.");
+    return names;
 }
 
+# ifdef EMBEDDED_ICONS
 # ifdef DEBUG_VENTUROUS_ICONS
 void printInfo(const QIcon & icon)
 {
@@ -100,45 +137,33 @@ namespace Icons
 {
 Theme::Theme(const bool alwaysUseFallbackIcons)
 {
-    const std::array<QString, std::tuple_size<decltype(icons_)>::value> names {{
-            "venturous", "preferences-desktop", "application-exit",
-            // playback
-            "media-playback-start", "media-playback-stop", "media-skip-forward",
-            "media-play-all",
-            // playlist
-            "list-edit", "dialog-ok-apply", "dialog-cancel", "list-add",
-            "folder-add", "clean-up", "edit-clear", "document-revert",
-            "document-open", "document-save-as",
-            // help
-            "help-contents", "help-about",
-            // addingPolicy
-            "audio-file", "media-dir", "both-audio-file", "both-media-dir"
-        }
-    };
+    constexpr std::size_t nIcons = std::tuple_size<decltype(icons_)>::value;
+    const IconNames<nIcons> names = getNames<nIcons>();
 
     const QString themeName = "SimpleFugue";
     if (alwaysUseFallbackIcons)
         QIcon::setThemeName(themeName);
     for (std::size_t i = 0; i < icons_.size(); ++i)
-        icons_[i] = QIcon::fromTheme(names[i]);
+        icons_[i] = QIcon::fromTheme(names[i].name);
 
 # ifdef EMBEDDED_ICONS
     const std::array<int, 7> sizes {{ 16, 22, 24, 32, 48, 96, 256 }};
     const QString prefix = QString(":/icons/%1/").arg(themeName);
     for (std::size_t i = 0; i < icons_.size(); ++i) {
 # ifdef DEBUG_VENTUROUS_ICONS
-        std::cout << QtUtilities::qStringToString(names[i]) << " - ";
+        std::cout << QtUtilities::qStringToString(names[i].name) << " - ";
 # endif
         if (isEmpty(icons_[i])) {
-            const QString context = '/' + getContext(i) + '/';
+            const QString contextAndName =
+                '/' + names[i].context + '/' + names[i].name;
             for (int size : sizes) {
                 const QString filename = prefix + QString("%1x%1").arg(size) +
-                                         context + names[i] + ".png";
+                                         contextAndName + ".png";
                 if (QFile::exists(filename))
                     icons_[i].addFile(filename, QSize(size, size));
             }
             const QString scalableIcon = prefix + "scalable" +
-                                         context + names[i] + ".svg";
+                                         contextAndName + ".svg";
             if (QFile::exists(scalableIcon))
                 icons_[i].addFile(scalableIcon);
 

@@ -110,7 +110,7 @@ include(vedgTools/QtAddResources)
 qtAddResources(Resources ${Resources_Path}/Venturous.qrc)
 
 if(ALWAYS_EMBED_ICONS OR WIN32)
-    qtAddResources(Resources ${PATH_TO_MODULES}/SimpleFugue.qrc)
+    qtAddResources(Resources ${Resources_Path}/SimpleFugue/SimpleFugue.qrc)
     add_definitions(-DEMBEDDED_ICONS)
 endif()
 

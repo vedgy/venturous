@@ -23,6 +23,8 @@
 # include <QIcon>
 
 # include <array>
+# include <string>
+# include <stdexcept>
 
 
 namespace Icons
@@ -37,6 +39,12 @@ inline QString getAbsolutePath(const QString & filename)
 class Theme
 {
 public:
+    class Error : public std::runtime_error
+    {
+    public:
+        explicit Error(const std::string & sWhat) : std::runtime_error(sWhat) {}
+    };
+
     /// @param alwaysUseFallbackIcons If false, system icon theme will be
     /// preferred. If true, icons from system theme will never be used.
     explicit Theme(bool alwaysUseFallbackIcons = false);
