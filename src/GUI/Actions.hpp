@@ -45,7 +45,8 @@ struct Actions {
     {
     public:
         explicit Playback(const Icons::Theme & theme);
-        QAction * play, * stop, * next, * playAll;
+        QAction * play, * stop, * previous, * replayLast,
+                * nextFromHistory, * nextRandom, * next, * playAll;
     } playback;
 
     class Playlist : public QObject

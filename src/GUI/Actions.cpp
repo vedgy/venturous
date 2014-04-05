@@ -45,6 +45,13 @@ Actions::File::File(const Icons::Theme & theme)
 Actions::Playback::Playback(const Icons::Theme & theme)
     : play(new QAction(theme.playbackPlay(), tr("&Play"), this)),
       stop(new QAction(theme.playbackStop(), tr("&Stop"), this)),
+      previous(new QAction(theme.playbackPrevious(), tr("Pre&vious"), this)),
+      replayLast(new QAction(theme.playbackReplayLast(),
+                             tr("Replay &last"), this)),
+      nextFromHistory(new QAction(theme.playbackNextFromHistory(),
+                                  tr("Next from &history"), this)),
+      nextRandom(new QAction(theme.playbackNextRandom(),
+                             tr("Next &random"), this)),
       next(new QAction(theme.playbackNext(), tr("&Next"), this)),
       playAll(new QAction(theme.playbackPlayAll(), tr("Play &all"), this))
 {
@@ -52,8 +59,16 @@ Actions::Playback::Playback(const Icons::Theme & theme)
     play->setShortcut(Qt::CTRL | Qt::Key_P);
     stop->setIconText("St");
     stop->setShortcut(Qt::CTRL | Qt::Key_S);
-    next->setIconText("Nx");
+
+    previous->setIconText("Pr");
+    previous->setShortcut(Qt::CTRL | Qt::Key_V);
+    replayLast->setIconText("RL");
+
+    nextFromHistory->setIconText("NH");
+    nextRandom->setIconText("NR");
+    next->setIconText("Ne");
     next->setShortcut(Qt::CTRL | Qt::Key_N);
+
     playAll->setIconText("PA");
 }
 

@@ -56,6 +56,10 @@ public:
 
     const QIcon & playbackPlay() const;
     const QIcon & playbackStop() const;
+    const QIcon & playbackPrevious() const;
+    const QIcon & playbackReplayLast() const;
+    const QIcon & playbackNextFromHistory() const;
+    const QIcon & playbackNextRandom() const;
     const QIcon & playbackNext() const;
     const QIcon & playbackPlayAll() const;
 
@@ -79,7 +83,7 @@ public:
     const QIcon & bothMediaDir() const;
 
 private:
-    std::array<QIcon, 23> icons_;
+    std::array<QIcon, 27> icons_;
 };
 
 }

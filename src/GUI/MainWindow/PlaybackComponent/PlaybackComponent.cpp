@@ -82,6 +82,13 @@ preferences.history)
 
     connect(actions.play, SIGNAL(triggered(bool)), SLOT(playbackPlay()));
     connect(actions.stop, SIGNAL(triggered(bool)), SLOT(playbackStop()));
+    connect(actions.previous, SIGNAL(triggered(bool)),
+            SLOT(playbackPrevious()));
+    connect(actions.replayLast, SIGNAL(triggered(bool)),
+            SLOT(playbackReplayLast()));
+    connect(actions.nextFromHistory, SIGNAL(triggered(bool)),
+            SLOT(playbackNextFromHistory()));
+
     connect(& historyWidget_, SIGNAL(historyChanged()),
             SLOT(onHistoryChanged()));
 
@@ -126,12 +133,7 @@ void PlaybackComponent::play(CommonTypes::ItemCollection items)
 
 bool PlaybackComponent::playNextFromHistory()
 {
-    std::string next = historyWidget_.next();
-    if (next.empty())
-        return false;
-    playFromHistory(std::move(next));
-    checkHistoryWidgetChanges();
-    return true;
+    return playFromHistoryIfNotEmpty(historyWidget_.next());
 }
 
 void PlaybackComponent::quit()
@@ -207,6 +209,15 @@ void PlaybackComponent::playFromHistory(const std::string entry)
     setPlayerState(true);
 }
 
+bool PlaybackComponent::playFromHistoryIfNotEmpty(std::string entry)
+{
+    if (entry.empty())
+        return false;
+    playFromHistory(std::move(entry));
+    checkHistoryWidgetChanges();
+    return true;
+}
+
 void PlaybackComponent::currentHistoryEntryChanged()
 {
     QString textPrefix = tr("Last played item: ");
@@ -274,4 +285,22 @@ void PlaybackComponent::playbackStop()
 {
     mediaPlayer_.quit();
     setPlayerState(false);
+}
+
+void PlaybackComponent::playbackPrevious()
+{
+    if (! playFromHistoryIfNotEmpty(historyWidget_.previous()))
+        playbackStop();
+}
+
+void PlaybackComponent::playbackReplayLast()
+{
+    if (! playFromHistoryIfNotEmpty(historyWidget_.current()))
+        playbackStop();
+}
+
+void PlaybackComponent::playbackNextFromHistory()
+{
+    if (! playNextFromHistory())
+        playbackStop();
 }

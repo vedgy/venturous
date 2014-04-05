@@ -102,6 +102,11 @@ private:
     /// NOTE: does not block execution.
     void playFromHistory(std::string entry);
 
+    /// @brief If entry.empty(), does not block execution and returns false.
+    /// Otherwise, plays entry from history, calls checkHistoryWidgetChanges()
+    /// and returns true.
+    bool playFromHistoryIfNotEmpty(std::string entry);
+
     /// @brief Must be called after current history entry is changed.
     /// NOTE: does not block execution.
     void currentHistoryEntryChanged();
@@ -142,6 +147,9 @@ private slots:
     void playbackPlay();
     /// NOTE: does not block execution.
     void playbackStop();
+    void playbackPrevious();
+    void playbackReplayLast();
+    void playbackNextFromHistory();
 };
 
 # endif // VENTUROUS_PLAYBACK_COMPONENT_HPP

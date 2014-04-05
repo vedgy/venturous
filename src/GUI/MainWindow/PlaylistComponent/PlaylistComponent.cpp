@@ -58,11 +58,12 @@ QString defaultPath() { return QDir::homePath(); }
 
 }
 
+
 PlaylistComponent::PlaylistComponent(
     QMainWindow & mainWindow, const Actions & actions,
     InputController & inputController, const Preferences & preferences,
     CommonTypes::PlayItems playItems, const std::string & preferencesDir)
-    : actions_(actions.playlist), inputController_(inputController),
+    : actions_(actions), inputController_(inputController),
       addingPolicy_(preferences.addingPolicy), playItems_(std::move(playItems)),
       itemsFilename_(preferencesDir + "items"),
       qItemsFilename_(QtUtilities::toQString(itemsFilename_)),
@@ -91,26 +92,30 @@ PlaylistComponent::PlaylistComponent(
 
     mainWindow.setCentralWidget(& treeWidget_);
 
+    connect(actions.playback.nextRandom, SIGNAL(triggered(bool)),
+            SLOT(playbackNextRandom()));
     connect(actions.playback.playAll, SIGNAL(triggered(bool)),
-            SLOT(onPlayAll()));
+            SLOT(playbackPlayAll()));
 
-    connect(actions_.editMode, SIGNAL(triggered(bool)),
-            SLOT(onEditModeStateChanged()));
-    connect(actions_.applyChanges, SIGNAL(triggered(bool)),
-            SLOT(applyChanges()));
-    connect(actions_.cancelChanges, SIGNAL(triggered(bool)),
-            SLOT(cancelChanges()));
+    {
+        const Actions::Playlist & p = actions.playlist;
+        connect(p.editMode, SIGNAL(triggered(bool)),
+                SLOT(onEditModeStateChanged()));
+        connect(p.applyChanges, SIGNAL(triggered(bool)), SLOT(applyChanges()));
+        connect(p.cancelChanges, SIGNAL(triggered(bool)),
+                SLOT(cancelChanges()));
 
-    connect(actions_.addFiles, SIGNAL(triggered(bool)), SLOT(onAddFiles()));
-    connect(actions_.addDirectory, SIGNAL(triggered(bool)),
-            SLOT(onAddDirectory()));
-    connect(actions_.cleanUp, SIGNAL(triggered(bool)), SLOT(onCleanUp()));
-    connect(actions_.clear, SIGNAL(triggered(bool)), SLOT(onClear()));
-    connect(actions_.restorePrevious, SIGNAL(triggered(bool)),
-            SLOT(onRestorePrevious()));
+        connect(p.addFiles, SIGNAL(triggered(bool)), SLOT(onAddFiles()));
+        connect(p.addDirectory, SIGNAL(triggered(bool)),
+                SLOT(onAddDirectory()));
+        connect(p.cleanUp, SIGNAL(triggered(bool)), SLOT(onCleanUp()));
+        connect(p.clear, SIGNAL(triggered(bool)), SLOT(onClear()));
+        connect(p.restorePrevious, SIGNAL(triggered(bool)),
+                SLOT(onRestorePrevious()));
 
-    connect(actions_.load, SIGNAL(triggered(bool)), SLOT(onLoad()));
-    connect(actions_.saveAs, SIGNAL(triggered(bool)), SLOT(onSaveAs()));
+        connect(p.load, SIGNAL(triggered(bool)), SLOT(onLoad()));
+        connect(p.saveAs, SIGNAL(triggered(bool)), SLOT(onSaveAs()));
+    }
 
     connect(& treeWidget_, SIGNAL(itemActivated(QString)),
             SIGNAL(itemActivated(QString)));
@@ -163,9 +168,10 @@ void PlaylistComponent::showLoadingPlaylistErrorMessage(
 
 void PlaylistComponent::updateActionsState()
 {
-    actions_.editMode->setChecked(treeWidget_.editMode());
-    actions_.applyChanges->setEnabled(treeWidget_.editMode());
-    actions_.cancelChanges->setEnabled(treeWidget_.editMode());
+    const Actions::Playlist & p = actions_.playlist;
+    p.editMode->setChecked(treeWidget_.editMode());
+    p.applyChanges->setEnabled(treeWidget_.editMode());
+    p.cancelChanges->setEnabled(treeWidget_.editMode());
 }
 
 bool PlaylistComponent::noChanges() const
@@ -309,9 +315,19 @@ bool PlaylistComponent::saveTemporaryTree() const
 }
 
 
-void PlaylistComponent::onPlayAll()
+void PlaylistComponent::playbackNextRandom()
 {
-    playItems_(itemTree_.getAllItems<CommonTypes::ItemCollection>());
+    if (! playRandomItem())
+        actions_.playback.stop->trigger();
+}
+
+void PlaylistComponent::playbackPlayAll()
+{
+    auto all = itemTree_.getAllItems<CommonTypes::ItemCollection>();
+    if (all.empty())
+        actions_.playback.stop->trigger();
+    else
+        playItems_(std::move(all));
 }
 
 void PlaylistComponent::onEditModeStateChanged()
@@ -321,7 +337,7 @@ void PlaylistComponent::onEditModeStateChanged()
             cancelChanges(true);
         else {
             if (! leaveAskChangedEditMode())
-                actions_.editMode->setChecked(true);
+                actions_.playlist.editMode->setChecked(true);
         }
     }
     else

@@ -112,6 +112,7 @@ void MainWindow::showNotificationAreaIcon()
         QMenu * const iconMenu = new QMenu(APPLICATION_NAME, this);
         iconMenu->addActions( { actions_->playback.play,
                                 actions_->playback.stop,
+                                actions_->playback.previous,
                                 actions_->playback.next,
                                 actions_->file.preferences, actions_->file.quit
                               });
@@ -149,18 +150,31 @@ void MainWindow::timerEvent(QTimerEvent *)
     sharedMemory_->unlock();
 
     if (command != 0) {
+        const Actions::Playback & pb = actions_->playback;
         switch (command) {
             case 'P':
-                actions_->playback.play->trigger();
+                pb.play->trigger();
                 break;
             case 'S':
-                actions_->playback.stop->trigger();
+                pb.stop->trigger();
+                break;
+            case 'V':
+                pb.previous->trigger();
+                break;
+            case 'L':
+                pb.replayLast->trigger();
+                break;
+            case 'T':
+                pb.nextFromHistory->trigger();
+                break;
+            case 'R':
+                pb.nextRandom->trigger();
                 break;
             case 'N':
                 onPlaybackNext();
                 break;
             case 'A':
-                actions_->playback.playAll->trigger();
+                pb.playAll->trigger();
                 break;
             case 'Q':
                 onFileQuit();

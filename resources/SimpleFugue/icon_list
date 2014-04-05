@@ -3,6 +3,10 @@ categories/preferences-desktop
 actions/application-exit
 actions/media-playback-start
 actions/media-playback-stop
+actions/media-skip-backward
+actions/media-replay-last
+actions/media-history-next
+actions/media-next-random
 actions/media-skip-forward
 actions/media-play-all
 actions/list-edit

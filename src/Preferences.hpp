@@ -62,10 +62,11 @@ public:
         typedef unsigned char StartupPolicyUnderlyingType;
         enum class StartupPolicy : StartupPolicyUnderlyingType
         {
-            doNothing, playbackPlay, playbackNext
+            doNothing = 0, playbackPlay, playbackReplayLast,
+            playbackNextRandom, playbackNext
         };
 
-        static constexpr StartupPolicyUnderlyingType maxStartupPolicy = 2;
+        static constexpr StartupPolicyUnderlyingType maxStartupPolicy = 4;
 
         explicit Playback();
 

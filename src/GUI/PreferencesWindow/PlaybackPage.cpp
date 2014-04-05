@@ -46,7 +46,8 @@ PlaybackPage::PlaybackPage(QWidget * const parent, const Qt::WindowFlags f)
     layout->addRow(tr("Next from history"), & nextFromHistoryCheckBox);
 
     startupPolicyComboBox.addItems( {
-        tr("<no action>"), tr("Start playback"), tr("Play next item")
+        tr("<no action>"), tr("Start playback"), tr("Replay last item"),
+        tr("Play next random item"), tr("Play next item")
     });
     startupPolicyComboBox.setToolTip(
         tr("Selected action will be executed on each %1 start.").arg(

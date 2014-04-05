@@ -144,4 +144,5 @@ endif()
 install(TARGETS ${Targets} RUNTIME DESTINATION bin)
 
 install(FILES venturous.desktop DESTINATION share/applications)
-install(FILES ${Resources_Path}/icons/venturous.png DESTINATION share/icons)
+install(FILES ${Resources_Path}/icons/venturous.png
+            DESTINATION share/icons/hicolor/32x32/apps)

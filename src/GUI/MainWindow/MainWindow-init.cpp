@@ -68,8 +68,12 @@ void initMenuBar(QMenuBar & menuBar, const Actions & actions)
 
     const Actions::Playback & pbA = actions.playback;
     QMenu * const playback = menuBar.addMenu(QObject::tr("Play&back"));
-    playback->addActions( { pbA.play, pbA.stop, pbA.next, pbA.playAll });
-    playback->insertSeparator(pbA.playAll);
+    playback->addActions( { pbA.play, pbA.stop, pbA.previous, pbA.replayLast});
+    playback->insertSeparator(pbA.previous);
+    playback->addSeparator();
+    playback->addActions( { pbA.nextFromHistory, pbA.nextRandom, pbA.next });
+    playback->addSeparator();
+    playback->addAction(pbA.playAll);
 
     const Actions::Playlist & plA = actions.playlist;
     QMenu * const playlist = menuBar.addMenu(QObject::tr("Play&list"));
@@ -99,7 +103,7 @@ void addStretch(QToolBar & toolBar)
 void initToolBar(QToolBar & toolBar, const Actions & actions)
 {
     const Actions::Playback & pbA = actions.playback;
-    toolBar.addActions( { pbA.play, pbA.stop, pbA.next });
+    toolBar.addActions( { pbA.play, pbA.stop, pbA.previous, pbA.next });
     addStretch(toolBar);
 
     toolBar.addAction(actions.help.help);
@@ -215,16 +219,25 @@ MainWindow::MainWindow(std::unique_ptr<QSharedMemory> sharedMemory,
         show();
     }
 
-    typedef Preferences::Playback::StartupPolicy StartupPolicy;
-    switch (preferences.playback.startupPolicy) {
-        case StartupPolicy::playbackNext:
-            /// WARNING: repeated execution blocking is possible here!
-            onPlaybackNext();
-            break;
-        case StartupPolicy::playbackPlay:
-            actions_->playback.play->trigger();
-            break;
-        case StartupPolicy::doNothing:
-            break;
+    {
+        typedef Preferences::Playback::StartupPolicy StartupPolicy;
+        const Actions::Playback & pb = actions_->playback;
+        /// WARNING: repeated execution blocking is possible here!
+        switch (preferences.playback.startupPolicy) {
+            case StartupPolicy::doNothing:
+                break;
+            case StartupPolicy::playbackPlay:
+                pb.play->trigger();
+                break;
+            case StartupPolicy::playbackReplayLast:
+                pb.replayLast->trigger();
+                break;
+            case StartupPolicy::playbackNextRandom:
+                pb.nextRandom->trigger();
+                break;
+            case StartupPolicy::playbackNext:
+                onPlaybackNext();
+                break;
+        }
     }
 }

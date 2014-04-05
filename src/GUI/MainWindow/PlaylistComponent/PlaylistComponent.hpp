@@ -21,7 +21,6 @@
 
 # include "CommonTypes.hpp"
 # include "TreeWidget.hpp"
-# include "Actions.hpp"
 
 # include <VenturousCore/ItemTree.hpp>
 
@@ -35,6 +34,7 @@
 
 
 class InputController;
+class Actions;
 class Preferences;
 namespace AddingItems
 {
@@ -136,7 +136,7 @@ private:
     void loadTemporaryPlaylist(FilenameGetter filenameGetter);
 
 
-    const Actions::Playlist & actions_;
+    const Actions & actions_;
     InputController & inputController_;
     const AddingItems::Policy & addingPolicy_;
     const CommonTypes::PlayItems playItems_;
@@ -153,7 +153,8 @@ private:
     TreeWidget treeWidget_;
 
 private slots:
-    void onPlayAll();
+    void playbackNextRandom();
+    void playbackPlayAll();
 
     void onEditModeStateChanged();
     void applyChanges();

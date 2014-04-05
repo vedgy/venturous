@@ -29,15 +29,16 @@
 
 /// "help" must always be the last command here.
 /// It is not mapped in commands array.
-const std::array<std::string, 8> commandNames = {{
-        "play", "stop", "next", "play-all", "quit", "show", "hide", "help"
+const std::array<std::string, 12> commandNames = {{
+        "play", "stop", "previous", "replay-last", "next-from-history",
+        "next-random", "next", "play-all", "quit", "show", "hide", "help"
     }
 };
 constexpr std::size_t helpCommand =
     std::tuple_size<decltype(commandNames)>::value - 1;
 
 const std::array<char, helpCommand> commands = {{
-        'P', 'S', 'N', 'A', 'Q', 'W', 'H'
+        'P', 'S', 'V', 'L', 'T', 'R', 'N', 'A', 'Q', 'W', 'H'
     }
 };
 

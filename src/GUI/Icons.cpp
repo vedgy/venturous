@@ -47,8 +47,8 @@
 
 namespace
 {
-constexpr std::size_t playbackStartIndex = 3, playlistStartIndex = 7,
-                      helpStartIndex = 17, addingPolicyStartIndex = 19;
+constexpr std::size_t playbackStartIndex = 3, playlistStartIndex = 11,
+                      helpStartIndex = 21, addingPolicyStartIndex = 23;
 
 bool isEmpty(const QIcon & icon)
 {
@@ -213,14 +213,34 @@ const QIcon & Theme::playbackStop() const
     return icons_[playbackStartIndex + 1];
 }
 
-const QIcon & Theme::playbackNext() const
+const QIcon & Theme::playbackPrevious() const
 {
     return icons_[playbackStartIndex + 2];
 }
 
-const QIcon & Theme::playbackPlayAll() const
+const QIcon & Theme::playbackReplayLast() const
 {
     return icons_[playbackStartIndex + 3];
+}
+
+const QIcon & Theme::playbackNextFromHistory() const
+{
+    return icons_[playbackStartIndex + 4];
+}
+
+const QIcon & Theme::playbackNextRandom() const
+{
+    return icons_[playbackStartIndex + 5];
+}
+
+const QIcon & Theme::playbackNext() const
+{
+    return icons_[playbackStartIndex + 6];
+}
+
+const QIcon & Theme::playbackPlayAll() const
+{
+    return icons_[playbackStartIndex + 7];
 }
 
 
