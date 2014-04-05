@@ -53,7 +53,10 @@ Actions::Playback::Playback(const Icons::Theme & theme)
       nextRandom(new QAction(theme.playbackNextRandom(),
                              tr("Next &random"), this)),
       next(new QAction(theme.playbackNext(), tr("&Next"), this)),
-      playAll(new QAction(theme.playbackPlayAll(), tr("Play &all"), this))
+      playAll(new QAction(theme.playbackPlayAll(), tr("Play &all"), this)),
+      importHistory(new QAction(theme.load(), tr("&Import ..."), this)),
+      exportHistory(new QAction(theme.saveAs(), tr("&Export ..."), this)),
+      clearHistory(new QAction(theme.clear(), tr("&Clear"), this))
 {
     play->setIconText("Pl");
     play->setShortcut(Qt::CTRL | Qt::Key_P);
@@ -70,6 +73,10 @@ Actions::Playback::Playback(const Icons::Theme & theme)
     next->setShortcut(Qt::CTRL | Qt::Key_N);
 
     playAll->setIconText("PA");
+
+    importHistory->setIconText("Im");
+    exportHistory->setIconText("Ex");
+    clearHistory->setIconText("Cl");
 }
 
 

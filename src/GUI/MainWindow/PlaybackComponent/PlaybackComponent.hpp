@@ -150,6 +150,9 @@ private slots:
     void playbackPrevious();
     void playbackReplayLast();
     void playbackNextFromHistory();
+
+    void importHistory();
+    void exportHistory();
 };
 
 # endif // VENTUROUS_PLAYBACK_COMPONENT_HPP

@@ -41,6 +41,7 @@
 # include <QFileInfo>
 # include <QAction>
 # include <QMessageBox>
+# include <QFileDialog>
 # include <QMainWindow>
 
 # include <utility>

@@ -63,33 +63,44 @@ const QString preferencesDir = constructPreferencesDirName();
 
 void initMenuBar(QMenuBar & menuBar, const Actions & actions)
 {
-    QMenu * const file = menuBar.addMenu(QObject::tr("&File"));
-    file->addActions( { actions.file.preferences, actions.file.quit });
-
-    const Actions::Playback & pbA = actions.playback;
-    QMenu * const playback = menuBar.addMenu(QObject::tr("Play&back"));
-    playback->addActions( { pbA.play, pbA.stop, pbA.previous, pbA.replayLast});
-    playback->insertSeparator(pbA.previous);
-    playback->addSeparator();
-    playback->addActions( { pbA.nextFromHistory, pbA.nextRandom, pbA.next });
-    playback->addSeparator();
-    playback->addAction(pbA.playAll);
-
-    const Actions::Playlist & plA = actions.playlist;
-    QMenu * const playlist = menuBar.addMenu(QObject::tr("Play&list"));
-    playlist->addActions( {
-        plA.editMode, plA.applyChanges, plA.cancelChanges
-    });
-    playlist->addSeparator();
-    playlist->addActions( {
-        plA.addFiles, plA.addDirectory, plA.cleanUp, plA.clear,
-        plA.restorePrevious
-    });
-    playlist->addSeparator();
-    playlist->addActions( { plA.load, plA.saveAs });
-
-    QMenu * const help = menuBar.addMenu(QObject::tr("&Help"));
-    help->addActions( { actions.help.help, actions.help.about });
+    {
+        QMenu * const file = menuBar.addMenu(QObject::tr("&File"));
+        file->addActions( { actions.file.preferences, actions.file.quit });
+    }
+    {
+        const Actions::Playback & pbA = actions.playback;
+        QMenu * const playback = menuBar.addMenu(QObject::tr("Play&back"));
+        playback->addActions( { pbA.play, pbA.stop, pbA.previous, pbA.replayLast});
+        playback->insertSeparator(pbA.previous);
+        playback->addSeparator();
+        playback->addActions( { pbA.nextFromHistory, pbA.nextRandom, pbA.next });
+        playback->addSeparator();
+        playback->addAction(pbA.playAll);
+        {
+            QMenu * const history = playback->addMenu(QObject::tr("History"));
+            history->addActions( { pbA.importHistory, pbA.exportHistory });
+            history->addSeparator();
+            history->addAction(pbA.clearHistory);
+        }
+    }
+    {
+        const Actions::Playlist & plA = actions.playlist;
+        QMenu * const playlist = menuBar.addMenu(QObject::tr("Play&list"));
+        playlist->addActions( {
+            plA.editMode, plA.applyChanges, plA.cancelChanges
+        });
+        playlist->addSeparator();
+        playlist->addActions( {
+            plA.addFiles, plA.addDirectory, plA.cleanUp, plA.clear,
+            plA.restorePrevious
+        });
+        playlist->addSeparator();
+        playlist->addActions( { plA.load, plA.saveAs });
+    }
+    {
+        QMenu * const help = menuBar.addMenu(QObject::tr("&Help"));
+        help->addActions( { actions.help.help, actions.help.about });
+    }
 }
 
 void addStretch(QToolBar & toolBar)

@@ -29,6 +29,7 @@
 # include <QObject>
 # include <QAction>
 # include <QMessageBox>
+# include <QFileDialog>
 # include <QDockWidget>
 # include <QStatusBar>
 # include <QMainWindow>
@@ -88,6 +89,13 @@ preferences.history)
             SLOT(playbackReplayLast()));
     connect(actions.nextFromHistory, SIGNAL(triggered(bool)),
             SLOT(playbackNextFromHistory()));
+
+    connect(actions.importHistory, SIGNAL(triggered(bool)),
+            SLOT(importHistory()));
+    connect(actions.exportHistory, SIGNAL(triggered(bool)),
+            SLOT(exportHistory()));
+    historyWidget_.connect(actions.clearHistory, SIGNAL(triggered(bool)),
+                           SLOT(clearHistory()));
 
     connect(& historyWidget_, SIGNAL(historyChanged()),
             SLOT(onHistoryChanged()));
@@ -303,4 +311,34 @@ void PlaybackComponent::playbackNextFromHistory()
 {
     if (! playNextFromHistory())
         playbackStop();
+}
+
+void PlaybackComponent::importHistory()
+{
+    const QString file = inputController_.getFileOrDirName(tr("Import history"),
+                         QFileDialog::AcceptOpen, QFileDialog::ExistingFile);
+    if (! file.isEmpty()) {
+        if (historyWidget_.load(QtUtilities::qStringToString(file)))
+            historyWidget_.playedMultipleItems();
+        else {
+            inputController_.showMessage(
+                tr("Importing history failed"),
+                tr("Could not load history from specified file."));
+        }
+        onHistoryChanged();
+    }
+}
+
+void PlaybackComponent::exportHistory()
+{
+    const QString file = inputController_.getFileOrDirName(
+                             tr("Export history"), QFileDialog::AcceptSave,
+                             QFileDialog::AnyFile);
+    if (! file.isEmpty()) {
+        if (! historyWidget_.save(QtUtilities::qStringToString(file))) {
+            inputController_.showMessage(
+                tr("Exporting history failed"),
+                tr("Could not save history to specified file."));
+        }
+    }
 }
