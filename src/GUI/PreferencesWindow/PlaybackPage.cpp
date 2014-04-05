@@ -32,16 +32,16 @@ PlaybackPage::PlaybackPage(QWidget * const parent, const Qt::WindowFlags f)
     QFormLayout * const layout = new QFormLayout(this);
 
     autoSetOptionsCheckBox.setToolTip(
-        tr("If checked, recommended external player options are set each time "
-           "player is launched.\n"
-           "Otherwise, it is user's responsibility to ensure that "
-           "external player options are correct."));
+        tr("If checked, recommended external player options\n"
+           "are set each time player is launched.\n"
+           "Otherwise, it is user's responsibility to ensure\n"
+           "that external player options are correct."));
     layout->addRow(tr("Always set external player options"),
                    & autoSetOptionsCheckBox);
 
     nextFromHistoryCheckBox.setToolTip(
-        tr("If checked, \"Next\" action first tries to get next item from "
-           "history, if it is not available, plays random item.\n"
+        tr("If checked, \"Next\" action first tries to get next item\n"
+           "from history; if it is not available, plays random item.\n"
            "Otherwise, \"Next\" action always plays random item."));
     layout->addRow(tr("Next from history"), & nextFromHistoryCheckBox);
 

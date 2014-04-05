@@ -24,24 +24,30 @@
 # include <QObject>
 # include <QHBoxLayout>
 # include <QVBoxLayout>
+# include <QFrame>
+# include <QCheckBox>
 
 
 namespace
 {
+QVBoxLayout * createFrame(QLayout * parentLayout)
+{
+    QFrame * const frame = new QFrame;
+    parentLayout->addWidget(frame);
+    frame->setFrameStyle(QFrame::Panel | QFrame::Raised);
+    frame->setLineWidth(2);
+    return new QVBoxLayout(frame);
+}
+
 void addIfBothSubOption(
-    QVBoxLayout * layout, QCheckBox & subOption, const QString & itemType)
+    QLayout * layout, QCheckBox & subOption, const QString & itemType)
 {
     subOption.setText(QObject::tr("If both are present, add %1").arg(itemType));
     subOption.setToolTip(
         QObject::tr("This option is considered if files that match file "
-                    "patterns are found in media directory.\n"
+                    "patterns\nare found in media directory.\n"
                     "If checked, %1 will be added to playlist.").arg(itemType));
-
-    QHBoxLayout * rowLayout = new QHBoxLayout;
-    rowLayout->addSpacing(30);
-    rowLayout->addWidget(& subOption);
-
-    layout->addLayout(rowLayout);
+    layout->addWidget(& subOption);
 }
 
 }
@@ -52,26 +58,38 @@ AddingPolicyPage::AddingPolicyPage(
     : PreferencesPage(parent, f), addFilesCheckBox(tr("Add files")),
       addMediaDirsCheckBox(tr("Add media dirs"))
 {
-    QVBoxLayout * const layout = new QVBoxLayout(this);
+    QVBoxLayout * const mainLayout = new QVBoxLayout(this);
+    {
+        const QString tooltip =
+            tr("If checked, %1\nare considered playable items.");
 
-    addFilesCheckBox.setToolTip(tr("If checked, files that match file "
-                                   "patterns are considered playable items."));
-    layout->addWidget(& addFilesCheckBox);
+        QVBoxLayout * const primaryLayout = createFrame(mainLayout);
+        addFilesCheckBox.setToolTip(
+            tooltip.arg(tr("files that match file patterns")));
+        primaryLayout->addWidget(& addFilesCheckBox);
 
-    addMediaDirsCheckBox.setToolTip(tr("If checked, media directories are "
-                                       "considered playable items."));
-    layout->addWidget(& addMediaDirsCheckBox);
+        addMediaDirsCheckBox.setToolTip(tooltip.arg(tr("media directories")));
+        primaryLayout->addWidget(& addMediaDirsCheckBox);
 
-    onPrimaryCheckBoxToggled();
-    for (QCheckBox * checkBox :
-            { & addFilesCheckBox, & addMediaDirsCheckBox }) {
-        connect(checkBox, SIGNAL(toggled(bool)),
-                SLOT(onPrimaryCheckBoxToggled()));
+        onPrimaryCheckBoxToggled();
+        for (QCheckBox * checkBox :
+                { & addFilesCheckBox, & addMediaDirsCheckBox }) {
+            connect(checkBox, SIGNAL(toggled(bool)),
+                    SLOT(onPrimaryCheckBoxToggled()));
+        }
     }
+    {
+        QHBoxLayout * secondaryLayout = new QHBoxLayout;
+        secondaryLayout->addSpacing(30);
+        mainLayout->addLayout(secondaryLayout);
 
-    addIfBothSubOption(layout, ifBothAddFilesCheckBox, tr("files"));
-    addIfBothSubOption(layout, ifBothAddMediaDirsCheckBox, tr("media dirs"));
-    layout->addStretch();
+        QVBoxLayout * const subOptionLayout = createFrame(secondaryLayout);
+        addIfBothSubOption(subOptionLayout, ifBothAddFilesCheckBox,
+                           tr("files"));
+        addIfBothSubOption(subOptionLayout, ifBothAddMediaDirsCheckBox,
+                           tr("media dirs"));
+    }
+    mainLayout->addStretch();
 }
 
 void AddingPolicyPage::setUiPreferences(const Preferences & source)

@@ -105,9 +105,9 @@ GeneralPage::GeneralPage(QWidget * const parent, const Qt::WindowFlags f)
                    & treeAutoUnfoldedLevelsSpinBox);
 
     treeAutoCleanupCheckBox.setToolTip(
-        tr("If checked, non-playable nodes with no playable descendants will be"
-           " removed from playlist tree automatically after applying changes.")
-    );
+        tr("If checked, non-playable nodes with no playable descendants "
+           "will be\n"
+           "removed from playlist tree automatically after applying changes."));
     layout->addRow(tr("Automatically clean up tree"),
                    & treeAutoCleanupCheckBox);
 
@@ -115,9 +115,9 @@ GeneralPage::GeneralPage(QWidget * const parent, const Qt::WindowFlags f)
 
 
     saveToDiskImmediatelyCheckBox.setToolTip(
-        tr("If checked, settings will be saved to disk immediately after "
-           "closing preferences window, otherwise - "
-           "before application quit only."));
+        tr("If checked, settings will be saved to disk\n"
+           "immediately after closing preferences window.\n"
+           "Otherwise - before application quit only."));
     layout->addRow(tr("Save preferences to disk immediately"),
                    & saveToDiskImmediatelyCheckBox);
 
@@ -175,3 +175,4 @@ void GeneralPage::onNotificationAreaIconCheckBoxToggled(
     startToNotificationAreaCheckBox.setEnabled(checked);
     closeToNotificationAreaCheckBox.setEnabled(checked);
 }
+

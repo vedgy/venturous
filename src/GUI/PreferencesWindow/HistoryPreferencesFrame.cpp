@@ -51,22 +51,22 @@ HistoryPreferencesFrame::HistoryPreferencesFrame(
     layout->addRow(tr("Maximum size"), & maxSizeSpinBox);
 
     copyPlayedEntryToTopCheckBox.setToolTip(
-        tr("If checked, entry that was played from history is copied to the "
-           "history top.\n"
+        tr("If checked, entry that was played from history\n"
+           "is copied to the history top.\n"
            "Otherwise, history pointer is moved to custom-played entry."));
     layout->addRow(tr("Copy played entry to top"),
                    & copyPlayedEntryToTopCheckBox);
 
     saveToDiskImmediatelyCheckBox.setToolTip(
-        tr("If checked, history will be saved to disk each time new item "
+        tr("If checked, history will be saved to disk each time new item\n"
            "is added, otherwise - before application quit only."));
     layout->addRow(tr("Save to disk immediately"),
                    & saveToDiskImmediatelyCheckBox);
 
     nHiddenDirsSpinBox.setRange(0, History::maxNHiddenDirs);
     nHiddenDirsSpinBox.setToolTip(
-        tr("Number of directories in item path to be hidden in history window "
-           "and status bar.\n"
+        tr("Number of directories in item path to be hidden\n"
+           "in history window and status bar.\n"
            "Absolute path to item is always present in tooltip."));
     layout->addRow(tr("Number of hidden directories"), & nHiddenDirsSpinBox);
 }
