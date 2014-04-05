@@ -22,11 +22,11 @@
 
 # include <QString>
 # include <QObject>
-# include <QCheckBox>
 # include <QSpacerItem>
 # include <QLayout>
 # include <QHBoxLayout>
 # include <QFormLayout>
+# include <QCheckBox>
 
 # include <limits>
 

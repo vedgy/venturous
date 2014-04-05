@@ -33,8 +33,8 @@
 
 # include <QString>
 # include <QObject>
-# include <QCoreApplication>
 # include <QSharedMemory>
+# include <QCoreApplication>
 # include <QIcon>
 # include <QAction>
 # include <QMenu>

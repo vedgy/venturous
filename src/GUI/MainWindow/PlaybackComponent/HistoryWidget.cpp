@@ -43,18 +43,17 @@ namespace
 QString getShortenedPath(const QString & absolutePath, unsigned nHiddenDirs)
 {
     assert(! absolutePath.isEmpty());
-    if (nHiddenDirs == 0)
-        return absolutePath;
     // skipping first symbol due to ItemTree's path specifics.
     int index = 1;
-    do {
+    while (nHiddenDirs-- > 0) {
         const int nextIndex = absolutePath.indexOf('/', index) + 1;
         if (nextIndex == 0)
             break; // not found.
         index = nextIndex;
     }
-    while (--nHiddenDirs > 0);
 
+    if (index == 1)
+        return absolutePath;
     return absolutePath.mid(index);
 }
 
