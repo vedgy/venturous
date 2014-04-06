@@ -30,8 +30,8 @@
 class InputController
 {
 public:
-    /// @brief Blocks/unblocks most of non-GUI user input (for example Ventool
-    /// commands).
+    /// @brief Blocks/unblocks most of non-GUI user input (Ventool commands
+    /// for example).
     /// Reacting to QCoreApplication::aboutToQuit - immediate quit - is allowed.
     /// Reacting to MediaPayer::FinishedSlot is also allowed.
     /// @param block If true, input will be blocked; if false - unblocked.

@@ -1,6 +1,6 @@
 ## Introduction
 
-<b>Venturous</b> is a GUI wrapper that uses media player's
+<b>Venturous</b> is a random playback manager, which uses media player's
 command line interface.
 Currently only Audacious media player is supported, but adding support for
 other players should be quite simple.
@@ -11,6 +11,8 @@ feature is especially useful for grouping separate tracks that are
 actually parts of one composition. For example parts of classical music
 compositions (movements) are often distributed as separate tracks. It is
 usually desirable to listen to movements in succession and in a proper order.
+Venturous also features playback history, which allows user to identify
+previously played items and play them again.
 
 ## Build requirements
 

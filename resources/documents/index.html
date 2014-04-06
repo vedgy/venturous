@@ -7,7 +7,7 @@
 </head>
 
 <body>
-<h1>Venturous - version 0.8</h1>
+<h1>Venturous - version 0.9</h1>
 
 <a id="Index"><h2>Table of contents</h2></a>
     <ul>
@@ -16,6 +16,7 @@
         <li><a href="#AddingFiles">Adding files to playlist</a></li>
         <li><a href="#EditingPlaylist">Editing playlist tree</a></li>
         <li><a href="#ManagingPlayback">Managing playback</a></li>
+        <li><a href="#PlaybackHistory">Playback history</a></li>
         <li><a href="#Ventool">Ventool and global shortcuts</a></li>
         <li><a href="#NotificationArea">Notification area icon</a></li>
         <li><a href="#ConfiguringVenturous">Configuring Venturous</a></li>
@@ -25,22 +26,22 @@
 
 
 <a id="Overview"><h2>Overview</h2></a>
-    <p>Venturous is a wrapper that uses media player's command line interface.
-    Currently only Audacious media player is supported, but adding support for
-    other players should be quite simple.</p>
+    <p>Venturous is a random playback manager, which uses media player's command
+    line interface. Currently only Audacious media player is supported, but
+    adding support for other players should be quite simple.</p>
     <p>Venturous is built around one feature, which is missing in most (maybe
     even all) media players: user-defined items for random playback. This
     feature is especially useful for grouping separate tracks that are
-    actually parts of one composition. For example parts of classical music
+    actually parts of one composition. For example, parts of classical music
     compositions (movements) are often distributed as separate tracks. It is
     usually desirable to listen to movements in succession and in a proper
     order.</p>
     <p>Venturous features tree-like playlist, which reflects files' and
     directories' location. Each item (file or directory) in playlist tree can be
     marked as playable. Items that are marked as playable can be sent to
-    external player's temporary playlist. Normal workflow is the following:
-    after item is played by external player, Venturous selects next random
-    playable item, sends it to new temporary playlist and starts playback. So,
+    external player's [temporary] playlist. Normal workflow is the following:
+    after external player's playback is finished, Venturous selects next random
+    playable item, sends it to temporary playlist and starts playback. So,
     effectively, random playback of user-defined items is achieved.</p>
     <p>The simplest way to group several audio files in one playable item is to
     place them in common directory, add it to Venturous playlist, mark it as
@@ -48,15 +49,18 @@
     Another way to group audio files is providing meta data (cue) file, which
     contains entries for all files in the group, and adding it to playlist tree.
     </p>
+    <p>Venturous features playback history, which allows user to identify
+    previously played items and play them again.</p>
     <p>Another nice feature of Venturous is graceful quit. In many popular
     desktop environments and window managers Audacious would not save playback
     state if it was running while user shut&nbsp;down/restarted/logged&nbsp;out.
-    Venturous does save its state in these cases in almost all desktop
+    Venturous does save its state in these cases in most popular desktop
     environments. Furthermore, since Venturous manages Audacious, it also
     ensures that Audacious quits in time and thus saves Audacious playback state
     too.</p>
-    <p>Venturous saves preferences, playlist, backup playlist separately for
-    each user by default. Default Venturous preferences directory location is
+    <p>Venturous saves preferences, playlist, backup playlist and history
+    separately for each user by default.
+    Default Venturous preferences directory location is
     "~/.config/venturous" (here '~' expands to current user's HOME directory).
     Preferences location can be configured at Venturous build time
     (PREFERENCES_DIR CMake cache variable).</p>
@@ -72,8 +76,7 @@
             variable automatically. User has to manually add it there.</li>
             <li>audtool is usually unavailable in Windows at all. With audtool
             missing only basic Venturous features work.</li>
-        </ol>
-        </li>
+        </ol></li>
     </ol>
 
 
@@ -107,29 +110,29 @@
     <p>See also <a href="#EditingPlaylist">Editing playlist tree</a></p>
     <a id="AddingExample">
     <h3>Usage example: adding different categories of music</h3></a>
-            Assume that we have 3 categories of music: individual audio
-            file, directory with interconnected files, large audio file + cue
-            file. How to add these all to Venturous playlist?
-            It can be done as follows:
-            <ol>
-                <li>Separate music that belongs to these categories in 3
-                directories. Let us name them "files", "dirs" and "cue".</li>
-                <li>Check "Add media dirs" in "Directory adding policy" tab of
-                Preferences (or "Consider adding media directories" on toolbar).
-                Uncheck "Add files" in "Directory adding policy" tab of
-                Preferences (or "Consider adding files" on toolbar).
-                Trigger action "Add directory" and select "dirs".</li>
-                <li>Uncheck "Add media dirs" and check "Add files". Make sure
-                that only default file patterns are checked (all meta data
-                patterns) in "Filename patterns" tab of Preferences.
-                "Add directory" -> choose "cue".</li>
-                <li>Go to "Filename patterns" tab of Preferences. Select any
-                item in "File patterns" list to transfer focus. Press CTRL+A to
-                select all file patterns. Press Space to invert all file
-                patterns' checked states. Press Escape to close Preferences
-                window (changes are saved automatically).
-                "Add directory" -> choose "files".</li>
-            </ol>
+        <p>Assume that we have 3 categories of music: individual audio
+        file, directory with interconnected files, large audio file + cue
+        file. How to add these all to Venturous playlist?
+        It can be done as follows:</p>
+        <ol>
+            <li>Separate music that belongs to these categories in 3
+            directories. Let us name them "files", "dirs" and "cue".</li>
+            <li>Check "Add media dirs" in "Directory adding policy" tab of
+            Preferences (or "Consider adding media directories" on toolbar).
+            Uncheck "Add files" in "Directory adding policy" tab of
+            Preferences (or "Consider adding files" on toolbar).
+            Trigger action "Add directory" and select "dirs".</li>
+            <li>Uncheck "Add media dirs" and check "Add files". Make sure
+            that only default file patterns are checked (all meta data
+            patterns) in "Filename patterns" tab of Preferences.
+            "Add directory" -> select "cue".</li>
+            <li>Go to "Filename patterns" tab of Preferences. Select any
+            item in "File patterns" list to transfer focus. Press CTRL+A to
+            select all file patterns. Press Space to invert all file
+            patterns' checked states. Press Escape to close Preferences
+            window (changes are saved automatically).
+            "Add directory" -> select "files".</li>
+        </ol>
 
 
 <a id="EditingPlaylist"><h2>Editing playlist tree</h2></a>
@@ -147,20 +150,20 @@
     <p>Adding files and directories is also enabled only in tree edit mode.
     For more information about adding items to playlist see
     <a href="#AddingFiles">Adding files to playlist</a></p>
-    There are several additional actions in Playlist menu:
-        <ol>
-            <li>"Clean up" - removes all items that are not playable and have
-            no playable descendants.</li>
-            <li>"Clear" - removes all items from playlist.</li>
-            <li>"Restore previous" - restores playlist that was used before
-            the last saved playlist.</li>
-            <li>"Load ..." - loads previously saved playlist. Note: loading
-            "items" file from Venturous preferences directory is equivalent to
-            cancelling unsaved playlist changes; loading "items.backup" is
-            equivalent to "Restore previous" action.</li>
-            <li>"Save as ..." - saves current playlist to user-defined file.
-            Playlist tree must be in non-edit mode in order to be saved.</li>
-        </ol>
+    <p>There are several additional actions in Playlist menu:</p>
+    <ol>
+        <li>"Clean up" - removes all items that are not playable and have
+        no playable descendants.</li>
+        <li>"Clear" - removes all items from playlist.</li>
+        <li>"Restore previous" - restores playlist that was used before
+        the last saved playlist.</li>
+        <li>"Load ..." - loads previously saved playlist. Note: loading
+        "items" file from Venturous preferences directory is equivalent to
+        cancelling unsaved playlist changes; loading "items.backup" is
+        equivalent to "Restore previous" action.</li>
+        <li>"Save as ..." - saves current playlist to user-defined file.
+        Playlist tree must be in non-edit mode in order to be saved.</li>
+    </ol>
     <p>While playlist is being edited, old saved playlist is used for random
     playback. Click "Apply changes" action in Playlist menu to save changes
     and start using edited playlist. Click "Cancel changes" in the same menu to
@@ -172,6 +175,9 @@
     Note that tabs should not be replaced by spaces in this file. Only tab
     character designates tree level indentation. "items.backup" file in the same
     directory has identical format.</p>
+    <p>In case of urgent Venturous quit (such as quit notice from desktop
+    environment), if playlist is in edit mode, changes are applied and saved.
+    </p>
 
 
 <a id="ManagingPlayback"><h2>Managing playback</h2></a>
@@ -179,38 +185,72 @@
     Venturous does not interact with external player at all. In playing mode
     Venturous controls external player: starts playing next random item from
     playlist when playback finishes; quits Audacious before quitting itself.</p>
-    There are four actions in Playback menu. All of them except "Play all"
-    are also present on toolbar.
-        <ol>
-            <li>"Play" - launches external player and continues playing whatever
-            was played last time in that external player (Audacious); enters
-            playing playback mode.</li>
-            <li>"Stop" - quits external player and enters stopped playback mode.
-            </li>
-            <li>"Next" - starts or restarts external player with next random
-            item from playlist; enters playing playback mode. Note: if playback
-            mode is active, quitting external player (or end of external
-            player's playback) is equivalent to triggering "Next" action.</li>
-            <li>"Play all" - starts or restarts external player with all
-            playable items from playlist; enters playing playback mode.</li>
-        </ol>
+    <p>There are eight actions and "History" submenu in Playback menu.
+    All these 8 actions are available as ventool commands.
+    Four most common actions are present on toolbar and notification area icon
+    context menu.</p>
+    <ol>
+        <li>"Play" - launches external player and continues playing whatever
+        was played last time in that external player (Audacious); enters
+        playing playback mode.</li>
+        <li>"Stop" - quits external player and enters stopped playback mode.
+        </li>
+        <li>"Previous" - plays previous item from history.</li>
+        <li>"Replay last" - plays current item from history.</li>
+        <li>"Next from history" - plays next item from history.</li>
+        <li>"Next random" - plays random item from playlist.</li>
+        <li>"Next" - if "Next from history" option is enabled in
+        preferences, tries "Next from history" action first. If the option
+        is disabled or there is no next item in history,
+        triggers "Next random" action.</li>
+        <li>"Play all" - plays all playable items from playlist.</li>
+    </ol>
+    <p>Common behaviour of last six actions (all except "Play" and "Stop"):</p>
+    <ul>
+        <li>In case of success, external player is started or restarted with
+        specified item(s) in temporary playlist; playing playback mode is
+        entered.</li>
+        <li>In case of failure (no corresponding item in history or
+        empty playlist), "Stop" action is triggered.</li>
+    </ul>
+    <p>Note: Audacious is started with special command line arguments.
+    Audacious quits after playback is finished. So, if user stops playback in
+    Audacious or quits it, Venturous assumes that last item was played and
+    starts playing next item. It means that usual meaning of quitting and
+    stopping playback in Audacious, managed by Venturous, is changed.
+    Pausing playback in Audacious works as expected though.</p>
     <h3>Usage example: enable searching and playing music in Audacious
     as an alternative to tree playlist in Venturous</h3>
-            Audacious supports multiple playlists in tabs. So the following
-            can be done:
-                <ol>
-                    <li>Add all your music to Venturous playlist in your
-                    preferred way (see
-                    <a href="#AddingExample">Adding directories example</a>).
-                    </li>
-                    <li>Trigger "Play all" action.</li>
-                    <li>Rename Audacious temporary playlist "Now Playing" to
-                    "All music" (playlist tab context menu has "Rename ..."
-                    action).</li>
-                </ol>
-            This way you can use Venturous, which will always add files to
-            "Now Playing" playlist, and have another permanent Audacious
-            playlist with all your music.
+        <p>Audacious supports multiple playlists in tabs. So the following
+        can be done:</p>
+        <ol>
+            <li>Add all your music to Venturous playlist in your
+            preferred way (see
+            <a href="#AddingExample">Adding directories example</a>).</li>
+            <li>Trigger "Play all" action.</li>
+            <li>Rename Audacious temporary playlist "Now Playing" to
+            "All music" (playlist tab context menu has "Rename ..."
+            action).</li>
+        </ol>
+        This way you can use Venturous, which will always add files to
+        "Now Playing" playlist, and have another permanent Audacious
+        playlist with all your music.
+
+
+<a id="PlaybackHistory"><h2>Playback history</h2></a>
+    <p>Playback history displays previously played items (latest on top).
+    History can be exported to plain text file and imported from file in the
+    same format. These actions are accessible in "History" submenu of "Playback"
+    menu. This submenu also contains "Clear" action, which removes all entries
+    from playback history.</p>
+    <p>Pressing one of the following keys while history window is active will
+    apply corresponding action to all selected entries.</p>
+    <ul>
+        <li>Enter (or Return) - start playback of selected entries.</li>
+        <li>Delete - remove selected entries.</li>
+    </ul>
+    <p>If history entry is activated (double click), playback of this entry is
+    started.</p>
 
 
 <a id="Ventool"><h2>Ventool and global shortcuts</h2></a>
@@ -221,9 +261,9 @@
     <p>Ventool allows to manage playback and quit Venturous from command line.
     It can also be used to create various global keyboard shortcuts. One
     shortcut can be assigned to "venturous" command (launching Venturous);
-    another one - to "ventool quit" (quitting Venturous); "ventool play",
-    "ventool stop", "ventool next" provide common global multimedia shortcuts
-    interface. Exact procedure of assigning shortcuts to commands depends on
+    another one - to "ventool quit" (quitting Venturous). Ventool playback
+    commands provide global multimedia shortcuts interface.
+    Exact procedure of assigning shortcuts to commands depends on
     user's desktop&nbsp;environment/window&nbsp;manager
     (it is usually quite simple).</p>
 
@@ -260,13 +300,31 @@
     <p>If you are lucky enough to have notification area icon support in your
     environment, you get several features. Left or middle click on Venturous
     notification area icon shows/hides Venturous window. Right click shows
-    context menu with following actions:
+    context menu with following actions:</p>
     <ul>
         <li>Play</li>
         <li>Stop</li>
+        <li>Previous</li>
         <li>Next</li>
         <li>Preferences ...</li>
         <li>Quit</li>
+    </ul>
+    <p>There is a problem with "Close Venturous to notification area" option.
+    Many popular desktop environments close open windows before exit.
+    This allows Venturous to ask user about applying changes to playlist
+    if playlist is in edit mode. It also allows reporting saving errors.
+    If "Close Venturous to notification area" option is enabled, two scenarios
+    are possible:</p>
+    <ul>
+        <li>If Venturous window is not hidden, it would be closed to
+        notification area. This can block desktop environment quit.
+        It can also result in something else (depending on
+        desktop&nbsp;environment/window&nbsp;manager).</li>
+        <li>If Venturous window is hidden, it will receive urgent quit warning
+        (in most desktop environments). Changes to playlist would be applied
+        without user's confirmation if it was in edit mode. Errors would not be
+        shown to user but written to stderr. This would usually result in
+        errors unnoticed by user.</li>
     </ul>
 
 
@@ -302,13 +360,15 @@
         <a href="#Ventool">Ventool and global shortcuts</a></li>
     </ul>
     <h3>Run-time configuration (Venturous preferences)</h3>
-    Venturous preferences can be accessed in several ways: "Preferences ..."
+    <p>Venturous preferences can be accessed in several ways: "Preferences ..."
     action in File menu, corresponding toolbar button or notification area
-    icon's context menu. Preferences window contains three tabs:
+    icon's context menu.
+    Each option in preferences has verbose tooltip. Hover over control element
+    (spinbox, checkbox or combobox) to activate tooltip.</p>
+    <p>Preferences window has four tabs:</p>
     <ol>
-        <li>"General" - contains many independent option groups. Each option
-        has verbose tooltip. Hover over control element (spinbox, checkbox or
-        combobox) to activate tooltip.</li>
+        <li>"General" - contains many independent option groups.</li>
+        <li>"Playback" - contains playback and history options.</li>
         <li>"Filename patterns" - contains two editable lists: "File patterns"
         and "Media directory file patterns". Their meaning is described in
         <a href="#AddingFiles">Adding files to playlist</a> section.
@@ -321,22 +381,21 @@
         to another column using "Copy right" and "Copy left" buttons.
         Pressing one of the following keys will apply corresponding action to
         all selected patterns.
-            <ul>
-                <li>Insert - check</li>
-                <li>Backspace - uncheck</li>
-                <li>Space - toggle checked state</li>
-                <li>Delete - remove (is applied only to user-defined patterns,
-                because built-in patterns can not be removed)</li>
-            </ul>
-        </li>
+        <ul>
+            <li>Insert - check</li>
+            <li>Backspace - uncheck</li>
+            <li>Space - toggle checked state</li>
+            <li>Delete - remove (is applied only to user-defined patterns,
+            because built-in patterns can not be removed)</li>
+        </ul></li>
         <li>"Directory adding policy" - contains adding directory options.
         These options are described in verbose tooltips and in
         <a href="#AddingFiles">Adding files to playlist</a> section.</li>
     </ol>
     <h3>Additional run-time tweaks</h3>
     <ul>
-        <li>Resizing and moving Venturous and preferences window is possible.
-        </li>
+        <li>Resizing and moving Venturous, history and preferences windows
+        is possible.</li>
         <li>Venturous toolbar has a handle that allows to detach and move it.
         Toolbar can be attached to any window side (top, bottom, left or right).
         In order to attach toolbar to desired Venturous window side, its handle
@@ -344,9 +403,12 @@
         <li>Venturous toolbar can be hidden. "Toolbar" action has to be toggled
         in context menu of main menu bar or toolbar in order to change toolbar's
         visibility.</li>
+        <li>Identical moving, attaching and hiding of history window is
+        possible. History window has its own title bar, which can be used
+        for moving in place of toolbar handle.</li>
     </ul>
-    All tweaks, described above, are saved to preferences and thus preserved
-    between Venturous launches.
+    <p>All tweaks, described above, are saved to preferences and thus preserved
+    between Venturous launches.</p>
 
 <a id="ReportingBugs"><h2>Reporting bugs and feature requests</h2></a>
     If you find a bug in Venturous or error in this manual, please, report it
