@@ -39,10 +39,10 @@
 # include <QCoreApplication>
 # include <QAction>
 # include <QSizePolicy>
+# include <QLabel>
 # include <QMenu>
 # include <QMenuBar>
 # include <QToolBar>
-# include <QLabel>
 
 # include <cassert>
 # include <utility>
@@ -176,7 +176,7 @@ MainWindow::MainWindow(std::unique_ptr<QSharedMemory> sharedMemory,
 
     playbackComponent_.reset(
         new PlaybackComponent(* this, actions_->playback, inputController_,
-                              preferences.playback, preferencesDirString));
+                              preferences, preferencesDirString));
     /// WARNING: repeated execution blocking is possible here!
     playlistComponent_.reset(
         new PlaylistComponent(* this, * actions_, inputController_,

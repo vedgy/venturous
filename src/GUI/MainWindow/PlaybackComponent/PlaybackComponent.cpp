@@ -28,6 +28,7 @@
 # include <QString>
 # include <QObject>
 # include <QAction>
+# include <QLabel>
 # include <QMessageBox>
 # include <QFileDialog>
 # include <QDockWidget>
@@ -50,16 +51,16 @@ QString historyWindowName() { return QObject::tr("History"); }
 
 PlaybackComponent::PlaybackComponent(
     QMainWindow & mainWindow, const Actions::Playback & actions,
-    InputController & inputController,
-    const Preferences::Playback & preferences,
+    InputController & inputController, const Preferences & preferences,
     const std::string & preferencesDir)
-    : actions_(actions), inputController_(inputController),
+    : mainWindow_(mainWindow), actions_(actions),
+      inputController_(inputController),
       historyFilename_(preferencesDir + "history"),
       historyWidget_(
           std::bind(& PlaybackComponent::playFromHistory, this,
                     std::placeholders::_1),
     [this](CommonTypes::ItemCollection items) { play(std::move(items)); },
-preferences.history)
+preferences.playback.history)
 {
     setPreferencesExceptHistory(preferences);
     {
@@ -67,8 +68,6 @@ preferences.history)
         mediaPlayer_.setFinishedSlot(
             std::bind(& PlaybackComponent::onPlayerFinished, this, _1, _2, _3));
     }
-
-    mainWindow.statusBar()->addWidget(& lastPlayedItemLabel_);
 
     // Do nothing in case of failure because history is not very important
     // and file may not exist.
@@ -99,8 +98,6 @@ preferences.history)
 
     connect(& historyWidget_, SIGNAL(historyChanged()),
             SLOT(onHistoryChanged()));
-
-    currentHistoryEntryChanged();
 }
 
 PlaybackComponent::~PlaybackComponent()
@@ -111,10 +108,9 @@ PlaybackComponent::~PlaybackComponent()
     }
 }
 
-void PlaybackComponent::setPreferences(
-    const Preferences::Playback & preferences)
+void PlaybackComponent::setPreferences(const Preferences & preferences)
 {
-    historyWidget_.setPreferences(preferences.history);
+    historyWidget_.setPreferences(preferences.playback.history);
     setPreferencesExceptHistory(preferences);
 }
 
@@ -123,7 +119,7 @@ void PlaybackComponent::play(std::string item)
     mediaPlayer_.start(item);
     historyWidget_.push(std::move(item));
     onHistoryChanged();
-    currentHistoryEntryChanged();
+    resetLastPlayedItem();
     setPlayerState(true);
 }
 
@@ -134,7 +130,7 @@ void PlaybackComponent::play(CommonTypes::ItemCollection items)
     else {
         mediaPlayer_.start(std::move(items));
         historyWidget_.playedMultipleItems();
-        currentHistoryEntryChanged();
+        resetLastPlayedItem();
         setPlayerState(true);
     }
 }
@@ -160,10 +156,25 @@ void PlaybackComponent::onItemActivated(const QString absolutePath)
 
 
 void PlaybackComponent::setPreferencesExceptHistory(
-    const Preferences::Playback & preferences)
+    const Preferences & preferences)
 {
-    mediaPlayer_.setAutoSetOptions(preferences.autoSetExternalPlayerOptions);
-    saveHistoryToDiskImmediately_ = preferences.history.saveToDiskImmediately;
+    if (preferences.statusBar) {
+        if (lastPlayedItemLabel_ == nullptr) {
+            lastPlayedItemLabel_.reset(new QLabel);
+            mainWindow_.statusBar()->addWidget(lastPlayedItemLabel_.get());
+            resetLastPlayedItem();
+        }
+    }
+    else {
+        if (lastPlayedItemLabel_ != nullptr) {
+            lastPlayedItemLabel_.reset();
+            delete mainWindow_.statusBar();
+        }
+    }
+    mediaPlayer_.setAutoSetOptions(
+        preferences.playback.autoSetExternalPlayerOptions);
+    saveHistoryToDiskImmediately_ =
+        preferences.playback.history.saveToDiskImmediately;
     if (saveHistoryToDiskImmediately_)
         saveHistory();
 }
@@ -213,7 +224,7 @@ bool PlaybackComponent::criticalContinuePlaybackQuestion(
 void PlaybackComponent::playFromHistory(const std::string entry)
 {
     mediaPlayer_.start(entry);
-    currentHistoryEntryChanged();
+    resetLastPlayedItem();
     setPlayerState(true);
 }
 
@@ -226,21 +237,24 @@ bool PlaybackComponent::playFromHistoryIfNotEmpty(std::string entry)
     return true;
 }
 
-void PlaybackComponent::currentHistoryEntryChanged()
+void PlaybackComponent::resetLastPlayedItem()
 {
+    if (lastPlayedItemLabel_ == nullptr)
+        return;
+
     QString textPrefix = tr("Last played item: ");
     const QString entry = historyWidget_.currentAbsolute();
     if (entry.isEmpty()) {
-        lastPlayedItemLabel_.setText(std::move(textPrefix) + tr("<unknown>"));
-        lastPlayedItemLabel_.setToolTip(
+        lastPlayedItemLabel_->setText(std::move(textPrefix) + tr("<unknown>"));
+        lastPlayedItemLabel_->setToolTip(
             tr("Unknown item(s).\n"
                "This means that multiple items were played or that last played "
                "item was removed from history."));
     }
     else {
-        lastPlayedItemLabel_.setText(std::move(textPrefix) +
-                                     historyWidget_.currentShortened());
-        lastPlayedItemLabel_.setToolTip(entry);
+        lastPlayedItemLabel_->setText(std::move(textPrefix) +
+                                      historyWidget_.currentShortened());
+        lastPlayedItemLabel_->setToolTip(entry);
     }
 }
 

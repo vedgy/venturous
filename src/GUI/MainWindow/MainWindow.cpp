@@ -256,7 +256,7 @@ void MainWindow::onPreferencesChanged()
     setPreferencesNoComponents();
     const Preferences & preferences = preferencesComponent_->preferences;
     playlistComponent_->setPreferences(preferences);
-    playbackComponent_->setPreferences(preferences.playback);
+    playbackComponent_->setPreferences(preferences);
 }
 
 void MainWindow::setWindowTitle()

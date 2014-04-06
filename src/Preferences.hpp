@@ -95,6 +95,7 @@ public:
     AddingItems::Policy addingPolicy;
     bool alwaysUseFallbackIcons;
     bool notificationAreaIcon, startToNotificationArea, closeToNotificationArea;
+    bool statusBar;
     unsigned char treeAutoUnfoldedLevels;
     bool treeAutoCleanup;
     bool savePreferencesToDiskImmediately;

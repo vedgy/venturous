@@ -22,20 +22,21 @@
 # include "CommonTypes.hpp"
 # include "HistoryWidget.hpp"
 # include "Actions.hpp"
-# include "Preferences.hpp"
 
 # include <VenturousCore/MediaPlayer.hpp>
 
 # include <QtGlobal>
 # include <QString>
 # include <QObject>
-# include <QLabel>
 
 # include <vector>
 # include <string>
+# include <memory>
 
 
 class InputController;
+class Preferences;
+QT_FORWARD_DECLARE_CLASS(QLabel)
 QT_FORWARD_DECLARE_CLASS(QMainWindow)
 
 /// WARNING: each method can block execution if not stated otherwise.
@@ -49,12 +50,12 @@ public:
     explicit PlaybackComponent(QMainWindow & mainWindow,
                                const Actions::Playback & actions,
                                InputController & inputController,
-                               const Preferences::Playback &,
+                               const Preferences &,
                                const std::string & preferencesDir);
     /// NOTE: does not block execution.
     ~PlaybackComponent();
 
-    void setPreferences(const Preferences::Playback &);
+    void setPreferences(const Preferences &);
 
     /// NOTE: does not block execution.
     bool isPlayerRunning() const { return isPlayerRunning_; }
@@ -85,7 +86,7 @@ signals:
     void playerStateChanged(bool isPlayerRunning);
 
 private:
-    void setPreferencesExceptHistory(const Preferences::Playback &);
+    void setPreferencesExceptHistory(const Preferences &);
 
     void onPlayerFinished(bool crashExit, int exitCode,
                           std::vector<std::string> missingFilesAndDirs);
@@ -109,7 +110,7 @@ private:
 
     /// @brief Must be called after current history entry is changed.
     /// NOTE: does not block execution.
-    void currentHistoryEntryChanged();
+    void resetLastPlayedItem();
 
     /// @brief If isPlayerRunning_ != isRunning, sets isPlayerRunning_ to
     /// isRunning and performs other accompanying actions.
@@ -125,6 +126,7 @@ private:
     void saveHistory();
 
 
+    QMainWindow & mainWindow_;
     const Actions::Playback & actions_;
     InputController & inputController_;
     const std::string historyFilename_;
@@ -135,7 +137,7 @@ private:
 
     MediaPlayer mediaPlayer_;
 
-    QLabel lastPlayedItemLabel_;
+    std::unique_ptr<QLabel> lastPlayedItemLabel_;
     HistoryWidget historyWidget_;
 
 private slots:

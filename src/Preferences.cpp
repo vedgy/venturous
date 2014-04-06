@@ -82,6 +82,7 @@ const QString root = APPLICATION_NAME,
               notificationAreaIcon = "NotificationAreaIcon",
               startToNotificationArea = "StartToNotificationArea",
               closeToNotificationArea = "CloseToNotificationArea",
+              statusBar = "StatusBar",
               treeAutoUnfoldedLevels = "TreeAutoUnfoldedLevels",
               treeAutoCleanup = "TreeAutoCleanup",
               savePreferencesToDiskImmediately =
@@ -270,6 +271,7 @@ Preferences::Preferences()
       notificationAreaIcon(false),
       startToNotificationArea(false),
       closeToNotificationArea(false),
+      statusBar(false),
       treeAutoUnfoldedLevels(5),
       treeAutoCleanup(false),
       savePreferencesToDiskImmediately(false),
@@ -295,6 +297,8 @@ void Preferences::save(const QString & filename) const
                                    startToNotificationArea));
     root.appendChild(createElement(doc, Names::closeToNotificationArea,
                                    closeToNotificationArea));
+
+    root.appendChild(createElement(doc, Names::statusBar, statusBar));
 
     root.appendChild(createElement(doc, Names::treeAutoUnfoldedLevels,
                                    treeAutoUnfoldedLevels));
@@ -336,6 +340,8 @@ void Preferences::load(const QString & filename)
                            startToNotificationArea);
     copyUniqueChildsTextTo(root, Names::closeToNotificationArea,
                            closeToNotificationArea);
+
+    copyUniqueChildsTextTo(root, Names::statusBar, statusBar);
 
     copyUniqueChildsTextTo(root, Names::treeAutoUnfoldedLevels,
                            treeAutoUnfoldedLevels);
@@ -384,6 +390,8 @@ bool operator == (const Preferences & lhs, const Preferences & rhs)
            lhs.notificationAreaIcon == rhs.notificationAreaIcon &&
            lhs.startToNotificationArea == rhs.startToNotificationArea &&
            lhs.closeToNotificationArea == rhs.closeToNotificationArea &&
+
+           lhs.statusBar == rhs.statusBar &&
 
            lhs.treeAutoUnfoldedLevels == rhs.treeAutoUnfoldedLevels &&
            lhs.treeAutoCleanup == rhs.treeAutoCleanup &&

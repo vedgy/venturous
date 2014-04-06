@@ -39,6 +39,7 @@ private:
     QCheckBox notificationAreaIconCheckBox;
     QCheckBox startToNotificationAreaCheckBox;
     QCheckBox closeToNotificationAreaCheckBox;
+    QCheckBox statusBarCheckBox;
     QSpinBox treeAutoUnfoldedLevelsSpinBox;
     QCheckBox treeAutoCleanupCheckBox;
     QCheckBox saveToDiskImmediatelyCheckBox;

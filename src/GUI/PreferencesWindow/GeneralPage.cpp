@@ -95,6 +95,11 @@ GeneralPage::GeneralPage(QWidget * const parent, const Qt::WindowFlags f)
 
     addSpacing(layout);
 
+    statusBarCheckBox.setToolTip(
+        tr("Display status bar with last played item.\n"
+           "Note: this information is available in history window."));
+    layout->addRow(tr("Status bar"), & statusBarCheckBox);
+    addSpacing(layout);
 
     treeAutoUnfoldedLevelsSpinBox.setRange(
         0, std::numeric_limits < decltype(
@@ -141,6 +146,8 @@ void GeneralPage::setUiPreferences(const Preferences & source)
     startToNotificationAreaCheckBox.setChecked(source.startToNotificationArea);
     closeToNotificationAreaCheckBox.setChecked(source.closeToNotificationArea);
 
+    statusBarCheckBox.setChecked(source.statusBar);
+
     treeAutoUnfoldedLevelsSpinBox.setValue(source.treeAutoUnfoldedLevels);
     treeAutoCleanupCheckBox.setChecked(source.treeAutoCleanup);
 
@@ -160,6 +167,8 @@ void GeneralPage::writeUiPreferencesTo(Preferences & destination) const
     destination.closeToNotificationArea =
         closeToNotificationAreaCheckBox.isChecked();
 
+    destination.statusBar = statusBarCheckBox.isChecked();
+
     destination.treeAutoUnfoldedLevels = treeAutoUnfoldedLevelsSpinBox.value();
     destination.treeAutoCleanup = treeAutoCleanupCheckBox.isChecked();
 
@@ -175,4 +184,3 @@ void GeneralPage::onNotificationAreaIconCheckBoxToggled(
     startToNotificationAreaCheckBox.setEnabled(checked);
     closeToNotificationAreaCheckBox.setEnabled(checked);
 }
-
