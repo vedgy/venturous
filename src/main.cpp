@@ -36,7 +36,7 @@ int main(int argc, char * argv[])
     Application app(argc, argv);
 
     const QString key = SHARED_MEMORY_KEY;
-    // Workaround for recovering after crash in Unix.
+    // WORKAROUND for recovering after crash in Unix.
     QSharedMemory(key).attach();
 
     std::unique_ptr<QSharedMemory> shared(new QSharedMemory(key));

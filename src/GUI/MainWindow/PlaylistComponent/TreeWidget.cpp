@@ -84,23 +84,6 @@ void recursivelySetEditable(QTreeWidgetItem * item, bool editable)
         recursivelySetEditable(item->child(i), editable);
 }
 
-/// @brief Recursively unfolds or folds descendants of item.
-/// @param depth Maximum level to unfold. If (depth == 1), only one item would
-/// be unfolded. All items below depth will be folded.
-void setExpanded(QTreeWidgetItem * item, int depth)
-{
-    if (depth > 0) {
-        --depth;
-        item->setExpanded(true);
-    }
-    else
-        item->setExpanded(false);
-
-    for (int i = item->childCount() - 1; i >= 0; --i)
-        setExpanded(item->child(i), depth);
-
-}
-
 /// @brief Removes all selected descendants of item and corresponding
 /// descendants of node.
 void removeSelectedItems(QTreeWidgetItem * item, ItemTree::Node & node)
@@ -139,6 +122,7 @@ TreeWidget::TreeWidget(const ItemTree::Tree & itemTree,
     (QHeaderView::ResizeToContents);
 
     header()->setStretchLastSection(false);
+    setUniformRowHeights(true);
 
     connect(this, SIGNAL(itemActivated(QTreeWidgetItem *, int)),
             SLOT(onUiItemActivated(QTreeWidgetItem *)));
@@ -189,16 +173,23 @@ void TreeWidget::updateTree(const ItemTree::Tree & itemTree)
 void TreeWidget::setUiEditMode()
 {
     const bool blocked = blockSignals(true);
+    const bool visible = isVisible();
+    if (visible)
+        hide(); // Dramatically improves performance for large tree.
     setSelectionMode(editMode_ ? ExtendedSelection : SingleSelection);
     for (int i = topLevelItemCount() - 1; i >= 0; --i)
         recursivelySetEditable(topLevelItem(i), editMode_);
+    if (visible)
+        show();
     blockSignals(blocked);
 }
 
 void TreeWidget::autoUnfold()
 {
-    for (int i = topLevelItemCount() - 1; i >= 0; --i)
-        ::setExpanded(topLevelItem(i), autoUnfoldedLevels_);
+    if (autoUnfoldedLevels_ == 0)
+        collapseAll();
+    else
+        expandToDepth(autoUnfoldedLevels_ - 1);
 }
 
 void TreeWidget::keyPressEvent(QKeyEvent * const event)
@@ -221,8 +212,15 @@ void TreeWidget::keyPressEvent(QKeyEvent * const event)
                 removeSelectedItems(item, nodes[i]);
         }
     }
-    else
+    else {
+        // Asterisk: expands all children of the current item (if present).
+        // Below is a WORKAROUND for Qt performance issue, which doesn't change
+        // program behaviour but dramatically improves Asterisk key performance
+        // when at least one child of current item is visible.
+        if (event->key() == Qt::Key_Asterisk)
+            currentItem()->setExpanded(false);
         QTreeView::keyPressEvent(event);
+    }
 }
 
 
