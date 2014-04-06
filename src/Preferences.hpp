@@ -25,9 +25,6 @@
 # include <QString>
 
 # include <cstddef>
-# include <cstdint>
-# include <algorithm>
-# include <limits>
 
 
 /// Manages preferences. Saves and loads them in XML format.
@@ -37,12 +34,7 @@ class Preferences
 public:
     struct Playback {
         struct History {
-            static constexpr std::size_t maxMaxSize =
-                sizeof(std::size_t) > 2 && sizeof(int) > 2 ? 999 * 1001
-                : std::min<std::uintmax_t>(
-                    std::numeric_limits<std::size_t>::max(),
-                    std::numeric_limits<int>::max()) - 1;
-
+            static constexpr std::size_t maxMaxSize = 9999;
             static constexpr unsigned maxNHiddenDirs = 99;
             static constexpr int multipleItemsIndex = -1;
 
