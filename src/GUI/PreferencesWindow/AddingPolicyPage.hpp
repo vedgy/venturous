@@ -21,8 +21,11 @@
 
 # include "PreferencesPage.hpp"
 
+# include <QtGlobal>
 # include <QCheckBox>
 
+
+QT_FORWARD_DECLARE_CLASS(QFrame)
 
 class AddingPolicyPage : public PreferencesPage
 {
@@ -39,6 +42,8 @@ private:
     QCheckBox addMediaDirsCheckBox;
     QCheckBox ifBothAddFilesCheckBox;
     QCheckBox ifBothAddMediaDirsCheckBox;
+
+    QFrame * primaryFrame;
 
 private slots:
     void onPrimaryCheckBoxToggled();

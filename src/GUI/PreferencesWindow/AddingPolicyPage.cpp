@@ -30,12 +30,15 @@
 
 namespace
 {
-QVBoxLayout * createFrame(QLayout * parentLayout)
+QVBoxLayout * createFrame(QLayout * parentLayout,
+                          QFrame ** createdFrame = nullptr)
 {
     QFrame * const frame = new QFrame;
     parentLayout->addWidget(frame);
     frame->setFrameStyle(QFrame::Panel | QFrame::Raised);
     frame->setLineWidth(2);
+    if (createdFrame != nullptr)
+        * createdFrame = frame;
     return new QVBoxLayout(frame);
 }
 
@@ -63,7 +66,8 @@ AddingPolicyPage::AddingPolicyPage(
         const QString tooltip =
             tr("If checked, %1\nare considered playable items.");
 
-        QVBoxLayout * const primaryLayout = createFrame(mainLayout);
+        QVBoxLayout * const primaryLayout =
+            createFrame(mainLayout, & primaryFrame);
         addFilesCheckBox.setToolTip(
             tooltip.arg(tr("files that match file patterns")));
         primaryLayout->addWidget(& addFilesCheckBox);
@@ -115,6 +119,8 @@ void AddingPolicyPage::onPrimaryCheckBoxToggled()
 {
     const bool bothPrimaryChecked = addFilesCheckBox.isChecked() &&
                                     addMediaDirsCheckBox.isChecked();
+    primaryFrame->setFrameShadow(
+        bothPrimaryChecked ? QFrame::Sunken : QFrame::Raised);
     ifBothAddFilesCheckBox.setEnabled(bothPrimaryChecked);
     ifBothAddMediaDirsCheckBox.setEnabled(bothPrimaryChecked);
 }
