@@ -62,6 +62,9 @@ public:
     /// @return Number of playable items in playlist.
     /// NOTE: does not block execution.
     int itemCount() const { return itemTree_.itemCount(); }
+    /// @return true if playlist is in edit mode, false otherwise.
+    /// NOTE: does not block execution.
+    bool editMode() const { return treeWidget_.editMode(); }
 
     /// @brief If itemTree_ is not empty, selects random item and starts
     /// playing it.
@@ -76,6 +79,9 @@ signals:
     /// @brief Is emitted after tree() is changed.
     /// WARNING: signal receiver must not block execution.
     void treeChanged();
+    /// @brief Is emitted after playlist edit mode is changed.
+    /// WARNING: signal receiver must not block execution.
+    void editModeChanged();
 
     /// TODO: remove after allowing multiple items selection in TreeWidget.
     /// NOTE: execution may be blocked by signal receiver.

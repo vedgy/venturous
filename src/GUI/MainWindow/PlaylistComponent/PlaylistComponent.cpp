@@ -186,6 +186,7 @@ void PlaylistComponent::enterEditMode()
     temporaryTree_.reset(new ItemTree::Tree(itemTree_));
     treeWidget_.setEditMode(true, false);
     updateActionsState();
+    emit editModeChanged();
 }
 
 bool PlaylistComponent::prepareForApplyingChanges()
@@ -234,6 +235,7 @@ void PlaylistComponent::cancelChanges(const bool noChanges)
     treeWidget_.setEditMode(false, ! noChanges);
     temporaryTree_.reset();
     updateActionsState();
+    emit editModeChanged();
 }
 
 bool PlaylistComponent::enterAskEditMode()

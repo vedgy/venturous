@@ -143,6 +143,17 @@ endif()
 
 install(TARGETS ${Targets} RUNTIME DESTINATION bin)
 
-install(FILES venturous.desktop DESTINATION share/applications)
-install(FILES ${Resources_Path}/icons/venturous.png
-            DESTINATION share/icons/hicolor/32x32/apps)
+install(FILES "${Executable_Name}.desktop" DESTINATION share/applications)
+
+foreach(Icon_Size 16 22 24 32 48 96 256 "scalable")
+    set(End_Of_Path "${Icon_Size}/apps")
+    if (${Icon_Size} STREQUAL "scalable")
+        set(Icon_Extension "svg")
+    else()
+        set(End_Of_Path "${Icon_Size}x${End_Of_Path}")
+        set(Icon_Extension "png")
+    endif()
+    install(FILES
+    "${PATH_TO_MODULES}/SimpleFugue/${End_Of_Path}/${Executable_Name}.${Icon_Extension}"
+            DESTINATION share/icons/hicolor/${End_Of_Path})
+endforeach()

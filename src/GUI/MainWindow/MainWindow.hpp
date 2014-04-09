@@ -95,7 +95,8 @@ private slots:
     void onPreferencesChanged();
     /// @brief Sets appropriate window title.\n
     /// Must be called after playbackComponent_->isPlayerRunning() or
-    /// playlistComponent_->itemCount() change.
+    /// playlistComponent_->itemCount()
+    /// or playlistComponent_->editMode() change.
     /// NOTE: does not block execution.
     void setWindowTitle();
     /// NOTE: does not block execution.

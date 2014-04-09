@@ -262,9 +262,11 @@ void MainWindow::onPreferencesChanged()
 void MainWindow::setWindowTitle()
 {
     QMainWindow::setWindowTitle(
-        APPLICATION_NAME + tr(" - %1 playable items - %2").
+        APPLICATION_NAME + tr(" - %1 playable items - %2%3").
         arg(playlistComponent_->itemCount()).
-        arg(getStatus(playbackComponent_->isPlayerRunning())));
+        arg(getStatus(playbackComponent_->isPlayerRunning()),
+            playlistComponent_->editMode() ?
+            tr(" (apply changes to use updated playlist)") : ""));
 }
 
 void MainWindow::onPlayerStateChanged(const bool isPlayerRunning)
