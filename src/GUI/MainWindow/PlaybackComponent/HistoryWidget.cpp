@@ -156,8 +156,11 @@ void HistoryWidget::push(std::string entry)
         setShortenedTooltipToText(item, nHiddenDirs_);
         insertItem(0, item);
     }
-    if (std::size_t(count()) > history_.maxSize())
-        delete takeItem(count() - 1);
+    {
+        const int nItems = count();
+        if (std::size_t(nItems) > history_.maxSize())
+            delete takeItem(nItems - 1);
+    }
     scrollToTop();
     assert(history_.items().size() == std::size_t(count()));
     currentEntryIndex_ = 0;

@@ -281,11 +281,11 @@ void TreeWidget::onUiItemActivated(QTreeWidgetItem * item)
         return;
     QString absolutePath;
     do {
-        absolutePath.prepend('/' + itemText(item));
+        absolutePath.prepend(itemText(item) + '/');
         item = item->parent();
     }
     while (item != nullptr);
-    absolutePath.remove(0, 1); // remove extra '/'.
+    absolutePath.resize(absolutePath.size() - 1); // remove extra '/'.
     playItems_( { QtUtilities::qStringToString(absolutePath) });
 }
 
