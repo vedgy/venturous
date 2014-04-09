@@ -19,7 +19,8 @@
 # ifndef VENTUROUS_TREE_WIDGET_HPP
 # define VENTUROUS_TREE_WIDGET_HPP
 
-# include <QString>
+# include "CommonTypes.hpp"
+
 # include <QTreeWidget>
 
 # include <string>
@@ -46,6 +47,7 @@ public:
     /// throughout this TreeWidget's lifetime.
     explicit TreeWidget(const ItemTree::Tree & itemTree,
                         const std::unique_ptr<ItemTree::Tree> & temporaryTree,
+                        CommonTypes::PlayItems playItems,
                         QWidget * parent = nullptr);
 
     /// @brief Updates visual representation to match:
@@ -78,12 +80,6 @@ public:
             throw Error("valid temporaryTree_ expected, nullptr found.");
     }
 
-signals:
-    /// @brief Is emitted after user activates some item in this TreeWidget.
-    /// @param absolutePath Path to activated item.
-    /// NOTE: execution may be blocked by signal receiver.
-    void itemActivated(QString absolutePath);
-
 private:
     /// @brief Updates visual representation to match itemTree.
     void updateTree(const ItemTree::Tree & itemTree);
@@ -97,8 +93,12 @@ private:
 
     void keyPressEvent(QKeyEvent *) override;
 
+    void onDelete();
+    void onEnter();
+
     const ItemTree::Tree & itemTree_;
     const std::unique_ptr<ItemTree::Tree> & temporaryTree_;
+    const CommonTypes::PlayItems playItems_;
     bool editMode_ = false;
     int autoUnfoldedLevels_ = 9;
 

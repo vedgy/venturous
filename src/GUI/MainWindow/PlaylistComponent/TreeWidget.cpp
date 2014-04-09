@@ -24,6 +24,8 @@
 
 # include "TreeWidget.hpp"
 
+# include "CommonTypes.hpp"
+
 # include <VenturousCore/ItemTree-inl.hpp>
 
 # include <QtCoreUtilities/String.hpp>
@@ -36,6 +38,8 @@
 
 # include <cassert>
 # include <utility>
+# include <algorithm>
+# include <vector>
 # include <deque>
 # include <string>
 
@@ -45,6 +49,11 @@ namespace
 bool isChecked(const QTreeWidgetItem * item)
 {
     return item->checkState(0) == Qt::Checked;
+}
+
+QString itemText(const QTreeWidgetItem * item)
+{
+    return item->text(0);
 }
 
 /// @brief Creates structure that matches node's structure
@@ -61,27 +70,15 @@ void createTreeWidgetItem(
         createTreeWidgetItem(item, child);
 }
 
-const Qt::ItemFlags readOnlyFlags = Qt::ItemIsEnabled,
-                    editableFlags = readOnlyFlags | Qt::ItemIsSelectable |
-                                    Qt::ItemIsUserCheckable;
+const Qt::ItemFlags readOnlyFlags = Qt::ItemIsEnabled | Qt::ItemIsSelectable,
+                    editableFlags = readOnlyFlags | Qt::ItemIsUserCheckable;
 
 /// @brief Sets flags for specified item and all its descendants.
-/// @param editable If true, editableFlags are set, otherwise, variation of
-/// readOnlyFlags is set.
-void recursivelySetEditable(QTreeWidgetItem * item, bool editable)
+void recursivelySetFlags(QTreeWidgetItem * item, Qt::ItemFlags flags)
 {
-    Qt::ItemFlags flags;
-    if (editable)
-        flags = editableFlags;
-    else {
-        flags = readOnlyFlags;
-        if (isChecked(item))
-            flags |= Qt::ItemIsSelectable;
-    }
     item->setFlags(flags);
-
     for (int i = item->childCount() - 1; i >= 0; --i)
-        recursivelySetEditable(item->child(i), editable);
+        recursivelySetFlags(item->child(i), flags);
 }
 
 /// @brief Removes all selected descendants of item and corresponding
@@ -102,17 +99,40 @@ void removeSelectedItems(QTreeWidgetItem * item, ItemTree::Node & node)
     }
 }
 
+typedef std::deque<QString> PlayablePaths;
+/// @brief Appends absolute paths of item's playable descendants
+/// (including item) that are under selection to playablePaths.
+/// @param item Top-level item of the tree.
+/// @param pathToItem Must be empty string for top-level items.
+/// @param wasSelected Must be false for top-level items.
+void getPathsToPlay(const QTreeWidgetItem * item, const QString & pathToItem,
+                    PlayablePaths & playablePaths, bool wasSelected = false)
+{
+    if (item->isSelected())
+        wasSelected = true;
+    if (wasSelected && isChecked(item))
+        playablePaths.emplace_back(pathToItem + itemText(item));
+
+    const int nChildren = item->childCount();
+    if (nChildren != 0) {
+        const QString path = pathToItem + itemText(item) + '/';
+        for (int i = 0; i < nChildren; ++i)
+            getPathsToPlay(item->child(i), path, playablePaths, wasSelected);
+    }
+}
+
 }
 
 
 TreeWidget::TreeWidget(const ItemTree::Tree & itemTree,
                        const std::unique_ptr<ItemTree::Tree> & temporaryTree,
+                       CommonTypes::PlayItems playItems,
                        QWidget * const parent)
-    : QTreeWidget(parent), itemTree_(itemTree), temporaryTree_(temporaryTree)
+    : QTreeWidget(parent), itemTree_(itemTree), temporaryTree_(temporaryTree),
+      playItems_(std::move(playItems))
 {
     setColumnCount(1);
     header()->close();
-
     header()->
 # if QT_VERSION >= 0x050000
     setSectionResizeMode
@@ -120,9 +140,9 @@ TreeWidget::TreeWidget(const ItemTree::Tree & itemTree,
     setResizeMode
 # endif
     (QHeaderView::ResizeToContents);
-
     header()->setStretchLastSection(false);
     setUniformRowHeights(true);
+    setSelectionMode(QAbstractItemView::ExtendedSelection);
 
     connect(this, SIGNAL(itemActivated(QTreeWidgetItem *, int)),
             SLOT(onUiItemActivated(QTreeWidgetItem *)));
@@ -176,9 +196,9 @@ void TreeWidget::setUiEditMode()
     const bool visible = isVisible();
     if (visible)
         hide(); // Dramatically improves performance for large tree.
-    setSelectionMode(editMode_ ? ExtendedSelection : SingleSelection);
     for (int i = topLevelItemCount() - 1; i >= 0; --i)
-        recursivelySetEditable(topLevelItem(i), editMode_);
+        recursivelySetFlags(topLevelItem(i), editMode_ ?
+                            editableFlags : readOnlyFlags);
     if (visible)
         show();
     blockSignals(blocked);
@@ -194,52 +214,79 @@ void TreeWidget::autoUnfold()
 
 void TreeWidget::keyPressEvent(QKeyEvent * const event)
 {
-    if (editMode_ && event->key() == Qt::Key_Delete) {
-# ifdef DEBUG_VENTUROUS_TREE_WIDGET
-        std::cout << "Delete pressed." << std::endl;
-# endif
-        assertValidTemporaryTree();
-        std::vector<ItemTree::Node> & nodes = temporaryTree_->topLevelNodes();
-        assert(int(nodes.size()) == topLevelItemCount());
-
-        for (int i = topLevelItemCount() - 1; i >= 0; --i) {
-            QTreeWidgetItem * item = topLevelItem(i);
-            if (item->isSelected()) {
-                nodes.erase(nodes.begin() + i);
-                delete item;
-            }
-            else
-                removeSelectedItems(item, nodes[i]);
+    const int key = event->key();
+    if (editMode_) {
+        switch (key) {
+            case Qt::Key_Delete:
+                onDelete();
+                return;
         }
     }
-    else {
-        // Asterisk: expands all children of the current item (if present).
-        // Below is a WORKAROUND for Qt performance issue, which doesn't change
-        // program behaviour but dramatically improves Asterisk key performance
-        // when at least one child of current item is visible.
-        if (event->key() == Qt::Key_Asterisk)
-            currentItem()->setExpanded(false);
-        QTreeView::keyPressEvent(event);
+    if (key == Qt::Key_Return || key == Qt::Key_Enter) {
+        onEnter();
+        return;
+    }
+    // Asterisk: expands all children of the current item (if present).
+    // Below is a WORKAROUND for Qt performance issue, which doesn't change
+    // program behaviour but dramatically improves Asterisk key performance
+    // when at least one child of current item is visible.
+    if (key == Qt::Key_Asterisk)
+        currentItem()->setExpanded(false);
+    QTreeView::keyPressEvent(event);
+}
+
+void TreeWidget::onDelete()
+{
+# ifdef DEBUG_VENTUROUS_TREE_WIDGET
+    std::cout << "Delete pressed." << selectedItems().size() <<
+              " items are selected." << std::endl;
+# endif
+    assertValidTemporaryTree();
+    std::vector<ItemTree::Node> & nodes = temporaryTree_->topLevelNodes();
+    assert(int(nodes.size()) == topLevelItemCount());
+
+    for (int i = topLevelItemCount() - 1; i >= 0; --i) {
+        QTreeWidgetItem * item = topLevelItem(i);
+        if (item->isSelected()) {
+            nodes.erase(nodes.begin() + i);
+            delete item;
+        }
+        else
+            removeSelectedItems(item, nodes[i]);
+    }
+}
+
+void TreeWidget::onEnter()
+{
+# ifdef DEBUG_VENTUROUS_TREE_WIDGET
+    std::cout << "Enter pressed. " << selectedItems().size() <<
+              " items are selected." << std::endl;
+# endif
+    PlayablePaths paths;
+    const int nItems = topLevelItemCount();
+    for (int i = 0; i < nItems; ++i)
+        getPathsToPlay(topLevelItem(i), QString(), paths);
+    if (! paths.empty()) {
+        CommonTypes::ItemCollection items(paths.size());
+        std::transform(paths.cbegin(), paths.cend(), items.begin(),
+                       QtUtilities::qStringToString);
+        playItems_(items);
     }
 }
 
 
 void TreeWidget::onUiItemActivated(QTreeWidgetItem * item)
 {
-    /// TODO: add multiple item selection possibility (add all in playlist).
-    /// Make 2 options:
-    /// 1) play all selected items (no matter playable or not);
-    /// 2) play all [playable] Items - children of each selected item.
     if (editMode_ || ! isChecked(item))
         return;
     QString absolutePath;
     do {
-        absolutePath.prepend('/' + item->text(0));
+        absolutePath.prepend('/' + itemText(item));
         item = item->parent();
     }
     while (item != nullptr);
     absolutePath.remove(0, 1); // remove extra '/'.
-    emit itemActivated(std::move(absolutePath));
+    playItems_( { QtUtilities::qStringToString(absolutePath) });
 }
 
 void TreeWidget::onUiItemChanged(QTreeWidgetItem * item)
@@ -248,13 +295,13 @@ void TreeWidget::onUiItemChanged(QTreeWidgetItem * item)
     /// So this change is assumed below.
 # ifdef DEBUG_VENTUROUS_TREE_WIDGET
     std::cout << "Ui item's checkState changed: "
-              << QtUtilities::qStringToString(item->text(0)) << std::endl;
+              << QtUtilities::qStringToString(itemText(item)) << std::endl;
 # endif
 
     const bool checked = isChecked(item);
     std::deque<std::string> path;
     do {
-        path.emplace_front(QtUtilities::qStringToString(item->text(0)));
+        path.emplace_front(QtUtilities::qStringToString(itemText(item)));
         item = item->parent();
     }
     while (item != nullptr);

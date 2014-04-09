@@ -199,9 +199,6 @@ MainWindow::MainWindow(std::unique_ptr<QSharedMemory> sharedMemory,
             SLOT(setWindowTitle()));
     connect(playlistComponent_.get(), SIGNAL(editModeChanged()),
             SLOT(setWindowTitle()));
-    playbackComponent_->connect(
-        playlistComponent_.get(), SIGNAL(itemActivated(QString)),
-        SLOT(onItemActivated(QString)));
 
     connect(actions_->file.quit, SIGNAL(triggered(bool)), SLOT(onFileQuit()));
     connect(actions_->file.preferences, SIGNAL(triggered(bool)),

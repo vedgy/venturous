@@ -26,7 +26,6 @@
 # include <VenturousCore/MediaPlayer.hpp>
 
 # include <QtGlobal>
-# include <QString>
 # include <QObject>
 
 # include <vector>
@@ -36,6 +35,7 @@
 
 class InputController;
 class Preferences;
+QT_FORWARD_DECLARE_CLASS(QString)
 QT_FORWARD_DECLARE_CLASS(QLabel)
 QT_FORWARD_DECLARE_CLASS(QMainWindow)
 
@@ -75,10 +75,6 @@ public:
 
     /// @brief Should be called before normal quit.
     void quit();
-
-public slots:
-    /// TODO: remove after allowing multiple items selection in TreeWidget.
-    void onItemActivated(QString absolutePath);
 
 signals:
     /// isPlayerRunning is always equal to isPlayerRunning().

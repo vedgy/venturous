@@ -148,12 +148,6 @@ void PlaybackComponent::quit()
 }
 
 
-void PlaybackComponent::onItemActivated(const QString absolutePath)
-{
-    play(QtUtilities::qStringToString(absolutePath));
-}
-
-
 
 void PlaybackComponent::setPreferencesExceptHistory(
     const Preferences & preferences)

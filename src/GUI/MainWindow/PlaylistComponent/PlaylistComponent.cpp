@@ -70,7 +70,7 @@ PlaylistComponent::PlaylistComponent(
       qItemsFilename_(QtUtilities::toQString(itemsFilename_)),
       qBackupItemsFilename_(qItemsFilename_ + ".backup"),
       treeAutoCleanup_(preferences.treeAutoCleanup),
-      treeWidget_(itemTree_, temporaryTree_)
+      treeWidget_(itemTree_, temporaryTree_, playItems_)
 {
 # ifdef DEBUG_VENTUROUS_PLAYLIST_COMPONENT
     std::cout << "itemsFilename_ = " << itemsFilename_ << std::endl;
@@ -117,9 +117,6 @@ PlaylistComponent::PlaylistComponent(
         connect(p.load, SIGNAL(triggered(bool)), SLOT(onLoad()));
         connect(p.saveAs, SIGNAL(triggered(bool)), SLOT(onSaveAs()));
     }
-
-    connect(& treeWidget_, SIGNAL(itemActivated(QString)),
-            SIGNAL(itemActivated(QString)));
 
     updateActionsState();
 }

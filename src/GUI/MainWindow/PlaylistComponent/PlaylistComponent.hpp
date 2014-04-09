@@ -83,10 +83,6 @@ signals:
     /// WARNING: signal receiver must not block execution.
     void editModeChanged();
 
-    /// TODO: remove after allowing multiple items selection in TreeWidget.
-    /// NOTE: execution may be blocked by signal receiver.
-    void itemActivated(QString absolutePath);
-
 private:
     /// @brief Shows QMessageBox with given errorMessage.
     /// @param suffix If not empty, ('\n' + suffix) is appended to default
