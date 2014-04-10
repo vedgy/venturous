@@ -23,6 +23,7 @@
 
 # include <QTreeWidget>
 
+# include <algorithm>
 # include <string>
 # include <stdexcept>
 # include <memory>
@@ -96,6 +97,9 @@ private:
     void onDelete();
     void onEnter();
 
+    template <typename ItemUser>
+    void applyToSelectedItems(ItemUser f);
+
     const ItemTree::Tree & itemTree_;
     const std::unique_ptr<ItemTree::Tree> & temporaryTree_;
     const CommonTypes::PlayItems playItems_;
@@ -106,5 +110,13 @@ private slots:
     void onUiItemActivated(QTreeWidgetItem * item);
     void onUiItemChanged(QTreeWidgetItem * item);
 };
+
+
+template <typename ItemUser>
+void TreeWidget::applyToSelectedItems(ItemUser f)
+{
+    const auto selected = selectedItems();
+    std::for_each(selected.begin(), selected.end(), f);
+}
 
 # endif // VENTUROUS_TREE_WIDGET_HPP

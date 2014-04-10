@@ -51,6 +51,11 @@ bool isChecked(const QTreeWidgetItem * item)
     return item->checkState(0) == Qt::Checked;
 }
 
+void setChecked(QTreeWidgetItem * item, bool checked)
+{
+    item->setCheckState(0, checked ? Qt::Checked : Qt::Unchecked);
+}
+
 QString itemText(const QTreeWidgetItem * item)
 {
     return item->text(0);
@@ -64,7 +69,7 @@ void createTreeWidgetItem(
 {
     QTreeWidgetItem * const item = new QTreeWidgetItem(
         parent, { QtUtilities::toQString(node.name()) });
-    item->setCheckState(0, node.isPlayable() ? Qt::Checked : Qt::Unchecked);
+    setChecked(item, node.isPlayable());
 
     for (const ItemTree::Node & child : node.children())
         createTreeWidgetItem(item, child);
@@ -219,6 +224,21 @@ void TreeWidget::keyPressEvent(QKeyEvent * const event)
         switch (key) {
             case Qt::Key_Delete:
                 onDelete();
+                return;
+            case Qt::Key_Insert:
+                applyToSelectedItems([](QTreeWidgetItem * item) {
+                    setChecked(item, true);
+                });
+                return;
+            case Qt::Key_Backspace:
+                applyToSelectedItems([](QTreeWidgetItem * item) {
+                    setChecked(item, false);
+                });
+                return;
+            case Qt::Key_Space:
+                applyToSelectedItems([](QTreeWidgetItem * item) {
+                    setChecked(item, ! isChecked(item));
+                });
                 return;
         }
     }
