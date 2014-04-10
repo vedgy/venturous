@@ -76,9 +76,6 @@ public:
     bool quit();
 
 signals:
-    /// @brief Is emitted after tree() is changed.
-    /// WARNING: signal receiver must not block execution.
-    void treeChanged();
     /// @brief Is emitted after playlist edit mode is changed.
     /// WARNING: signal receiver must not block execution.
     void editModeChanged();

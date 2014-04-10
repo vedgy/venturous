@@ -222,8 +222,6 @@ bool PlaylistComponent::applyChangesChanged()
     }
     itemTree_ = std::move(* temporaryTree_);
     cancelChanges(false);
-
-    emit treeChanged();
     return true;
 }
 

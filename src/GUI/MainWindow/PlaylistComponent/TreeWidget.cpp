@@ -207,20 +207,20 @@ void TreeWidget::setUiEditMode()
     int hue;
     Qt::ItemFlags flags;
     if (editMode_) {
-        hue = 300;
+        hue = 280;
         flags = editableFlags;
     }
     else {
-        hue = 120;
+        hue = 57;
         flags = readOnlyFlags;
     }
 
     {
         QPalette p = palette();
-        constexpr int minLightness = 20, maxLightness = 250;
+        constexpr int minLightness = 20, maxLightness = 247;
         const int lightness = std::max(std::min(p.base().color().lightness(),
                                                 maxLightness), minLightness);
-        const int saturation = 120 + (maxLightness - lightness) / 3;
+        const int saturation = 255;
         p.setColor(QPalette::Base, QColor::fromHsl(hue, saturation, lightness));
         setPalette(p);
     }
