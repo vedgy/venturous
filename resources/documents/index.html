@@ -7,7 +7,7 @@
 </head>
 
 <body>
-<h1>Venturous - version 0.9</h1>
+<h1>Venturous - version 0.9.1</h1>
 
 <a id="Index"><h2>Table of contents</h2></a>
     <ul>
@@ -137,15 +137,21 @@
 
 
 <a id="PlaylistTree"><h2>Playlist tree</h2></a>
-    <p>Playlist tree has a lock to prevent accidental change. This lock creates
-    two modes: non-edit (default on Venturous start) and edit mode.
-    Checked items are considered for random playback selection and can be
-    played manually by activating (double click or Enter key) in non-edit mode.
-    </p>
+    <p>Playlist tree is protected from accidental changes. Protection is
+    achieved by introducing two modes: non-edit (default on Venturous start) and
+    edit mode. Playlist's background is greenish in non-edit mode and purplish
+    in edit mode.</p>
+    <p>Checked items are considered for random playback selection and can be
+    played manually by activating (double click) in non-edit mode.
+    Extended selection is available in both modes (multiple items can be
+    selected with SHIFT or CTRL keys; CTRL+A selects all items).
+    Pressing Enter or Return key starts playing all playable descendants of
+    selected items in both modes.</p>
     <p>Apart from obvious folding / unfolding nodes using '+' symbol, there are
     other ways of changing playlist view. Double clicking playlist entry
-    folds / unfolds it, but be aware that it also activates it, so if the entry
-    is playable, it will be played. Following keys for manipulating current
+    folds / unfolds it, but be aware that it also activates it in non-edit mode,
+    so if the entry is playable, it will be played.
+    The following keys for manipulating current
     entry folded state are supported (these are standard Qt key bindings,
     so excerpts from Qt documentation follow):</p>
     <ul>
@@ -180,14 +186,20 @@
 <a id="EditingPlaylist"><h2>Editing playlist tree</h2></a>
     <p>When Venturous starts, playlist is in non-edit mode. User has to check
     menu action "Edit mode" in Playlist menu or toolbar button with the same
-    name in order to enter edit mode. Multiple rows selection with CTRL or SHIFT
-    keys is allowed in edit mode. Selected items can be removed by pressing
+    name in order to enter edit mode.</p>
+    <p>In edit mode selected items can be removed by pressing
     Delete key. If item is removed, all its descendants are also removed
-    recursively. When user triggers action that requires edit or non-edit tree
+    recursively. Single item can be checked / unchecked by mouse-clicking.
+    Pressing one of the following keys while playlist has focus will apply
+    corresponding action to all selected items:</p>
+    <ul>
+        <li>Insert - check</li>
+        <li>Backspace - uncheck</li>
+        <li>Space - toggle checked state</li>
+    </ul>
+    <p>When user triggers action that requires edit or non-edit tree
     mode enabled, and if this mode is not currently active, dialog appears,
     asking if user wants to switch edit mode.</p>
-    <p>Single item can be checked / unchecked by mouse-clicking or pressing
-    Space key.</p>
     <p>Adding files and directories is also enabled only in tree edit mode.
     For more information about adding items to playlist see
     <a href="#AddingFiles">Adding files to playlist</a></p>
@@ -271,7 +283,7 @@
         behavior or if he never changes them and wants to save CPU cycles,
         switching setting options off can be useful.</li>
         <li>"Startup action" - allows triggering one of four playback actions
-        on Venturous start. Note that more sofisticated startup behavior can be
+        on Venturous start. Note that more sophisticated startup behavior can be
         achieved with Ventool commands. For example:<br />
         <b><i>(venturous&nbsp;>&nbsp;/dev/null&nbsp;&amp;)\<br />
         &amp;&amp;&nbsp;sleep&nbsp;1\<br />
@@ -303,8 +315,9 @@
     same format. These actions are accessible in "History" submenu of Playback
     menu. This submenu also contains "Clear" action, which removes all entries
     from playback history.</p>
-    <p>Pressing one of the following keys while History window is active, will
-    apply corresponding action to all selected entries.</p>
+    <p>Extended selection of entries is supported. Pressing one of the following
+    keys while History window is active, will
+    apply corresponding action to all selected entries:</p>
     <ul>
         <li>Enter (or Return) - start playback of selected entries.</li>
         <li>Delete - remove selected entries.</li>
@@ -458,15 +471,15 @@
         <li>"Filename patterns" - contains two editable lists: "File patterns"
         and "Media directory file patterns". Their meaning is described in
         <a href="#AddingFiles">Adding files to playlist</a> section.
-        Checking / unchecking individual patterns is possible. Selecting
-        arbitrary number of elements using CTRL and SHIFT keys is supported.
+        Checking / unchecking individual patterns is possible. Extended
+        selection of patterns is supported.
         Selecting caption row ("Meta data patterns", "Audio patterns" or
         "Other patterns") results in applying action to all underlying patterns.
         You can add new patterns using "Add pattern" button; edit user-defined
         patterns (under "Other patterns" captions); copy user-defined patterns
         to another column using "Copy right" and "Copy left" buttons.
         Pressing one of the following keys will apply corresponding action to
-        all selected patterns.
+        all selected patterns:
         <ul>
             <li>Insert - check</li>
             <li>Backspace - uncheck</li>

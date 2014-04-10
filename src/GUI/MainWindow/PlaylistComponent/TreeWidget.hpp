@@ -21,6 +21,7 @@
 
 # include "CommonTypes.hpp"
 
+# include <QList>
 # include <QTreeWidget>
 
 # include <algorithm>
@@ -115,8 +116,11 @@ private slots:
 template <typename ItemUser>
 void TreeWidget::applyToSelectedItems(ItemUser f)
 {
+    hide(); // Improves performance for large tree.
     const auto selected = selectedItems();
     std::for_each(selected.begin(), selected.end(), f);
+    show();
+    setFocus();
 }
 
 # endif // VENTUROUS_TREE_WIDGET_HPP

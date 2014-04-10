@@ -11,6 +11,9 @@ feature is especially useful for grouping separate tracks that are
 actually parts of one composition. For example parts of classical music
 compositions (movements) are often distributed as separate tracks. It is
 usually desirable to listen to movements in succession and in a proper order.
+
+Venturous has hierarchical playlist, which reflects file system. The playlist
+is protected from accidental changes.
 Venturous also features playback history, which allows user to identify
 previously played items and play them again.
 
@@ -28,26 +31,31 @@ GNU/Linux or MS Windows (might also work in OS X, not tested).
 
 ## How to build and install
 
-First, clone this repository, e.g.:
+1. Clone this repository, e.g.:
 
-    git clone https://github.com/vedgy/venturous.git
+        git clone https://github.com/vedgy/venturous.git
 
-Enter newly created directory, e.g.:
+2. Enter newly created directory, e.g.:
 
-    cd venturous
+        cd venturous
 
-And run:
+3. If you want to install latest stable version, execute the following command:
 
-    ./update_and_configure_submodules
+        git checkout tags/v0.9.1
+If you prefer latest development version (can be unstable), just skip this step.
 
-Follow instructions that appear at the end of
+4. Run configuration script:
+
+        ./update_and_configure_submodules
+
+5. Follow instructions that appear at the end of
 `update_and_configure_submodules` output.
 
 ### Troubleshooting
 If errors appear after running `update_and_configure_submodules`, this probably
 means that some dependency is not satisfied. Check this.
 
-Also errors appear in following cases:
+Also errors appear in the following cases:
 * qt4 is not installed. If you have qt5 installed and want to use it, pass
 "qt5" argument to `update_and_configure_submodules`.
 * Neither wget nor curl is installed. If you have inkscape installed and want

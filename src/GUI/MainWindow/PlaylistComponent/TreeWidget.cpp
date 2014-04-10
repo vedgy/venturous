@@ -32,6 +32,8 @@
 
 # include <QString>
 # include <QStringList>
+# include <QColor>
+# include <QPalette>
 # include <QTreeWidgetItem>
 # include <QHeaderView>
 # include <QKeyEvent>
@@ -201,11 +203,33 @@ void TreeWidget::setUiEditMode()
     const bool visible = isVisible();
     if (visible)
         hide(); // Dramatically improves performance for large tree.
+
+    int hue;
+    Qt::ItemFlags flags;
+    if (editMode_) {
+        hue = 300;
+        flags = editableFlags;
+    }
+    else {
+        hue = 120;
+        flags = readOnlyFlags;
+    }
+
+    {
+        QPalette p = palette();
+        constexpr int minLightness = 20, maxLightness = 250;
+        const int lightness = std::max(std::min(p.base().color().lightness(),
+                                                maxLightness), minLightness);
+        const int saturation = 120 + (maxLightness - lightness) / 3;
+        p.setColor(QPalette::Base, QColor::fromHsl(hue, saturation, lightness));
+        setPalette(p);
+    }
     for (int i = topLevelItemCount() - 1; i >= 0; --i)
-        recursivelySetFlags(topLevelItem(i), editMode_ ?
-                            editableFlags : readOnlyFlags);
+        recursivelySetFlags(topLevelItem(i), flags);
+
     if (visible)
         show();
+    setFocus();
     blockSignals(blocked);
 }
 
