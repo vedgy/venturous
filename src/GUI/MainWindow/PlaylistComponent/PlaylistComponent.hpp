@@ -24,8 +24,6 @@
 
 # include <VenturousCore/ItemTree.hpp>
 
-# include <QtCoreUtilities/String.hpp>
-
 # include <QtGlobal>
 # include <QString>
 # include <QObject>
@@ -169,23 +167,5 @@ private slots:
     void onLoad();
     void onSaveAs();
 };
-
-
-template <typename FilenameGetter>
-void PlaylistComponent::loadTemporaryPlaylist(FilenameGetter filenameGetter)
-{
-    if (! ensureAskInEditMode())
-        return;
-    const QString file = filenameGetter();
-    if (! file.isEmpty()) {
-        const std::string errorMessage =
-            temporaryTree_->load(QtUtilities::qStringToString(file));
-        if (! errorMessage.empty()) {
-            temporaryTree_->topLevelNodes().clear();
-            showLoadingPlaylistErrorMessage(errorMessage);
-        }
-        treeWidget_.updateTree();
-    }
-}
 
 # endif // VENTUROUS_PLAYLIST_COMPONENT_HPP

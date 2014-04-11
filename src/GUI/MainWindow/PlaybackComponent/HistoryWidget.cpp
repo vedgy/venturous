@@ -23,6 +23,7 @@
 
 # include <QtCoreUtilities/String.hpp>
 
+# include <QList>
 # include <QString>
 # include <QFont>
 # include <QListWidgetItem>
@@ -122,10 +123,7 @@ bool HistoryWidget::save(const std::string & filename) const
 
 std::string HistoryWidget::current()
 {
-    const std::string entry = entryAt(currentEntryIndex_);
-    if (! entry.empty() && copyPlayedEntryToTop_)
-        push(entry);
-    return entry;
+    return setCurrentEntry(currentEntryIndex_);
 }
 
 QString HistoryWidget::currentAbsolute() const
@@ -169,8 +167,7 @@ void HistoryWidget::push(std::string entry)
 
 void HistoryWidget::playedMultipleItems()
 {
-    emphasizeCurrentEntry(false);
-    currentEntryIndex_ = Preferences::Playback::History::multipleItemsIndex;
+    silentlySetCurrentEntry(Preferences::Playback::History::multipleItemsIndex);
 }
 
 
@@ -201,11 +198,8 @@ std::string HistoryWidget::setCurrentEntry(const int index)
     if (! entry.empty()) {
         if (copyPlayedEntryToTop_)
             push(entry);
-        else {
-            emphasizeCurrentEntry(false);
-            currentEntryIndex_ = index;
-            emphasizeCurrentEntry();
-        }
+        else
+            silentlySetCurrentEntry(index);
     }
     return entry;
 }
@@ -220,6 +214,15 @@ void HistoryWidget::emphasizeCurrentEntry(const bool emphasized)
     }
 }
 
+void HistoryWidget::silentlySetCurrentEntry(const int index)
+{
+    if (currentEntryIndex_ != index) {
+        emphasizeCurrentEntry(false);
+        currentEntryIndex_ = index;
+        emphasizeCurrentEntry();
+    }
+}
+
 void HistoryWidget::resetAllItemsText()
 {
     for (int i = count() - 1; i >= 0; --i)
@@ -231,49 +234,72 @@ void HistoryWidget::keyPressEvent(QKeyEvent * const event)
     assert(history_.items().size() == std::size_t(count()));
     switch (event->key()) {
         case Qt::Key_Return:
-        case Qt::Key_Enter: {
+        case Qt::Key_Enter:
+            playSelectedItems();
+            break;
+        case Qt::Key_Delete:
+            removeSelectedItems();
+            break;
+        case Qt::Key_Insert: {
             const auto items = selectedItems();
             if (! items.empty()) {
                 if (items.size() == 1)
-                    onUiItemActivated(items.back());
-                else {
-                    std::vector<std::string> entries;
-                    entries.reserve(items.size());
-                    for (const QListWidgetItem * const item : items)
-                        entries.emplace_back(history_.items()[row(item)]);
-                    playItems_(std::move(entries));
-                }
+                    silentlySetCurrentEntry(row(items.back()));
+                else
+                    playedMultipleItems();
             }
+            break;
         }
-        break;
-        case Qt::Key_Delete: {
-            const auto items = selectedItems();
-            if (! items.empty()) {
-                const QListWidgetItem * currentItem = item(currentEntryIndex_);
-                if (currentItem != nullptr && currentItem->isSelected()) {
-                    currentItem = nullptr;
-                    currentEntryIndex_ = -1;
-                }
-
-                std::vector<std::size_t> indices;
-                indices.reserve(items.size());
-                for (const QListWidgetItem * const item : items)
-                    indices.emplace_back(row(item));
-                history_.remove(indices);
-                for (const QListWidgetItem * const item : items)
-                    delete item;
-
-                if (currentItem != nullptr)
-                    currentEntryIndex_ = row(currentItem);
-
-                emit historyChanged();
-            }
-        }
-        break;
+        case Qt::Key_Backspace:
+            playedMultipleItems();
+            break;
         default:
             QListWidget::keyPressEvent(event);
     }
 }
+
+void HistoryWidget::playSelectedItems()
+{
+    const auto items = selectedItems();
+    if (! items.empty()) {
+        if (items.size() == 1)
+            onUiItemActivated(items.back());
+        else {
+            std::vector<std::string> entries;
+            entries.reserve(items.size());
+            for (const QListWidgetItem * const item : items)
+                entries.emplace_back(history_.items()[row(item)]);
+            playItems_(std::move(entries));
+        }
+    }
+}
+
+void HistoryWidget::removeSelectedItems()
+{
+    const auto items = selectedItems();
+    if (! items.empty()) {
+        const QListWidgetItem * currentItem = item(currentEntryIndex_);
+        if (currentItem != nullptr && currentItem->isSelected()) {
+            currentItem = nullptr;
+            currentEntryIndex_ =
+                Preferences::Playback::History::multipleItemsIndex;
+        }
+
+        std::vector<std::size_t> indices;
+        indices.reserve(items.size());
+        for (const QListWidgetItem * const item : items)
+            indices.emplace_back(row(item));
+        history_.remove(indices);
+        for (const QListWidgetItem * const item : items)
+            delete item;
+
+        if (currentItem != nullptr)
+            currentEntryIndex_ = row(currentItem);
+
+        emit historyChanged();
+    }
+}
+
 
 void HistoryWidget::onUiItemActivated(QListWidgetItem * const item)
 {

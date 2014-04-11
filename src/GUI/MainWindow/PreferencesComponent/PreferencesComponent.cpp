@@ -27,10 +27,15 @@
 # include "WindowUtilities.hpp"
 # include "PreferencesWindow.hpp"
 
+# include <QtCoreUtilities/Error.hpp>
+# include <QtCoreUtilities/String.hpp>
+
 # include <QString>
 # include <QFile>
+# include <QMessageBox>
 
 # include <cassert>
+# include <iostream>
 
 
 PreferencesComponent::PreferencesComponent(
@@ -88,6 +93,34 @@ void PreferencesComponent::quit()
 }
 
 
+
+template <typename F>
+bool PreferencesComponent::handlePreferencesErrors(
+    F f, const QString & errorPrefix, const bool silentMode)
+{
+    while (true) {
+        try {
+            f();
+            return true;
+        }
+        catch (const QtUtilities::Error & error) {
+            const QString message = errorPrefix + ": " + error.message();
+            if (silentMode) {
+                std::cerr << ERROR_PREFIX <<
+                          QtUtilities::qStringToString(message) << std::endl;
+                return false;
+            }
+            const auto selectedButton =
+                inputController_.showMessage(
+                    tr("Preferences error"), message,
+                    QMessageBox::Retry | QMessageBox::Ignore,
+                    QMessageBox::Ignore);
+
+            if (selectedButton != QMessageBox::Retry)
+                return false;
+        }
+    }
+}
 
 void PreferencesComponent::savePreferences(const bool silentMode)
 {

@@ -20,6 +20,7 @@
 
 # include <VenturousCore/AddingItems.hpp>
 
+# include <QList>
 # include <QString>
 # include <QStringList>
 # include <QListWidgetItem>

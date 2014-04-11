@@ -46,6 +46,7 @@
 
 # include <utility>
 # include <algorithm>
+# include <string>
 # include <iostream>
 
 
@@ -310,6 +311,23 @@ bool PlaylistComponent::saveTemporaryTree() const
         dir.mkpath(absolutePath);
     }
     return temporaryTree_->save(itemsFilename_);
+}
+
+template <typename FilenameGetter>
+void PlaylistComponent::loadTemporaryPlaylist(FilenameGetter filenameGetter)
+{
+    if (! ensureAskInEditMode())
+        return;
+    const QString file = filenameGetter();
+    if (! file.isEmpty()) {
+        const std::string errorMessage =
+            temporaryTree_->load(QtUtilities::qStringToString(file));
+        if (! errorMessage.empty()) {
+            temporaryTree_->topLevelNodes().clear();
+            showLoadingPlaylistErrorMessage(errorMessage);
+        }
+        treeWidget_.updateTree();
+    }
 }
 
 

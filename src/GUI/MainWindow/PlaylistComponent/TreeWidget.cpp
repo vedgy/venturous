@@ -18,6 +18,7 @@
 
 # ifdef DEBUG_VENTUROUS_TREE_WIDGET
 # include <QtCoreUtilities/String.hpp>
+# include <QList>
 # include <iostream>
 # endif
 
@@ -30,6 +31,7 @@
 
 # include <QtCoreUtilities/String.hpp>
 
+# include <QList>
 # include <QString>
 # include <QStringList>
 # include <QColor>
@@ -316,6 +318,16 @@ void TreeWidget::onEnter()
                        QtUtilities::qStringToString);
         playItems_(items);
     }
+}
+
+template <typename ItemUser>
+void TreeWidget::applyToSelectedItems(ItemUser f)
+{
+    hide(); // Improves performance for large tree.
+    const auto selected = selectedItems();
+    std::for_each(selected.begin(), selected.end(), f);
+    show();
+    setFocus();
 }
 
 

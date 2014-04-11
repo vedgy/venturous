@@ -110,6 +110,8 @@ private:
 
     /// @brief Emphasizes/deemphasizes current entry if it exists.
     void emphasizeCurrentEntry(bool emphasized = true);
+    /// @brief Changes currentEntryIndex_ to index and handles emphasizing.
+    void silentlySetCurrentEntry(int index);
 
     /// @brief Resets text of all items based on tooltip (absolute path is
     /// stored in each item's tooltip) and nHiddenDirs_.
@@ -117,6 +119,11 @@ private:
 
     /// WARNING: can block execution.
     void keyPressEvent(QKeyEvent *) override;
+
+    /// WARNING: can block execution.
+    void playSelectedItems();
+    /// WARNING: can block execution.
+    void removeSelectedItems();
 
 
     const PlayExistingEntry playExistingEntry_;

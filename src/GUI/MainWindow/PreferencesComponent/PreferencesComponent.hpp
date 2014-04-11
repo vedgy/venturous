@@ -19,21 +19,16 @@
 # ifndef VENTUROUS_PREFERENCES_COMPONENT_HPP
 # define VENTUROUS_PREFERENCES_COMPONENT_HPP
 
-# include "InputController.hpp"
 # include "Preferences.hpp"
-
-# include <QtCoreUtilities/Error.hpp>
-# include <QtCoreUtilities/String.hpp>
 
 # include <QtGlobal>
 # include <QString>
 # include <QObject>
-# include <QMessageBox>
 
 # include <memory>
-# include <iostream>
 
 
+class InputController;
 class PreferencesWindow;
 QT_FORWARD_DECLARE_CLASS(QIcon)
 QT_FORWARD_DECLARE_CLASS(QWidget)
@@ -99,34 +94,5 @@ private:
 private slots:
     void onPreferencesUpdated();
 };
-
-
-template <typename F>
-bool PreferencesComponent::handlePreferencesErrors(
-    F f, const QString & errorPrefix, const bool silentMode)
-{
-    while (true) {
-        try {
-            f();
-            return true;
-        }
-        catch (const QtUtilities::Error & error) {
-            const QString message = errorPrefix + ": " + error.message();
-            if (silentMode) {
-                std::cerr << ERROR_PREFIX <<
-                          QtUtilities::qStringToString(message) << std::endl;
-                return false;
-            }
-            const auto selectedButton =
-                inputController_.showMessage(
-                    tr("Preferences error"), message,
-                    QMessageBox::Retry | QMessageBox::Ignore,
-                    QMessageBox::Ignore);
-
-            if (selectedButton != QMessageBox::Retry)
-                return false;
-        }
-    }
-}
 
 # endif // VENTUROUS_PREFERENCES_COMPONENT_HPP

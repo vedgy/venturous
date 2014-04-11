@@ -7,7 +7,7 @@
 </head>
 
 <body>
-<h1>Venturous - version 0.9.1</h1>
+<h1>Venturous - version 0.9.1.5-dev</h1>
 
 <a id="Index"><h2>Table of contents</h2></a>
     <ul>
@@ -323,7 +323,15 @@
         <li>Delete - remove selected entries.</li>
     </ul>
     <p>If history entry is activated (double click), playback of this entry is
-    started.</p>
+    started. Pressing Backspace key sets current history index to -1
+    (this index is also set when multiple items are played). Pressing Insert
+    key has the following effect, depending on number of selected entries:</p>
+    <ul>
+        <li>If no entries are selected, has no effect.</li>
+        <li>If one entry is selected, it becomes current.</li>
+        <li>If multiple entries are selected, result is equivalent to pressing
+        Backspace key.</li>
+    </ul>
     <p>History options are available in "Playback" tab of Preferences:</p>
     <ul>
         <li>"Maximum size" - maximum number of entries in history. Big number of
