@@ -108,32 +108,34 @@ void MainWindow::hideWindowProperly()
 
 void MainWindow::showNotificationAreaIcon()
 {
-    if (notificationAreaIcon_ == nullptr) {
-        QMenu * const iconMenu = new QMenu(APPLICATION_NAME, this);
-        iconMenu->addActions( { actions_->playback.play,
-                                actions_->playback.stop,
-                                actions_->playback.previous,
-                                actions_->playback.next,
-                                actions_->file.preferences, actions_->file.quit
-                              });
-        iconMenu->insertSeparator(actions_->file.preferences);
-        notificationAreaIcon_.reset(new QSystemTrayIcon(windowIcon(), this));
-        notificationAreaIcon_->setContextMenu(iconMenu);
-        connect(notificationAreaIcon_.get(),
-                SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
-                SLOT(onNotificationAreaIconActivated(
-                         QSystemTrayIcon::ActivationReason)));
-        notificationAreaIcon_->setToolTip(
-            getIconToolTip(playbackComponent_->isPlayerRunning()));
-    }
+    if (notificationAreaIcon_ != nullptr)
+        return;
+    QMenu * const iconMenu = new QMenu(APPLICATION_NAME, this);
+    iconMenu->addActions( { actions_->playback.play, actions_->playback.stop,
+                            actions_->playback.previous,
+                            actions_->playback.next,
+                            actions_->file.preferences, actions_->file.quit
+                          });
+    iconMenu->insertSeparator(actions_->file.preferences);
+
+    notificationAreaIcon_.reset(new QSystemTrayIcon(windowIcon(), this));
+    notificationAreaIcon_->setContextMenu(iconMenu);
+    connect(notificationAreaIcon_.get(),
+            SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
+            SLOT(onNotificationAreaIconActivated(
+                     QSystemTrayIcon::ActivationReason)));
+
+    notificationAreaIcon_->setToolTip(
+        getIconToolTip(playbackComponent_->isPlayerRunning()));
+
     notificationAreaIcon_->show();
 }
 
 void MainWindow::hideNotificationAreaIcon()
 {
-    if (notificationAreaIcon_ != nullptr &&
-            notificationAreaIcon_->isVisible()) {
-        notificationAreaIcon_->hide();
+    if (notificationAreaIcon_ != nullptr) {
+        notificationAreaIcon_->contextMenu()->deleteLater();
+        notificationAreaIcon_.release()->deleteLater();
         show();
     }
 }
