@@ -61,6 +61,7 @@ const QString localRoot = "History",
 const QString localRoot = "Playback",
               autoSetExternalPlayerOptions = "AutoSetExternalPlayerOptions",
               nextFromHistory = "NextFromHistory",
+              desktopNotifications = "DesktopNotifications",
               startupPolicy = "StartupPolicy";
 }
 
@@ -138,6 +139,8 @@ void appendPlayback(QDomDocument & doc, QDomElement & root,
 
     e.appendChild(createElement(doc, nextFromHistory,
                                 playback.nextFromHistory));
+    e.appendChild(createElement(doc, desktopNotifications,
+                                playback.desktopNotifications));
     e.appendChild(
         createElement(
             doc, startupPolicy,
@@ -215,6 +218,8 @@ void loadPlayback(const QDomElement & root, Preferences::Playback & playback)
                            playback.autoSetExternalPlayerOptions);
 
     copyUniqueChildsTextTo(e, nextFromHistory, playback.nextFromHistory);
+    copyUniqueChildsTextTo(e, desktopNotifications,
+                           playback.desktopNotifications);
     {
         P::StartupPolicyUnderlyingType p;
         if (copyUniqueChildsTextToMax(e, startupPolicy, p, P::maxStartupPolicy))
@@ -259,7 +264,7 @@ Preferences::Playback::maxStartupPolicy;
 
 Preferences::Playback::Playback()
     : autoSetExternalPlayerOptions(true), nextFromHistory(false),
-      startupPolicy(StartupPolicy::doNothing)
+      desktopNotifications(true), startupPolicy(StartupPolicy::doNothing)
 {
 }
 
@@ -377,6 +382,7 @@ bool operator == (const Preferences::Playback & lhs,
     return lhs.history == rhs.history &&
            lhs.autoSetExternalPlayerOptions == rhs.autoSetExternalPlayerOptions
            && lhs.nextFromHistory == rhs.nextFromHistory &&
+           lhs.desktopNotifications == rhs.desktopNotifications &&
            lhs.startupPolicy == rhs.startupPolicy;
 }
 

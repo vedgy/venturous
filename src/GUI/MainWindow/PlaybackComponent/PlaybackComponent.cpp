@@ -26,7 +26,9 @@
 # include <QtCoreUtilities/String.hpp>
 
 # include <QString>
+# include <QStringList>
 # include <QObject>
+# include <QProcess>
 # include <QAction>
 # include <QLabel>
 # include <QMessageBox>
@@ -156,7 +158,7 @@ void PlaybackComponent::setPreferencesExceptHistory(
         if (lastPlayedItemLabel_ == nullptr) {
             lastPlayedItemLabel_.reset(new QLabel);
             mainWindow_.statusBar()->addWidget(lastPlayedItemLabel_.get());
-            resetLastPlayedItem();
+            resetLastPlayedItem(false);
         }
     }
     else {
@@ -165,10 +167,10 @@ void PlaybackComponent::setPreferencesExceptHistory(
             delete mainWindow_.statusBar();
         }
     }
-    mediaPlayer_.setAutoSetOptions(
-        preferences.playback.autoSetExternalPlayerOptions);
-    saveHistoryToDiskImmediately_ =
-        preferences.playback.history.saveToDiskImmediately;
+    const Preferences::Playback & pb = preferences.playback;
+    mediaPlayer_.setAutoSetOptions(pb.autoSetExternalPlayerOptions);
+    desktopNotifications_ = pb.desktopNotifications;
+    saveHistoryToDiskImmediately_ = pb.history.saveToDiskImmediately;
     if (saveHistoryToDiskImmediately_)
         saveHistory();
 }
@@ -231,11 +233,22 @@ bool PlaybackComponent::playFromHistoryIfNotEmpty(std::string entry)
     return true;
 }
 
-void PlaybackComponent::resetLastPlayedItem()
+void PlaybackComponent::resetLastPlayedItem(const bool playbackStarted)
 {
+    if (playbackStarted && desktopNotifications_) {
+        QString summary = historyWidget_.currentShortened();
+        if (summary.isEmpty())
+            summary = tr("<multiple items>");
+        // replace special notify-send characters.
+        summary.replace('&', "&amp;");
+        summary.replace('<', "&lt;");
+        summary.replace('\\', "&#92;");
+        QProcess::startDetached("notify-send",
+        { "-a", APPLICATION_NAME, "-i", ICON_NAME, "|>", summary });
+    }
+
     if (lastPlayedItemLabel_ == nullptr)
         return;
-
     QString textPrefix = tr("Last played item: ");
     const QString entry = historyWidget_.currentAbsolute();
     if (entry.isEmpty()) {

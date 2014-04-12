@@ -56,11 +56,15 @@ endif()
 include(vedgTools/StringAppendSlashIfAbsent)
 stringAppendSlashIfAbsent(PREFERENCES_DIR)
 
+set(Executable_Name venturous)
+set(Icon_Name ${Executable_Name})
+
 add_definitions(
     -DPREFERENCES_DIR=\"${PREFERENCES_DIR}\"
     -DERROR_PREFIX=\"**\ ${Target_Name}\ CRITICAL\ **\ \"
     -DAPPLICATION_NAME=\"${Target_Name}\"
     -DTOOL_NAME=\"${Tool_Name}\"
+    -DICON_NAME=\"${Icon_Name}\"
     -DSHARED_MEMORY_KEY=\"oS2huoventurousyiOventoolhJkNQqC{\"
 )
 
@@ -115,7 +119,6 @@ if(ALWAYS_EMBED_ICONS OR WIN32)
 endif()
 
 
-set(Executable_Name venturous)
 add_executable(${Executable_Name} ${EXECUTABLE_ARGS} ${Sources} ${Resources})
 
 include(vedgTools/LinkQt)
@@ -154,6 +157,6 @@ foreach(Icon_Size 16 22 24 32 48 96 256 "scalable")
         set(Icon_Extension "png")
     endif()
     install(FILES
-    "${PATH_TO_MODULES}/SimpleFugue/${End_Of_Path}/${Executable_Name}.${Icon_Extension}"
+    "${PATH_TO_MODULES}/SimpleFugue/${End_Of_Path}/${Icon_Name}.${Icon_Extension}"
             DESTINATION share/icons/hicolor/${End_Of_Path})
 endforeach()

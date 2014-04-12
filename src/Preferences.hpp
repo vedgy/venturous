@@ -65,6 +65,7 @@ public:
 
         bool autoSetExternalPlayerOptions;
         bool nextFromHistory;
+        bool desktopNotifications;
         StartupPolicy startupPolicy;
     }
     playback;

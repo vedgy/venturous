@@ -105,8 +105,10 @@ private:
     bool playFromHistoryIfNotEmpty(std::string entry);
 
     /// @brief Must be called after current history entry is changed.
+    /// @param playbackStarted true if method is called as a consequence of
+    /// playing item(s), false otherwise.
     /// NOTE: does not block execution.
-    void resetLastPlayedItem();
+    void resetLastPlayedItem(bool playbackStarted = true);
 
     /// @brief If isPlayerRunning_ != isRunning, sets isPlayerRunning_ to
     /// isRunning and performs other accompanying actions.
@@ -128,6 +130,7 @@ private:
     const std::string historyFilename_;
 
     bool saveHistoryToDiskImmediately_;
+    bool desktopNotifications_;
     bool isPlayerRunning_ = false;
     bool isHistorySaved_ = true;
 

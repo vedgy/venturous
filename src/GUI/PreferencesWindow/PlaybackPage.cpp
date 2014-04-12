@@ -45,6 +45,11 @@ PlaybackPage::PlaybackPage(QWidget * const parent, const Qt::WindowFlags f)
            "Otherwise, \"Next\" action always plays random item."));
     layout->addRow(tr("Next from history"), & nextFromHistoryCheckBox);
 
+    desktopNotificationsCheckBox.setToolTip(tr(
+            "If checked, desktop notifications will be shown when\n"
+            "played item is changed (requires libnotify library)."));
+    layout->addRow(tr("Desktop notifications"), & desktopNotificationsCheckBox);
+
     startupPolicyComboBox.addItems( {
         tr("<no action>"), tr("Start playback"), tr("Replay last item"),
         tr("Play next random item"), tr("Play next item")
@@ -67,6 +72,7 @@ void PlaybackPage::setUiPreferences(const Preferences & source)
 
     autoSetOptionsCheckBox.setChecked(playback.autoSetExternalPlayerOptions);
     nextFromHistoryCheckBox.setChecked(playback.nextFromHistory);
+    desktopNotificationsCheckBox.setChecked(playback.desktopNotifications);
     startupPolicyComboBox.setCurrentIndex(static_cast<int>(
             playback.startupPolicy));
 
@@ -79,6 +85,7 @@ void PlaybackPage::writeUiPreferencesTo(Preferences & destination) const
 
     playback.autoSetExternalPlayerOptions = autoSetOptionsCheckBox.isChecked();
     playback.nextFromHistory = nextFromHistoryCheckBox.isChecked();
+    playback.desktopNotifications = desktopNotificationsCheckBox.isChecked();
     playback.startupPolicy = static_cast<Preferences::Playback::StartupPolicy>(
                                  startupPolicyComboBox.currentIndex());
 

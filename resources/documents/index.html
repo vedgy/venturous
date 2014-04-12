@@ -275,13 +275,17 @@
     stopping playback in Audacious, managed by Venturous, is changed.
     Pausing playback in Audacious works as expected though.</p>
     <p>Apart from mentioned above "Next from history" option, "Playback" tab of
-    Preferences contains History options and 2 other playback options:</p>
+    Preferences contains History options and 3 other playback options:</p>
     <ol>
         <li>"Always set external player options" - this option is on by default.
         This ensures that external player is configured properly. But if user
         desires to change those options manually to achieve some peculiar
         behavior or if he never changes them and wants to save CPU cycles,
         switching setting options off can be useful.</li>
+        <li>"Desktop notifications" - if enabled, desktop notification is
+        shown after played item is changed. If libnotify is not installed,
+        notifications will not be shown. In this case this option should be
+        turned off to avoid starting useless process.</li>
         <li>"Startup action" - allows triggering one of four playback actions
         on Venturous start. Note that more sophisticated startup behavior can be
         achieved with Ventool commands. For example:<br />

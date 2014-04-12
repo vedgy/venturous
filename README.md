@@ -63,6 +63,8 @@ to use it for icon generation, pass "generate-png" argument to
 `update_and_configure_submodules`.
 
 ## Runtime requirements
+* g++ (4.7 or later)
+* qt4 OR qt5 (Core, XML and GUI/Widgets modules)
 * Audacious version 3.4 or newer.
 * audacious and audtool executables must be present in PATH.
     There are two problems with this requirement in MS Windows:
@@ -70,6 +72,7 @@ to use it for icon generation, pass "generate-png" argument to
     variable automatically. User has to manually add it there.
     * audtool is usually unavailable in Windows at all. With audtool
     missing only basic Venturous features work.
+* libnotify (optional - for desktop notifications)
 
 ## How to uninstall
 Enter `venturous/build` directory, acquire root privileges (`sudo` or `su`)
