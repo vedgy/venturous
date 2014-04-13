@@ -530,6 +530,27 @@
     </ul>
     <p>All tweaks, described above, are saved to preferences and thus preserved
     between Venturous launches.</p>
+    <p>If you want to restore default value of some option, quit Venturous;
+    edit &lt;Venturous preferences directory&gt;/Venturous.xml: remove option's
+    opening tag, closing tag and everything in between. For example, in order to
+    restore Ventool check interval default value, you can do the following:</p>
+    <ol>
+        <li>Quit Venturous.</li>
+        <li>Remove line
+        "&lt;VentoolCheckInterval&gt;2000&lt;/VentoolCheckInterval&gt;" from
+        &lt;Venturous preferences directory&gt;/Venturous.xml</li>
+        <li>Start Venturous. Default value of option is restored, you can
+        verify this by opening Preferences window.</li>
+    </ol>
+    <p>If you want to restore all default values, just remove or rename file
+    Venturous.xml. You can also copy your preferences (as well as playlist and
+    history) to other user or computer by copying file(s) to the corresponding
+    directory. Beware of differences in different Venturous versions though:
+    some options are added, other are renamed or removed.
+    But these differences do not usually cause any issues except that
+    some options are not picked up from preferences file
+    and are set to default values.</p>
+
 
 <a id="ReportingBugs"><h2>Reporting bugs and feature requests</h2></a>
     If you find a bug in Venturous or error in this manual, please, report it
