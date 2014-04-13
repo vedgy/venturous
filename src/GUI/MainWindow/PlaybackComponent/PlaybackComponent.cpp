@@ -179,10 +179,11 @@ void PlaybackComponent::onPlayerFinished(
     const bool crashExit, const int exitCode,
     std::vector<std::string> missingFilesAndDirs)
 {
-    if (crashExit) {
+    if (crashExit || exitCode != 0) {
         QString message =
-            tr("%1 crashed with exit code %2.")
-            .arg(QtUtilities::toQString(MediaPlayer::playerName()))
+            tr("%1 %2 with exit code %3.")
+            .arg(QtUtilities::toQString(MediaPlayer::playerName()),
+                 crashExit ? tr("crashed") : tr("exited"))
             .arg(exitCode);
         if (! criticalContinuePlaybackQuestion(
         tr("External player error"), std::move(message))) {
