@@ -41,7 +41,7 @@ GNU/Linux or MS Windows (might also work in OS X, not tested).
 
 3. If you want to install latest stable version, execute the following command:
 
-        git checkout tags/v0.9.1
+        git checkout tags/v0.9.2
 If you prefer latest development version (can be unstable), just skip this step.
 
 4. Run configuration script:
@@ -52,10 +52,10 @@ If you prefer latest development version (can be unstable), just skip this step.
 `update_and_configure_submodules` output.
 
 ### Troubleshooting
-If errors appear after running `update_and_configure_submodules`, this probably
-means that some dependency is not satisfied. Check this.
+If errors appear after running `update_and_configure_submodules`, ensure
+that all [build dependencies](#external-dependencies) are satisfied.
 
-Also errors appear in the following cases:
+Errors also appear in the following cases:
 * qt4 is not installed. If you have qt5 installed and want to use it, pass
 "qt5" argument to `update_and_configure_submodules`.
 * Neither wget nor curl is installed. If you have inkscape installed and want

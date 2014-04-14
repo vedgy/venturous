@@ -7,7 +7,7 @@
 </head>
 
 <body>
-<h1>Venturous - version 0.9.1.5-dev</h1>
+<h1>Venturous - version 0.9.2</h1>
 
 <a id="Index"><h2>Table of contents</h2></a>
     <ul>
@@ -277,14 +277,14 @@
     <p>Apart from mentioned above "Next from history" option, "Playback" tab of
     Preferences contains History options and 3 other playback options:</p>
     <ol>
-        <li>"Always set external player options" - this option is on by default.
-        This ensures that external player is configured properly. But if user
+        <li>"Always set external player options" - this option is on by default,
+        which ensures that external player is configured properly. But if user
         desires to change those options manually to achieve some peculiar
         behavior or if he never changes them and wants to save CPU cycles,
         switching setting options off can be useful.</li>
         <li>"Desktop notifications" - if enabled, desktop notification is
-        shown after played item is changed. If libnotify is not installed,
-        notifications will not be shown. In this case this option should be
+        shown after played item is changed. If <i>libnotify</i> is not
+        installed, notifications will not be shown and this option should be
         turned off to avoid starting useless process.</li>
         <li>"Startup action" - allows triggering one of four playback actions
         on Venturous start. Note that more sophisticated startup behavior can be
@@ -447,7 +447,7 @@
             (here '~' expands to current user's HOME directory).</li>
         <li>"ALWAYS_EMBED_ICONS" : BOOLEAN (default: ON) -
         if disabled, embedding icons will be done only in MS Windows. It is not
-        recommended to switch this option off because in this case short text
+        recommended to switch embedding off because in this case short text
         labels instead of some icons will be displayed on toolbar. Saving less
         than 1 Mb of disk space due to smaller Venturous executable size usually
         isn't worth the inconvenience. Note: if all necessary icons are present
