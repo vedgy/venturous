@@ -38,13 +38,16 @@ add_subdirectory(${PATH_TO_MODULES}/VenturousCore)
 executableGetPublicHeadersProperty(VenturousCore)
 executableGetPublicHeadersProperty(TemplateUtilities)
 
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
+add_definitions(-DINCLUDE_MOC)
 
 
 if(DEBUG_VENTUROUS)
     add_definitions(
         -DDEBUG_VENTUROUS_APPLICATION -DDEBUG_VENTUROUS_MAIN
-        -DDEBUG_VENTUROUS_ICONS -DDEBUG_VENTUROUS_PREFERENCES_COMPONENT
+        -DDEBUG_VENTUROUS_ICONS -DDEBUG_VENTUROUS_CUSTOM_ACTIONS
+        -DDEBUG_VENTUROUS_PREFERENCES_COMPONENT
         -DDEBUG_VENTUROUS_TREE_WIDGET -DDEBUG_VENTUROUS_PLAYLIST_COMPONENT
         -DDEBUG_VENTUROUS_WINDOW_UTILITIES -DDEBUG_VENTUROUS_MAIN_WINDOW
     )
@@ -90,7 +93,7 @@ set(Sources
     ${Sources_Path}/Application.cpp ${Sources_Path}/Preferences.cpp
     ${Sources_Path}/main.cpp
 
-    ${GUI_Path}/Icons.cpp ${GUI_Path}/Actions.cpp
+    ${GUI_Path}/Icons.cpp ${GUI_Path}/Actions.cpp ${GUI_Path}/CustomActions.cpp
 
     ${PreferencesWindow_Path}/GeneralPage.cpp
     ${PreferencesWindow_Path}/HistoryPreferencesFrame.cpp

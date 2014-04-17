@@ -59,6 +59,7 @@ public:
     bool save(const std::string & filename) const;
 
 
+    std::size_t maxSize() const { return history_.maxSize(); }
     int currentEntryIndex() const { return currentEntryIndex_; }
 
     std::string previous() { return setCurrentEntry(currentEntryIndex_ + 1); }

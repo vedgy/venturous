@@ -238,8 +238,10 @@ void PlaybackComponent::resetLastPlayedItem(const bool playbackStarted)
 {
     if (playbackStarted && desktopNotifications_) {
         QString summary = historyWidget_.currentShortened();
-        if (summary.isEmpty())
-            summary = tr("<multiple items>");
+        if (summary.isEmpty()) {
+            summary = historyWidget_.maxSize() == 0  ?
+                      tr("<unknown item(s)>") : tr("<multiple items>");
+        }
         // replace special notify-send characters.
         summary.replace('&', "&amp;");
         summary.replace('<', "&lt;");

@@ -26,6 +26,7 @@
 # include "TreeWidget.hpp"
 
 # include "CommonTypes.hpp"
+# include "CustomActions.hpp"
 
 # include <VenturousCore/ItemTree-inl.hpp>
 
@@ -39,6 +40,7 @@
 # include <QTreeWidgetItem>
 # include <QHeaderView>
 # include <QKeyEvent>
+# include <QContextMenuEvent>
 
 # include <cassert>
 # include <utility>
@@ -318,6 +320,17 @@ void TreeWidget::onEnter()
                        QtUtilities::qStringToString);
         playItems_(items);
     }
+}
+
+void TreeWidget::contextMenuEvent(QContextMenuEvent * const event)
+{
+    /// TODO: implement properly and remove test code.
+    typedef CustomActions::Action Action;
+    CustomActions::showMenu( { {"action 1", "cmd", 1, 2,
+            Action::Type::anyItem, "comment -", true
+        }
+    }, {"uu8`8L???? ?? ? ?"}, event->globalPos());
+    std::cout << "ouuouououuo" << std::endl;
 }
 
 template <typename ItemUser>

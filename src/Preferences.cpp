@@ -18,6 +18,8 @@
 
 # include "Preferences.hpp"
 
+# include "CustomActions.hpp"
+
 # include <VenturousCore/AddingItems.hpp>
 
 # include <QtXmlUtilities/Shortcuts.hpp>
@@ -26,8 +28,11 @@
 
 # include <QString>
 # include <QStringList>
+# include <QObject>
 # include <QDomElement>
 # include <QDomDocument>
+
+# include <cstddef>
 
 
 namespace
@@ -38,6 +43,18 @@ bool copyUniqueChildsTextToMax(const QDomElement & e, const QString & tagName,
 {
     if (QtUtilities::Xml::copyUniqueChildsTextTo(e, tagName, destination)) {
         QtUtilities::checkMaxValue(tagName, destination, maxValue);
+        return true;
+    }
+    return false;
+}
+
+template <typename Number>
+bool copyUniqueChildsTextToRange(const QDomElement & e, const QString & tagName,
+                                 Number & destination, Number minValue,
+                                 Number maxValue)
+{
+    if (QtUtilities::Xml::copyUniqueChildsTextTo(e, tagName, destination)) {
+        QtUtilities::checkRange(tagName, destination, minValue, maxValue);
         return true;
     }
     return false;
@@ -75,7 +92,14 @@ const QString localRoot = "AddingItemsPolicy",
               addMediaDirs = "AddMediaDirs",
               ifBothAddFiles = "IfBothAddFiles",
               ifBothAddMediaDirs = "IfBothAddMediaDirs";
+}
 
+namespace CustomActions
+{
+const QString localRoot = "CustomActions", action = "action",
+              text = "Text", command = "Command",
+              minArgN = "MinArgN", maxArgN = "MaxArgN",
+              type = "Type", comment = "Comment", enabled = "Enabled";
 }
 
 const QString root = APPLICATION_NAME,
@@ -171,6 +195,31 @@ void appendAddingItemsPolicy(QDomDocument & doc, QDomElement & root,
     root.appendChild(e);
 }
 
+void appendCustomActions(QDomDocument & doc, QDomElement & root,
+                         const CustomActions::Actions & actions)
+{
+    using namespace QtUtilities::Xml;
+    using namespace Names::CustomActions;
+    QDomElement base = doc.createElement(localRoot);
+
+    for (const CustomActions::Action & a : actions) {
+        QDomElement e = doc.createElement(action);
+        e.appendChild(createElement(doc, text, a.text));
+        e.appendChild(createElement(doc, command, a.command));
+        e.appendChild(createElement(doc, minArgN, a.minArgN));
+        e.appendChild(createElement(doc, maxArgN, a.maxArgN));
+        e.appendChild(
+            createElement(
+                doc, type,
+                static_cast<CustomActions::Action::TypeUnderlyingType>(
+                    a.type)));
+        e.appendChild(createElement(doc, comment, a.comment));
+        e.appendChild(createElement(doc, enabled, a.enabled));
+        base.appendChild(e);
+    }
+    root.appendChild(base);
+}
+
 
 void loadQStringList(const QDomElement & e, const QString & localRootTagName,
                      QStringList & list,  const QString & itemTagName)
@@ -201,9 +250,8 @@ void loadHistory(const QDomElement & root,
                            history.saveToDiskImmediately);
     copyUniqueChildsTextToMax(e, nHiddenDirs,
                               history.nHiddenDirs, H::maxNHiddenDirs);
-    copyUniqueChildsTextTo(e, currentIndex, history.currentIndex);
-    QtUtilities::checkRange(currentIndex, history.currentIndex,
-                            H::multipleItemsIndex, int(H::maxMaxSize));
+    copyUniqueChildsTextToRange(e, currentIndex, history.currentIndex,
+                                H::multipleItemsIndex, int(H::maxMaxSize));
 }
 
 void loadPlayback(const QDomElement & root, Preferences::Playback & playback)
@@ -243,6 +291,75 @@ void loadAddingItemsPolicy(const QDomElement & root,
     copyUniqueChildsTextTo(e, addMediaDirs, policy.addMediaDirs);
     copyUniqueChildsTextTo(e, ifBothAddFiles, policy.ifBothAddFiles);
     copyUniqueChildsTextTo(e, ifBothAddMediaDirs, policy.ifBothAddMediaDirs);
+}
+
+CustomActions::Actions defaultCustomActions()
+{
+    const QString mustBeInstalled = QObject::tr(" must be installed.");
+    return CustomActions::Actions {
+        CustomActions::Action{
+            QObject::tr("Open in file manager"), "thunar ?", 0, -1,
+            CustomActions::Action::Type::anyItem,
+            "Thunar" + mustBeInstalled, true
+        },
+        CustomActions::Action {
+            QObject::tr("Open in VLC"), "vlc ?", 0, -1,
+            CustomActions::Action::Type::anyItem,
+            "VLC" + mustBeInstalled, false
+        },
+        CustomActions::Action {
+            QObject::tr("Edit text file"), "gedit ?", 0, -1,
+            CustomActions::Action::Type::file,
+            "gedit" + mustBeInstalled, false
+        },
+        CustomActions::Action  {
+            QObject::tr("Move to music trash"), "mv ? ~/Music/trash/", 1, -1,
+            CustomActions::Action::Type::anyItem,
+            QObject::tr("~/Music/trash directory must exist."), false
+        },
+        CustomActions::Action  {
+            QObject::tr("Move to Trash"), "trash-put ?", 1, -1,
+            CustomActions::Action::Type::anyItem,
+            "trash-cli" + mustBeInstalled, false
+        }
+    };
+}
+
+/// @brief Loads custom actions. If there is no CustomActions tag,
+/// default actions are set.
+void loadCustomActions(const QDomElement & root,
+                       CustomActions::Actions & actions)
+{
+    using namespace QtUtilities::Xml;
+    using namespace Names::CustomActions;
+    const QDomElement base = getUniqueChild(root, localRoot);
+    if (base.isNull()) {
+        actions = defaultCustomActions();
+        return;
+    }
+    const auto collection = getChildren(base, action);
+    typedef CustomActions::Action Action;
+    actions.resize(collection.size(), {
+        QString(), QString(), 1, 1, Action::Type::anyItem, QString(), false
+    });
+    for (std::size_t i = 0; i < collection.size(); ++i) {
+        const QDomElement & e = collection[i];
+        Action & a = actions[i];
+
+        copyUniqueChildsTextTo(e, text, a.text);
+        copyUniqueChildsTextTo(e, command, a.command);
+        copyUniqueChildsTextToRange(e, minArgN, a.minArgN,
+                                    Action::minMinArgN, Action::maxMinArgN);
+        copyUniqueChildsTextToRange(e, maxArgN, a.maxArgN,
+                                    Action::minMaxArgN, Action::maxMaxArgN);
+        {
+            Action::TypeUnderlyingType t;
+            if (copyUniqueChildsTextToMax(e, type, t, Action::maxType))
+                a.type = static_cast<Action::Type>(t);
+        }
+        copyUniqueChildsTextTo(e, comment, a.comment);
+        copyUniqueChildsTextTo(e, enabled, a.enabled);
+    }
 }
 
 }
@@ -290,9 +407,6 @@ void Preferences::save(const QString & filename) const
     QDomDocument doc = createDocument();
     QDomElement root = createRoot(doc, Names::root);
 
-    appendPlayback(doc, root, playback);
-    appendAddingItemsPolicy(doc, root, addingPolicy);
-
     root.appendChild(createElement(doc, Names::alwaysUseFallbackIcons,
                                    alwaysUseFallbackIcons));
 
@@ -315,6 +429,10 @@ void Preferences::save(const QString & filename) const
     root.appendChild(createElement(doc, Names::ventoolCheckInterval,
                                    ventoolCheckInterval));
 
+    appendPlayback(doc, root, playback);
+    appendAddingItemsPolicy(doc, root, addingPolicy);
+    appendCustomActions(doc, root, customActions);
+
 
     root.appendChild(
         createElementFromByteArray(doc, Names::preferencesWindowGeometry,
@@ -332,9 +450,6 @@ void Preferences::load(const QString & filename)
 {
     using namespace QtUtilities::Xml;
     const QDomElement root = loadRoot(filename, Names::root);
-
-    loadPlayback(root, playback);
-    loadAddingItemsPolicy(root, addingPolicy);
 
     copyUniqueChildsTextTo(root, Names::alwaysUseFallbackIcons,
                            alwaysUseFallbackIcons);
@@ -356,6 +471,10 @@ void Preferences::load(const QString & filename)
                            savePreferencesToDiskImmediately);
     copyUniqueChildsTextToMax(root, Names::ventoolCheckInterval,
                               ventoolCheckInterval, maxVentoolCheckInterval);
+
+    loadPlayback(root, playback);
+    loadAddingItemsPolicy(root, addingPolicy);
+    loadCustomActions(root, customActions);
 
 
     copyUniqueChildsTextToByteArray(
@@ -405,6 +524,8 @@ bool operator == (const Preferences & lhs, const Preferences & rhs)
            lhs.savePreferencesToDiskImmediately ==
            rhs.savePreferencesToDiskImmediately &&
            lhs.ventoolCheckInterval == rhs.ventoolCheckInterval &&
+
+           lhs.customActions == rhs.customActions &&
 
            lhs.preferencesWindowGeometry == rhs.preferencesWindowGeometry &&
            lhs.windowGeometry == rhs.windowGeometry &&

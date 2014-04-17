@@ -96,6 +96,8 @@ private:
     void onDelete();
     void onEnter();
 
+    void contextMenuEvent(QContextMenuEvent *) override;
+
     template <typename ItemUser>
     void applyToSelectedItems(ItemUser f);
 

@@ -19,6 +19,8 @@
 # ifndef VENTUROUS_PREFERENCES_HPP
 # define VENTUROUS_PREFERENCES_HPP
 
+# include "CustomActions.hpp"
+
 # include <VenturousCore/AddingItems.hpp>
 
 # include <QByteArray>
@@ -93,6 +95,8 @@ public:
     bool treeAutoCleanup;
     bool savePreferencesToDiskImmediately;
     unsigned ventoolCheckInterval;
+
+    CustomActions::Actions customActions;
 
     /// Internal options follow.
     QByteArray preferencesWindowGeometry;
