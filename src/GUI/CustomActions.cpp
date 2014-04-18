@@ -26,7 +26,6 @@
 
 # include <QPoint>
 # include <QString>
-# include <QStringList>
 # include <QObject>
 # include <QFileInfo>
 # include <QProcess>
@@ -36,6 +35,7 @@
 # include <cstddef>
 # include <utility>
 # include <array>
+# include <vector>
 # include <memory>
 
 
@@ -46,7 +46,8 @@ class CustomMenu : public QObject
     Q_OBJECT
 public:
     explicit CustomMenu(const CustomActions::Actions & actions,
-                        QStringList arguments);
+                        QString commonItemPrefix,
+                        std::vector<QString> itemNames);
     ~CustomMenu();
 
     /// @brief Shows popup menu if it is not empty at the specified position.
@@ -57,7 +58,8 @@ private slots:
     void onActionTriggered(QAction * action);
 
 private:
-    QStringList arguments_;
+    QString commonItemPrefix_;
+    std::vector<QString> itemNames_;
     std::unique_ptr<QMenu> menu_;
 };
 
@@ -66,7 +68,9 @@ class Validator
 public:
     typedef CustomActions::Action Action;
 
-    explicit Validator(const QStringList & arguments) : arguments_(arguments) {}
+    explicit Validator(const QString & commonItemPrefix,
+                       const std::vector<QString> & itemNames)
+        : commonItemPrefix_(commonItemPrefix), itemNames_(itemNames) {}
 
     bool isDisplayable(const Action & action) {
         return action.enabled &&
@@ -76,23 +80,26 @@ public:
 
 private:
     bool isDisplayable(int minArgN, int maxArgN) const {
-        return arguments_.size() >= minArgN &&
-               (maxArgN == -1 || arguments_.size() < maxArgN);
+        return itemNames_.size() >= std::size_t(minArgN) &&
+               (maxArgN == -1 || itemNames_.size() <= std::size_t(maxArgN));
     }
 
     bool isDisplayable(Action::Type type);
 
 
-    const QStringList & arguments_;
-    std::array<bool, 3> displayedType_;
+    const QString & commonItemPrefix_;
+    const std::vector<QString> & itemNames_;
+    std::array<bool, 2> displayedType_;
     bool checkedType_ = false;
 };
 
 
 CustomMenu::CustomMenu(const CustomActions::Actions & actions,
-                       QStringList arguments) : arguments_(std::move(arguments))
+                       QString commonItemPrefix, std::vector<QString> itemNames)
+    : commonItemPrefix_(std::move(commonItemPrefix)),
+      itemNames_(std::move(itemNames))
 {
-    Validator validator(arguments_);
+    Validator validator(commonItemPrefix_, itemNames_);
     for (const CustomActions::Action & a : actions) {
         if (validator.isDisplayable(a)) {
             if (menu_ == nullptr)
@@ -134,9 +141,15 @@ void CustomMenu::onActionTriggered(QAction * const action)
 
     QString command = action->toolTip();
     escapeQuotes(command);
-    for (QString & arg : arguments_)
-        escapeQuotes(arg);
-    const QString args = '"' + arguments_.join("\" \"") + '"';
+    QString args;
+    if (! itemNames_.empty()) {
+        escapeQuotes(commonItemPrefix_);
+        for (QString & itemName : itemNames_) {
+            escapeQuotes(itemName);
+            args += '"' + commonItemPrefix_ + std::move(itemName) + "\" ";
+        }
+        args.resize(args.size() - 1);
+    }
 
     for (int i = 0; i < command.size(); ++i) {
         const char c = '?';
@@ -159,14 +172,16 @@ void CustomMenu::onActionTriggered(QAction * const action)
 
 bool Validator::isDisplayable(const Action::Type type)
 {
+    if (type == Action::Type::anyItem)
+        return true;
     const auto displayedType = [this](Action::Type type) -> bool & {
         return displayedType_[static_cast<std::size_t>(type)];
     };
 
     if (! checkedType_) {
         displayedType_.fill(true);
-        for (const QString & name : arguments_) {
-            if (QFileInfo(name).isDir()) {
+        for (const QString & name : itemNames_) {
+            if (QFileInfo(commonItemPrefix_ + name).isDir()) {
                 displayedType(Action::Type::file) = false;
                 if (! displayedType(Action::Type::directory))
                     break; // both file and dir were found.
@@ -198,10 +213,11 @@ bool operator == (const Action & lhs, const Action & rhs)
            lhs.enabled == rhs.enabled;
 }
 
-void showMenu(const Actions & actions, QStringList arguments,
-              const QPoint & position)
+void showMenu(const Actions & actions, QString commonItemPrefix,
+              std::vector<QString> itemNames, const QPoint & position)
 {
-    CustomMenu * const menu = new CustomMenu(actions, std::move(arguments));
+    CustomMenu * const menu = new CustomMenu(
+        actions, std::move(commonItemPrefix), std::move(itemNames));
     menu->popup(position);
 }
 

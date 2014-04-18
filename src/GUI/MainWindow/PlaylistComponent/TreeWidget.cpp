@@ -324,13 +324,15 @@ void TreeWidget::onEnter()
 
 void TreeWidget::contextMenuEvent(QContextMenuEvent * const event)
 {
+# ifdef DEBUG_VENTUROUS_TREE_WIDGET
     /// TODO: implement properly and remove test code.
     typedef CustomActions::Action Action;
     CustomActions::showMenu( { {"action 1", "cmd", 1, 2,
             Action::Type::anyItem, "comment -", true
         }
-    }, {"uu8`8L???? ?? ? ?"}, event->globalPos());
+    }, "CP", {"uu8`8L???? ?? ? ?"}, event->globalPos());
     std::cout << "ouuouououuo" << std::endl;
+# endif
 }
 
 template <typename ItemUser>
