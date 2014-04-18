@@ -23,7 +23,6 @@
 
 # include <QSize>
 # include <QString>
-# include <QObject>
 # include <QIcon>
 # include <QGridLayout>
 # include <QLabel>
@@ -37,10 +36,10 @@ FilenamePatternsPage::FilenamePatternsPage(const QIcon & addIcon,
     QGridLayout * const layout = new QGridLayout(this);
 
     const QString filesMatchPatterns =
-        QObject::tr("Files that match checked patterns\n");
+        tr("Files that match checked patterns\n");
     const QString copySelectedPatterns =
-        QObject::tr("Copy selected patterns from %1 to %2 column.");
-    const QString left = QObject::tr("left"), right = QObject::tr("right");
+        tr("Copy selected patterns from %1 to %2 column.");
+    const QString left = tr("left"), right = tr("right");
 
     filePatternList_.setToolTip(filesMatchPatterns +
                                 tr("can be added as playable items."));
@@ -86,7 +85,7 @@ void FilenamePatternsPage::addColumn(
     layout->addWidget(& patternList, 1, column, 5, 1);
 
     QPushButton * const addButton =
-        new QPushButton(addIcon, QObject::tr("Add pattern"), this);
+        new QPushButton(addIcon, tr("Add pattern"), this);
     patternList.connect(addButton, SIGNAL(clicked(bool)),
                         SLOT(addUnknownPattern()));
     layout->addWidget(addButton, 6, column);

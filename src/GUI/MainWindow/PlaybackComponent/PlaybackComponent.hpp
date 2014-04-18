@@ -86,6 +86,7 @@ private:
 
     void onPlayerFinished(bool crashExit, int exitCode,
                           std::vector<std::string> missingFilesAndDirs);
+    void onPlayerError(std::string errorMessage);
 
     /// @brief Shows error message and asks user if playback should be
     /// continued.

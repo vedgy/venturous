@@ -46,6 +46,7 @@
 namespace
 {
 QString historyWindowName() { return QObject::tr("History"); }
+QString externalPlayerError() { return QObject::tr("External player error"); }
 
 }
 
@@ -69,6 +70,8 @@ preferences.playback.history)
         using namespace std::placeholders;
         mediaPlayer_.setFinishedSlot(
             std::bind(& PlaybackComponent::onPlayerFinished, this, _1, _2, _3));
+        mediaPlayer_.setErrorSlot(
+            std::bind(& PlaybackComponent::onPlayerError, this, _1));
     }
 
     // Do nothing in case of failure because history is not very important
@@ -186,7 +189,7 @@ void PlaybackComponent::onPlayerFinished(
                  crashExit ? tr("crashed") : tr("exited"))
             .arg(exitCode);
         if (! criticalContinuePlaybackQuestion(
-        tr("External player error"), std::move(message))) {
+        externalPlayerError(), std::move(message))) {
             return;
         }
     }
@@ -207,13 +210,21 @@ void PlaybackComponent::onPlayerFinished(
     actions_.next->trigger();
 }
 
+void PlaybackComponent::onPlayerError(std::string errorMessage)
+{
+    setPlayerState(false);
+    inputController_.showMessage(
+        externalPlayerError(), QtUtilities::toQString(
+            MediaPlayer::playerName() + ": " + std::move(errorMessage)));
+}
+
 bool PlaybackComponent::criticalContinuePlaybackQuestion(
     const QString & title, const QString & errorMessage)
 {
     setPlayerState(false);
     const auto selectedButton =
         inputController_.showMessage(
-            title, errorMessage + QObject::tr("\n\tContinue playback?"),
+            title, errorMessage + tr("\n\tContinue playback?"),
             QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
     return selectedButton == QMessageBox::Yes;
 }
