@@ -45,11 +45,12 @@ void MainWindow::onHelpHelp()
 {
     /// Names in Venturous resources.
     const std::array<QString, 2> filenames = {{
-            "index.html", APPLICATION_NAME ".png"
+            "user-guide.html", APPLICATION_NAME ".png"
         }
     };
     const QString errorTitle = APPLICATION_NAME + tr(" help");
-    const QString dirName = APPLICATION_NAME;
+    const QString dirName =
+        APPLICATION_NAME "-v" + QCoreApplication::applicationVersion();
 
     QDir dir = QDir::temp();
     const QString dirErrorMessage =

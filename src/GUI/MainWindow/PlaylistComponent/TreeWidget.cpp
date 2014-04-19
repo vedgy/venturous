@@ -19,6 +19,7 @@
 # ifdef DEBUG_VENTUROUS_TREE_WIDGET
 # include <QtCoreUtilities/String.hpp>
 # include <QList>
+# include <string>
 # include <iostream>
 # endif
 
@@ -32,16 +33,19 @@
 
 # include <QtCoreUtilities/String.hpp>
 
+# include <QPoint>
 # include <QList>
 # include <QString>
 # include <QStringList>
 # include <QColor>
+# include <QToolTip>
 # include <QPalette>
 # include <QTreeWidgetItem>
 # include <QHeaderView>
 # include <QKeyEvent>
 # include <QContextMenuEvent>
 
+# include <cstddef>
 # include <cassert>
 # include <utility>
 # include <algorithm>
@@ -65,6 +69,17 @@ void setChecked(QTreeWidgetItem * item, bool checked)
 QString itemText(const QTreeWidgetItem * item)
 {
     return item->text(0);
+}
+
+/// @return Path to item (item's name is included). Path ends with '/'.
+QString getAbsolutePath(const QTreeWidgetItem * item)
+{
+    QString absolutePath;
+    while (item != nullptr) {
+        absolutePath.prepend(itemText(item) + '/');
+        item = item->parent();
+    }
+    return absolutePath;
 }
 
 /// @brief Creates structure that matches node's structure
@@ -132,15 +147,26 @@ void getPathsToPlay(const QTreeWidgetItem * item, const QString & pathToItem,
     }
 }
 
+
+# ifdef DEBUG_VENTUROUS_TREE_WIDGET
+void printMessageAndSelectedItemsSize(const std::string & message, int size)
+{
+    std::cout << "TreeWidget: " << message << ". "
+              << size << " item" << (size == 1 ? " is" : "s are")
+              << " selected." << std::endl;
+}
+# endif
+
 }
 
 
 TreeWidget::TreeWidget(const ItemTree::Tree & itemTree,
                        const std::unique_ptr<ItemTree::Tree> & temporaryTree,
+                       const CustomActions::Actions & customActions,
                        CommonTypes::PlayItems playItems,
                        QWidget * const parent)
     : QTreeWidget(parent), itemTree_(itemTree), temporaryTree_(temporaryTree),
-      playItems_(std::move(playItems))
+      customActions_(customActions), playItems_(std::move(playItems))
 {
     setColumnCount(1);
     header()->close();
@@ -286,8 +312,7 @@ void TreeWidget::keyPressEvent(QKeyEvent * const event)
 void TreeWidget::onDelete()
 {
 # ifdef DEBUG_VENTUROUS_TREE_WIDGET
-    std::cout << "Delete pressed." << selectedItems().size() <<
-              " items are selected." << std::endl;
+    printMessageAndSelectedItemsSize("Delete pressed", selectedItems().size());
 # endif
     assertValidTemporaryTree();
     std::vector<ItemTree::Node> & nodes = temporaryTree_->topLevelNodes();
@@ -307,8 +332,7 @@ void TreeWidget::onDelete()
 void TreeWidget::onEnter()
 {
 # ifdef DEBUG_VENTUROUS_TREE_WIDGET
-    std::cout << "Enter pressed. " << selectedItems().size() <<
-              " items are selected." << std::endl;
+    printMessageAndSelectedItemsSize("Enter pressed", selectedItems().size());
 # endif
     PlayablePaths paths;
     const int nItems = topLevelItemCount();
@@ -325,14 +349,34 @@ void TreeWidget::onEnter()
 void TreeWidget::contextMenuEvent(QContextMenuEvent * const event)
 {
 # ifdef DEBUG_VENTUROUS_TREE_WIDGET
-    /// TODO: implement properly and remove test code.
-    typedef CustomActions::Action Action;
-    CustomActions::showMenu( { {"action 1", "cmd", 1, 2,
-            Action::Type::anyItem, "comment -", true
-        }
-    }, "CP", {"uu8`8L???? ?? ? ?"}, event->globalPos());
-    std::cout << "ouuouououuo" << std::endl;
+    printMessageAndSelectedItemsSize("context menu requested",
+                                     selectedItems().size());
 # endif
+    const QPoint position = event->globalPos();
+    QString commonPrefix;
+    std::vector<QString> itemNames;
+    {
+        const auto selected = selectedItems();
+        if (! selected.empty()) {
+            const QTreeWidgetItem * const parent = selected.front()->parent();
+            for (int i = 1; i < selected.size(); ++i) {
+                if (selected[i]->parent() != parent) {
+                    QToolTip::showText(
+                        position,
+                        tr("Custom actions are enabled only when all "
+                           "selected items are siblings (share the same "
+                           "parent tree node)."), this);
+                    return;
+                }
+            }
+            commonPrefix = getAbsolutePath(parent);
+            itemNames.reserve(std::size_t(selected.size()));
+            for (const QTreeWidgetItem * item : selected)
+                itemNames.emplace_back(itemText(item));
+        }
+    }
+    CustomActions::showMenu(customActions_, std::move(commonPrefix),
+                            std::move(itemNames), position);
 }
 
 template <typename ItemUser>
@@ -350,13 +394,8 @@ void TreeWidget::onUiItemActivated(QTreeWidgetItem * item)
 {
     if (editMode_ || ! isChecked(item))
         return;
-    QString absolutePath;
-    do {
-        absolutePath.prepend(itemText(item) + '/');
-        item = item->parent();
-    }
-    while (item != nullptr);
-    absolutePath.resize(absolutePath.size() - 1); // remove extra '/'.
+    const QString absolutePath =
+        getAbsolutePath(item->parent()) + itemText(item);
     playItems_( { QtUtilities::qStringToString(absolutePath) });
 }
 
@@ -365,7 +404,7 @@ void TreeWidget::onUiItemChanged(QTreeWidgetItem * item)
     /// NOTE: the only allowed change is toggling checkbox in edit mode.
     /// So this change is assumed below.
 # ifdef DEBUG_VENTUROUS_TREE_WIDGET
-    std::cout << "Ui item's checkState changed: "
+    std::cout << "TreeWidget: Ui item's checkState changed: "
               << QtUtilities::qStringToString(itemText(item)) << std::endl;
 # endif
 

@@ -29,6 +29,7 @@
 # include <QObject>
 # include <QFileInfo>
 # include <QProcess>
+# include <QToolTip>
 # include <QAction>
 # include <QMenu>
 
@@ -121,6 +122,8 @@ CustomMenu::~CustomMenu()
 void CustomMenu::popup(const QPoint & position)
 {
     if (menu_ == nullptr) {
+        QToolTip::showText(position, tr("No custom actions are enabled for "
+                                        "selected items."));
         deleteLater();
         return;
     }

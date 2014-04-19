@@ -20,6 +20,7 @@
 # define VENTUROUS_TREE_WIDGET_HPP
 
 # include "CommonTypes.hpp"
+# include "CustomActions.hpp"
 
 # include <QTreeWidget>
 
@@ -43,10 +44,11 @@ public:
         explicit Error(const std::string & sWhat) : std::runtime_error(sWhat) {}
     };
 
-    /// NOTE: itemTree and temporaryTree must remain valid
+    /// NOTE: itemTree, temporaryTree and customActions must remain valid
     /// throughout this TreeWidget's lifetime.
     explicit TreeWidget(const ItemTree::Tree & itemTree,
                         const std::unique_ptr<ItemTree::Tree> & temporaryTree,
+                        const CustomActions::Actions & customActions,
                         CommonTypes::PlayItems playItems,
                         QWidget * parent = nullptr);
 
@@ -103,6 +105,7 @@ private:
 
     const ItemTree::Tree & itemTree_;
     const std::unique_ptr<ItemTree::Tree> & temporaryTree_;
+    const CustomActions::Actions & customActions_;
     const CommonTypes::PlayItems playItems_;
     bool editMode_ = false;
     int autoUnfoldedLevels_ = 9;
