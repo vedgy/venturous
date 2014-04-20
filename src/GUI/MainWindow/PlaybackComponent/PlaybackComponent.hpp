@@ -44,13 +44,13 @@ class PlaybackComponent : public QObject
 {
     Q_OBJECT
 public:
-    /// NOTE: mainWindow, actions and inputController must remain valid
+    /// NOTE: mainWindow, actions, inputController and preferences must remain
     /// throughout this PlaybackComponent's lifetime.
     /// NOTE: does not block execution.
     explicit PlaybackComponent(QMainWindow & mainWindow,
                                const Actions::Playback & actions,
                                InputController & inputController,
-                               const Preferences &,
+                               const Preferences & preferences,
                                const std::string & preferencesDir);
     /// NOTE: does not block execution.
     ~PlaybackComponent();

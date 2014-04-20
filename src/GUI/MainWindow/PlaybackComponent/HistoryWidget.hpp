@@ -20,6 +20,8 @@
 # define VENTUROUS_HISTORY_WIDGET_HPP
 
 # include "CommonTypes.hpp"
+# include "WindowUtilities.hpp"
+# include "CustomActions.hpp"
 # include "Preferences.hpp"
 
 # include <VenturousCore/History.hpp>
@@ -42,7 +44,10 @@ public:
     /// @param playItems Function that starts playing ItemCollection
     /// parameter. If item(s) actually get(s) played, HistoryWidget must be
     /// notified about this via push() or playedMultipleItems().
-    explicit HistoryWidget(PlayExistingEntry playExistingEntry,
+    /// NOTE: customActions must remain valid throughout this HistoryWidget's
+    /// lifetime.
+    explicit HistoryWidget(const CustomActions::Actions & customActions,
+                           PlayExistingEntry playExistingEntry,
                            CommonTypes::PlayItems playItems,
                            const Preferences::Playback::History & preferences,
                            QWidget * parent = nullptr);
@@ -126,7 +131,10 @@ private:
     /// WARNING: can block execution.
     void removeSelectedItems();
 
+    void contextMenuEvent(QContextMenuEvent *) override;
 
+
+    const CustomActions::Actions & customActions_;
     const PlayExistingEntry playExistingEntry_;
     const CommonTypes::PlayItems playItems_;
     History history_;
@@ -141,6 +149,8 @@ private:
     /// next() would return history_.items().back() if
     /// currentIndex_ == history_.items().size().
     int currentEntryIndex_;
+
+    WindowUtilities::TooltipShower tooltipShower_;
 
 private slots:
     /// WARNING: can block execution.

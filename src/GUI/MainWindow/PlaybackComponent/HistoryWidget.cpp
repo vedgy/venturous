@@ -19,15 +19,18 @@
 # include "HistoryWidget.hpp"
 
 # include "CommonTypes.hpp"
+# include "CustomActions.hpp"
 # include "Preferences.hpp"
 
 # include <QtCoreUtilities/String.hpp>
 
+# include <QPoint>
 # include <QList>
 # include <QString>
 # include <QFont>
 # include <QListWidgetItem>
 # include <QKeyEvent>
+# include <QContextMenuEvent>
 
 # include <cstddef>
 # include <cassert>
@@ -67,11 +70,13 @@ void setShortenedTooltipToText(QListWidgetItem * item, unsigned nHiddenDirs)
 }
 
 
-HistoryWidget::HistoryWidget(PlayExistingEntry playExistingEntry,
+HistoryWidget::HistoryWidget(const CustomActions::Actions & customActions,
+                             PlayExistingEntry playExistingEntry,
                              CommonTypes::PlayItems playItems,
                              const Preferences::Playback::History & preferences,
                              QWidget * const parent)
-    : QListWidget(parent), playExistingEntry_(std::move(playExistingEntry)),
+    : QListWidget(parent), customActions_(customActions),
+      playExistingEntry_(std::move(playExistingEntry)),
       playItems_(std::move(playItems)),
       copyPlayedEntryToTop_(preferences.copyPlayedEntryToTop),
       nHiddenDirs_(preferences.nHiddenDirs),
@@ -297,6 +302,49 @@ void HistoryWidget::removeSelectedItems()
             currentEntryIndex_ = row(currentItem);
 
         emit historyChanged();
+    }
+}
+
+void HistoryWidget::contextMenuEvent(QContextMenuEvent * event)
+{
+    const QPoint position = event->globalPos();
+    QString commonPrefix;
+    std::vector<QString> itemNames;
+    {
+        const auto items = selectedItems();
+        if (! items.empty()) {
+            itemNames.reserve(std::size_t(items.size()));
+
+            const auto appendFilenameAndReturnDir =
+            [& itemNames](const QListWidgetItem * item) {
+                const QString absolutePath = item->toolTip();
+                int i = absolutePath.lastIndexOf('/');
+                if (i <= 0) { // Root is not considered a separate dir.
+                    itemNames.emplace_back(absolutePath);
+                    return QString();
+                }
+                ++i;
+                itemNames.emplace_back(absolutePath.mid(i));
+                return absolutePath.left(i);
+            };
+
+            commonPrefix = appendFilenameAndReturnDir(items.front());
+            for (int i = 1; i < items.size(); ++i) {
+                if (appendFilenameAndReturnDir(items[i]) != commonPrefix) {
+                    tooltipShower_.show(
+                        position,
+                        tr("Custom actions are enabled only if all "
+                           "selected items are siblings (are located in the "
+                           "same directory)."),
+                        this);
+                    return;
+                }
+            }
+        }
+    }
+    if (! CustomActions::showMenu(customActions_, std::move(commonPrefix),
+                                  std::move(itemNames), position)) {
+        tooltipShower_.show(position, CustomActions::noActionsMessage(), this);
     }
 }
 

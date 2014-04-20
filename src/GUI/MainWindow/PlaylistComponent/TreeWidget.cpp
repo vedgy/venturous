@@ -38,7 +38,6 @@
 # include <QString>
 # include <QStringList>
 # include <QColor>
-# include <QToolTip>
 # include <QPalette>
 # include <QTreeWidgetItem>
 # include <QHeaderView>
@@ -303,7 +302,7 @@ void TreeWidget::keyPressEvent(QKeyEvent * const event)
     // Asterisk: expands all children of the current item (if present).
     // Below is a WORKAROUND for Qt performance issue, which doesn't change
     // program behaviour but dramatically improves Asterisk key performance
-    // when at least one child of current item is visible.
+    // if at least one child of current item is visible.
     if (key == Qt::Key_Asterisk)
         currentItem()->setExpanded(false);
     QTreeView::keyPressEvent(event);
@@ -361,11 +360,12 @@ void TreeWidget::contextMenuEvent(QContextMenuEvent * const event)
             const QTreeWidgetItem * const parent = selected.front()->parent();
             for (int i = 1; i < selected.size(); ++i) {
                 if (selected[i]->parent() != parent) {
-                    QToolTip::showText(
+                    tooltipShower_.show(
                         position,
-                        tr("Custom actions are enabled only when all "
+                        tr("Custom actions are enabled only if all "
                            "selected items are siblings (share the same "
-                           "parent tree node)."), this);
+                           "parent tree node)."),
+                        this);
                     return;
                 }
             }
@@ -375,8 +375,10 @@ void TreeWidget::contextMenuEvent(QContextMenuEvent * const event)
                 itemNames.emplace_back(itemText(item));
         }
     }
-    CustomActions::showMenu(customActions_, std::move(commonPrefix),
-                            std::move(itemNames), position);
+    if (! CustomActions::showMenu(customActions_, std::move(commonPrefix),
+                                  std::move(itemNames), position)) {
+        tooltipShower_.show(position, CustomActions::noActionsMessage(), this);
+    }
 }
 
 template <typename ItemUser>

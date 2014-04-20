@@ -74,9 +74,13 @@ Actions::Playback::Playback(const Icons::Theme & theme)
 
     playAll->setIconText("PA");
 
+    const QString historyName = tr(" history");
     importHistory->setIconText("Im");
+    importHistory->setToolTip(tr("Import") + historyName);
     exportHistory->setIconText("Ex");
+    exportHistory->setToolTip(tr("Export") + historyName);
     clearHistory->setIconText("Cl");
+    clearHistory->setToolTip(tr("Clear") + historyName);
 }
 
 
@@ -93,17 +97,24 @@ Actions::Playlist::Playlist(const Icons::Theme & theme)
       load(new QAction(theme.load(), tr("&Load ..."), this)),
       saveAs(new QAction(theme.saveAs(), tr("&Save as ..."), this))
 {
+    const QString playlistName = tr(" playlist");
     editMode->setCheckable(true);
     editMode->setIconText("EM");
     applyChanges->setIconText("AC");
     cancelChanges->setIconText("CC");
     addFiles->setIconText("AF");
     addDirectory->setIconText("AD");
+
     cleanUp->setIconText("CU");
+    cleanUp->setToolTip(tr("Clean%1 up").arg(playlistName));
     clear->setIconText("Cl");
+    clear->setToolTip(tr("Clear") + playlistName);
     restorePrevious->setIconText("RP");
+    restorePrevious->setToolTip(tr("Restore previous") + playlistName);
     load->setIconText("Lo");
+    load->setToolTip(tr("Load") + playlistName);
     saveAs->setIconText("SA");
+    saveAs->setToolTip(tr("Save%1 as").arg(playlistName));
 }
 
 

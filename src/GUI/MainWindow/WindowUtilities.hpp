@@ -21,6 +21,9 @@
 
 # include "InputController.hpp"
 
+# include <QPoint>
+# include <QString>
+# include <QObject>
 # include <QWidget>
 
 
@@ -28,6 +31,25 @@ namespace WindowUtilities
 {
 void showWindow(QWidget & window);
 void showAndActivateWindow(QWidget & window);
+
+class TooltipShower : public QObject
+{
+public:
+    /// @brief Shows tooltip with passed text at the specified position after
+    /// a short delay.
+    /// @param widget Is used to determine the appropriate screen on
+    /// multi-head systems.
+    void show(QPoint position, QString text, QWidget * widget = nullptr);
+
+private:
+    void timerEvent(QTimerEvent *) override;
+
+    QPoint position_;
+    QString text_;
+    QWidget * widget_;
+    int timerId_ = 0;
+};
+
 }
 
 class WindowInputController : public InputController

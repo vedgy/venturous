@@ -21,6 +21,7 @@
 
 # include <QPoint>
 # include <QString>
+# include <QObject>
 
 # include <vector>
 
@@ -69,8 +70,15 @@ typedef std::vector<Action> Actions;
 /// all items.
 /// @param itemNames Collection of individual item's names with
 /// commonItemPrefix omitted.
-void showMenu(const Actions & actions, QString commonItemPrefix,
+/// @return true if popup menu was shown, false if there were no displayable
+/// actions.
+bool showMenu(const Actions & actions, QString commonItemPrefix,
               std::vector<QString> itemNames, const QPoint & position);
+
+inline QString noActionsMessage()
+{
+    return QObject::tr("No custom actions are enabled for selected item(s).");
+}
 
 }
 

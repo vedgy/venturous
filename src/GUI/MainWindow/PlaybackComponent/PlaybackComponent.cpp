@@ -59,9 +59,9 @@ PlaybackComponent::PlaybackComponent(
     : mainWindow_(mainWindow), actions_(actions),
       inputController_(inputController),
       historyFilename_(preferencesDir + "history"),
-      historyWidget_(
-          std::bind(& PlaybackComponent::playFromHistory, this,
-                    std::placeholders::_1),
+      historyWidget_(preferences.customActions,
+                     std::bind(& PlaybackComponent::playFromHistory, this,
+                               std::placeholders::_1),
     [this](CommonTypes::ItemCollection items) { play(std::move(items)); },
 preferences.playback.history)
 {

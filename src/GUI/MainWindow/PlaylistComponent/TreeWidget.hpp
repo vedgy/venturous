@@ -20,6 +20,7 @@
 # define VENTUROUS_TREE_WIDGET_HPP
 
 # include "CommonTypes.hpp"
+# include "WindowUtilities.hpp"
 # include "CustomActions.hpp"
 
 # include <QTreeWidget>
@@ -103,12 +104,16 @@ private:
     template <typename ItemUser>
     void applyToSelectedItems(ItemUser f);
 
+
     const ItemTree::Tree & itemTree_;
     const std::unique_ptr<ItemTree::Tree> & temporaryTree_;
     const CustomActions::Actions & customActions_;
     const CommonTypes::PlayItems playItems_;
+
     bool editMode_ = false;
     int autoUnfoldedLevels_ = 9;
+
+    WindowUtilities::TooltipShower tooltipShower_;
 
 private slots:
     void onUiItemActivated(QTreeWidgetItem * item);

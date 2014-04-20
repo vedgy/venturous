@@ -29,7 +29,6 @@
 # include <QObject>
 # include <QFileInfo>
 # include <QProcess>
-# include <QToolTip>
 # include <QAction>
 # include <QMenu>
 
@@ -53,7 +52,9 @@ public:
 
     /// @brief Shows popup menu if it is not empty at the specified position.
     /// Takes care of deleting this CustomMenu.
-    void popup(const QPoint & position);
+    /// @return true if menu was shown, false if there were no displayable
+    /// actions.
+    bool popup(const QPoint & position);
 
 private slots:
     void onActionTriggered(QAction * action);
@@ -119,18 +120,17 @@ CustomMenu::~CustomMenu()
 # endif
 }
 
-void CustomMenu::popup(const QPoint & position)
+bool CustomMenu::popup(const QPoint & position)
 {
     if (menu_ == nullptr) {
-        QToolTip::showText(position, tr("No custom actions are enabled for "
-                                        "selected items."));
         deleteLater();
-        return;
+        return false;
     }
     connect(menu_.get(), SIGNAL(aboutToHide()), SLOT(deleteLater()));
     connect(menu_.get(), SIGNAL(triggered(QAction *)),
             SLOT(onActionTriggered(QAction *)));
     menu_->popup(position);
+    return true;
 }
 
 
@@ -216,12 +216,12 @@ bool operator == (const Action & lhs, const Action & rhs)
            lhs.enabled == rhs.enabled;
 }
 
-void showMenu(const Actions & actions, QString commonItemPrefix,
+bool showMenu(const Actions & actions, QString commonItemPrefix,
               std::vector<QString> itemNames, const QPoint & position)
 {
     CustomMenu * const menu = new CustomMenu(
         actions, std::move(commonItemPrefix), std::move(itemNames));
-    menu->popup(position);
+    return menu->popup(position);
 }
 
 }
