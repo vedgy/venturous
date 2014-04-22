@@ -50,7 +50,7 @@ QString getStatus(bool isPlayerRunning)
     return isPlayerRunning ? QObject::tr("playing") : QObject::tr("stopped");
 }
 
-QString getIconToolTip(bool isPlayerRunning)
+QString getIconTooltip(bool isPlayerRunning)
 {
     return APPLICATION_NAME " - " + getStatus(isPlayerRunning);
 }
@@ -126,7 +126,7 @@ void MainWindow::showNotificationAreaIcon()
                      QSystemTrayIcon::ActivationReason)));
 
     notificationAreaIcon_->setToolTip(
-        getIconToolTip(playbackComponent_->isPlayerRunning()));
+        getIconTooltip(playbackComponent_->isPlayerRunning()));
 
     notificationAreaIcon_->show();
 }
@@ -276,7 +276,7 @@ void MainWindow::onPlayerStateChanged(const bool isPlayerRunning)
 {
     setWindowTitle();
     if (notificationAreaIcon_ != nullptr)
-        notificationAreaIcon_->setToolTip(getIconToolTip(isPlayerRunning));
+        notificationAreaIcon_->setToolTip(getIconTooltip(isPlayerRunning));
 }
 
 void MainWindow::onNotificationAreaIconActivated(

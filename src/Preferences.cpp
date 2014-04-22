@@ -325,23 +325,17 @@ CustomActions::Actions defaultCustomActions()
     };
 }
 
-/// @brief Loads custom actions. If there is no CustomActions tag,
-/// default actions are set.
 void loadCustomActions(const QDomElement & root,
                        CustomActions::Actions & actions)
 {
     using namespace QtUtilities::Xml;
     using namespace Names::CustomActions;
     const QDomElement base = getUniqueChild(root, localRoot);
-    if (base.isNull()) {
-        actions = defaultCustomActions();
+    if (base.isNull())
         return;
-    }
     const auto collection = getChildren(base, action);
     typedef CustomActions::Action Action;
-    actions.resize(collection.size(), {
-        QString(), QString(), 1, 1, Action::Type::anyItem, QString(), false
-    });
+    actions.resize(collection.size(), Action::getEmpty());
     for (std::size_t i = 0; i < collection.size(); ++i) {
         const QDomElement & e = collection[i];
         Action & a = actions[i];
@@ -397,7 +391,8 @@ Preferences::Preferences()
       treeAutoUnfoldedLevels(5),
       treeAutoCleanup(false),
       savePreferencesToDiskImmediately(false),
-      ventoolCheckInterval(1000)
+      ventoolCheckInterval(1000),
+      customActions(defaultCustomActions())
 {
 }
 
@@ -450,6 +445,8 @@ void Preferences::load(const QString & filename)
 {
     using namespace QtUtilities::Xml;
     const QDomElement root = loadRoot(filename, Names::root);
+    if (root.isNull())
+        return;
 
     copyUniqueChildsTextTo(root, Names::alwaysUseFallbackIcons,
                            alwaysUseFallbackIcons);

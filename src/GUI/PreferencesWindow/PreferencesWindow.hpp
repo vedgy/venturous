@@ -50,7 +50,7 @@ private:
 
     Preferences & preferences_;
 
-    const std::array<PreferencesPage *, 4> tabs_;
+    const std::array<PreferencesPage *, 5> tabs_;
 };
 
 # endif // VENTUROUS_PREFERENCES_WINDOW_HPP

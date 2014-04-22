@@ -20,7 +20,7 @@
 # define VENTUROUS_HISTORY_WIDGET_HPP
 
 # include "CommonTypes.hpp"
-# include "WindowUtilities.hpp"
+# include "GuiUtilities.hpp"
 # include "CustomActions.hpp"
 # include "Preferences.hpp"
 
@@ -150,7 +150,7 @@ private:
     /// currentIndex_ == history_.items().size().
     int currentEntryIndex_;
 
-    WindowUtilities::TooltipShower tooltipShower_;
+    GuiUtilities::TooltipShower tooltipShower_;
 
 private slots:
     /// WARNING: can block execution.

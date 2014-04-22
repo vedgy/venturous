@@ -41,6 +41,13 @@ struct Action {
     static constexpr int minMinArgN = 0, maxMinArgN = 99,
                          minMaxArgN = -1, maxMaxArgN = maxMinArgN;
 
+    static Action getEmpty() {
+        return {
+            QString(), QString(), 1, 1, Action::Type::anyItem, QString(), false
+        };
+    }
+
+
     /// Is displayed in the menu.
     QString text;
     /// Is executed if this action is triggered. '?' symbols are replaced with

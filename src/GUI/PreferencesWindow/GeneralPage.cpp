@@ -40,9 +40,9 @@ void addSpacing(QLayout * layout, int height = 10)
 
 void addNotificationAreaSubOption(
     QFormLayout * layout, QCheckBox & subOption,
-    const QString & toolTip, const QString & labelPrefix)
+    const QString & tooltip, const QString & labelPrefix)
 {
-    subOption.setToolTip(toolTip);
+    subOption.setToolTip(tooltip);
 
     QHBoxLayout * rowLayout = new QHBoxLayout;
     rowLayout->addSpacing(30);
@@ -106,6 +106,8 @@ GeneralPage::GeneralPage(QWidget * const parent, const Qt::WindowFlags f)
             Preferences::treeAutoUnfoldedLevels) >::max());
     treeAutoUnfoldedLevelsSpinBox.setToolTip(tr("Number of items in playlist "
             "tree that will be unfolded by default."));
+    treeAutoUnfoldedLevelsSpinBox.setSizePolicy(
+        QSizePolicy::Fixed, QSizePolicy::QSizePolicy::Fixed);
     layout->addRow(tr("Auto unfolded levels in the tree"),
                    & treeAutoUnfoldedLevelsSpinBox);
 
@@ -134,6 +136,7 @@ GeneralPage::GeneralPage(QWidget * const parent, const Qt::WindowFlags f)
            "Longer interval may slightly improve performance.\n"
            "If set to 0, %1 commands will have no effect.").arg(TOOL_NAME));
     checkIntervalSpinBox.setSuffix(tr("ms"));
+    checkIntervalSpinBox.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     layout->addRow(TOOL_NAME + tr(" check interval"),
                    & checkIntervalSpinBox);
 }

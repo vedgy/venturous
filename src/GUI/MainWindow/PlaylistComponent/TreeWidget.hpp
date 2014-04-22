@@ -20,7 +20,7 @@
 # define VENTUROUS_TREE_WIDGET_HPP
 
 # include "CommonTypes.hpp"
-# include "WindowUtilities.hpp"
+# include "GuiUtilities.hpp"
 # include "CustomActions.hpp"
 
 # include <QTreeWidget>
@@ -113,7 +113,7 @@ private:
     bool editMode_ = false;
     int autoUnfoldedLevels_ = 9;
 
-    WindowUtilities::TooltipShower tooltipShower_;
+    GuiUtilities::TooltipShower tooltipShower_;
 
 private slots:
     void onUiItemActivated(QTreeWidgetItem * item);

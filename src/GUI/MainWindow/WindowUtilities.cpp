@@ -23,18 +23,15 @@
 
 # include "WindowUtilities.hpp"
 
-# include <QPoint>
 # include <QString>
 # include <QStringList>
 # include <QPointer>
-# include <QToolTip>
 # include <QWidget>
 # include <QDialog>
 # include <QMessageBox>
 # include <QFileDialog>
 
 # include <cassert>
-# include <utility>
 # include <iostream>
 
 
@@ -57,23 +54,6 @@ void showAndActivateWindow(QWidget & window)
 {
     showWindow(window);
     window.activateWindow();
-}
-
-
-void TooltipShower::show(QPoint position, QString text, QWidget * const widget)
-{
-    position_ = std::move(position);
-    text_ = std::move(text);
-    widget_ = widget;
-    killTimer(timerId_);
-    timerId_ = startTimer(300);
-}
-
-void TooltipShower::timerEvent(QTimerEvent *)
-{
-    QToolTip::showText(position_, text_, widget_);
-    killTimer(timerId_);
-    timerId_ = 0;
 }
 
 }

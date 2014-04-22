@@ -93,12 +93,12 @@ void FilenamePatternsPage::addColumn(
 
 void FilenamePatternsPage::addCopyButton(
     QGridLayout * const layout, const int row, const QString & iconName,
-    const QString & toolTip, const char * const slot)
+    const QString & tooltip, const char * const slot)
 {
     QPushButton * const button = new QPushButton(
         QIcon(Icons::getAbsolutePath(iconName)), QString(), this);
     button->setIconSize(QSize(33, 15));
-    button->setToolTip(toolTip);
+    button->setToolTip(tooltip);
     connect(button, SIGNAL(clicked(bool)), slot);
 
     layout->addWidget(button, row, 1);

@@ -16,43 +16,33 @@
  Venturous.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-# ifndef VENTUROUS_FILENAME_PATTERNS_PAGE_HPP
-# define VENTUROUS_FILENAME_PATTERNS_PAGE_HPP
+# ifndef VENTUROUS_CUSTOM_ACTIONS_PAGE_HPP
+# define VENTUROUS_CUSTOM_ACTIONS_PAGE_HPP
 
 # include "PreferencesPage.hpp"
-# include "PatternListWidget.hpp"
 
-# include <QtGlobal>
+# include <QTableWidget>
 
 
 class Preferences;
-QT_FORWARD_DECLARE_CLASS(QString)
-QT_FORWARD_DECLARE_CLASS(QIcon)
-QT_FORWARD_DECLARE_CLASS(QGridLayout)
 
-class FilenamePatternsPage : public PreferencesPage
+class CustomActionsPage : public PreferencesPage
 {
     Q_OBJECT
 public:
-    explicit FilenamePatternsPage(const QIcon & addIcon,
-                                  QWidget * parent = nullptr,
-                                  Qt::WindowFlags f = 0);
+    explicit CustomActionsPage(QWidget * parent = nullptr,
+                               Qt::WindowFlags f = 0);
 
     void setUiPreferences(const Preferences & source) override;
     void writeUiPreferencesTo(Preferences & destination) const override;
 
 private:
-    void addColumn(QGridLayout * layout, int column, const QString & caption,
-                   PatternListWidget & patternList, const QIcon & addIcon);
-
-    void addCopyButton(QGridLayout * layout, int row, const QString & iconName,
-                       const QString & tooltip, const char * slot);
-
-    PatternListWidget filePatternList_, mediaDirFilePatternList_;
+    QTableWidget table_;
 
 private slots:
-    void copyLeft();
-    void copyRight();
+    void insertRow();
+    void removeSelectedRows();
+    void onCellChanged(int row, int column);
 };
 
-# endif // VENTUROUS_FILENAME_PATTERNS_PAGE_HPP
+# endif // VENTUROUS_CUSTOM_ACTIONS_PAGE_HPP

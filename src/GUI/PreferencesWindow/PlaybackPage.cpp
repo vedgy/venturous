@@ -57,6 +57,7 @@ PlaybackPage::PlaybackPage(QWidget * const parent, const Qt::WindowFlags f)
     startupPolicyComboBox.setToolTip(
         tr("Selected action will be executed on each %1 start.").arg(
             APPLICATION_NAME));
+    startupPolicyComboBox.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     layout->addRow(tr("Startup action"), & startupPolicyComboBox);
 
     layout->addItem(new QSpacerItem(1, 10));

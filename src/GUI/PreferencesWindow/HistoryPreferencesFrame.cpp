@@ -18,9 +18,9 @@
 
 # include "HistoryPreferencesFrame.hpp"
 
+# include "GuiUtilities.hpp"
 # include "Preferences.hpp"
 
-# include <QFont>
 # include <QVBoxLayout>
 # include <QFormLayout>
 # include <QLabel>
@@ -30,13 +30,8 @@ HistoryPreferencesFrame::HistoryPreferencesFrame(
     QWidget * const parent, const Qt::WindowFlags f) : QFrame(parent, f)
 {
     QVBoxLayout * const mainLayout = new QVBoxLayout(this);
-    {
-        QLabel * const captionLabel = new QLabel("<b>History</b>", this);
-        QFont font = captionLabel->font();
-        font.setPointSize(font.pointSize() + 2);
-        captionLabel->setFont(font);
-        mainLayout->addWidget(captionLabel, 0, Qt::AlignCenter);
-    }
+    mainLayout->addWidget(GuiUtilities::getCaptionLabel(tr("History"), this),
+                          0, Qt::AlignCenter);
 
     QFormLayout * const layout = new QFormLayout();
     mainLayout->addLayout(layout);
@@ -48,6 +43,7 @@ HistoryPreferencesFrame::HistoryPreferencesFrame(
     maxSizeSpinBox.setToolTip(
         tr("Maximum number of entries in history.\n"
            "The oldest entry is removed when this limit is reached."));
+    maxSizeSpinBox.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     layout->addRow(tr("Maximum size"), & maxSizeSpinBox);
 
     copyPlayedEntryToTopCheckBox.setToolTip(
@@ -68,6 +64,7 @@ HistoryPreferencesFrame::HistoryPreferencesFrame(
         tr("Number of directories in item path to be hidden\n"
            "in history window and status bar.\n"
            "Absolute path to item is always present in tooltip."));
+    nHiddenDirsSpinBox.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     layout->addRow(tr("Number of hidden directories"), & nHiddenDirsSpinBox);
 }
 
