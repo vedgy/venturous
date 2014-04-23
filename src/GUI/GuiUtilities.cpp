@@ -32,9 +32,8 @@ namespace GuiUtilities
 QLabel * getCaptionLabel(const QString & text, QWidget * const parent,
                          const bool boldText, const int fontPointSizeIncrement)
 {
-    QLabel * const captionLabel = new QLabel(text, parent);
-    if (boldText)
-        captionLabel->setText("<b>" + captionLabel->text() + "</b>");
+    QLabel * const captionLabel = new QLabel(parent);
+    captionLabel->setText(boldText ? "<b>" + text + "</b>" : text);
     if (fontPointSizeIncrement != 0) {
         QFont font = captionLabel->font();
         font.setPointSize(font.pointSize() + fontPointSizeIncrement);

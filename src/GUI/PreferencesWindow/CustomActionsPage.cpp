@@ -35,9 +35,11 @@
 # include <QItemSelectionModel>
 # include <QHBoxLayout>
 # include <QVBoxLayout>
+# include <QFrame>
 # include <QLabel>
 # include <QPushButton>
 # include <QSpinBox>
+# include <QCheckBox>
 # include <QComboBox>
 # include <QTableWidget>
 # include <QKeyEvent>
@@ -126,38 +128,25 @@ CustomActionsPage::CustomActionsPage(
             SLOT(onCellChanged(int, int)));
 
     QVBoxLayout * const layout = new QVBoxLayout(this);
-    layout->addWidget(& table_, 1);
+    layout->addWidget(& table_);
 
     {
-        QHBoxLayout * const buttonLayout = new QHBoxLayout;
+        QHBoxLayout * const actionsLayout = new QHBoxLayout;
+        addButton(tr("Add row"), tr("Add row at the bottom of the table."),
+                  this, SLOT(addRow()), actionsLayout);
         addButton(tr("Insert row"),
                   tr("Insert a new row before the first selected row\n"
                      "or at the bottom of the table if nothing is selected."),
-                  this, SLOT(insertRow()), buttonLayout);
+                  this, SLOT(insertRow()), actionsLayout);
         addButton(tr("Remove selected"),
-                  tr("Remove all selected rows from the table."),
-                  this, SLOT(removeSelectedRows()), buttonLayout);
-        layout->addLayout(buttonLayout);
+                  tr("Remove selected rows from the table."),
+                  this, SLOT(removeSelectedRows()), actionsLayout);
+        QCheckBox * const helpCheckBox = new QCheckBox(tr("Show help"), this);
+        connect(helpCheckBox, SIGNAL(toggled(bool)), SLOT(onShowHelpToggled()));
+        actionsLayout->addWidget(helpCheckBox);
+
+        layout->addLayout(actionsLayout);
     }
-
-    layout->addWidget(
-        GuiUtilities::getCaptionLabel(tr("Columns description"), this, true, 0),
-        0, Qt::AlignCenter);
-
-    const auto al = [&](const QString & text) { addLabel(text, this, layout); };
-    al(tr("1. <i>Text</i> is displayed in the menu."));
-    al(tr("2. <i>Command</i> is executed if this action is triggered. "
-          "'?' symbols are replaced with absolute paths to items; "
-          "\"??\" is replaced with \"?\"."));
-    al(tr("3,4. <i>Min</i>, <i>Max</i> - minimum and maximum number of "
-          "selected items respectively. Custom action is available only if "
-          "number of selected items is between <i>Min</i> and <i>Max</i>. "
-          "<i>Max</i>=-1 means \"without upper bound\"."));
-    al(tr("5. <i>Type</i> - allowed type of selected items."));
-    al(tr("6. <i>Comment</i> - field that is not used by the program. "
-          "It can be used to provide user with additional information "
-          "about custom action."));
-    al(tr("7. <i>Enabled</i>: disabled actions are not shown in menu."));
 }
 
 void CustomActionsPage::setUiPreferences(const Preferences & source)
@@ -191,6 +180,23 @@ void CustomActionsPage::writeUiPreferencesTo(Preferences & destination) const
 }
 
 
+
+void CustomActionsPage::insertRow(const int row)
+{
+    table_.insertRow(row);
+    CustomActions::Action action = CustomActions::Action::getEmpty();
+    action.enabled = true;
+    setRow(table_, row, std::move(action));
+    if (table_.rowCount() == 1)
+        table_.resizeColumnsToContents();
+}
+
+
+void CustomActionsPage::addRow()
+{
+    insertRow(table_.rowCount());
+}
+
 void CustomActionsPage::insertRow()
 {
     int insertionRow = table_.rowCount();
@@ -202,17 +208,14 @@ void CustomActionsPage::insertRow()
                 insertionRow = row;
         }
     }
-    table_.insertRow(insertionRow);
-    CustomActions::Action action = CustomActions::Action::getEmpty();
-    action.enabled = true;
-    setRow(table_, insertionRow, std::move(action));
-    if (table_.rowCount() == 1)
-        table_.resizeColumnsToContents();
+    insertRow(insertionRow);
 }
 
 void CustomActionsPage::removeSelectedRows()
 {
     const auto indices = table_.selectionModel()->selectedRows();
+    if (indices.empty())
+        return;
 
     std::vector<int> descendingSortedIndices(indices.size());
     std::transform(indices.begin(), indices.end(),
@@ -240,15 +243,46 @@ void CustomActionsPage::onCellChanged(const int row, const int column)
             if (item == nullptr)
                 table_.cellWidget(row, col)->setEnabled(enabled);
             else {
-                Qt::ItemFlags flags = item->flags();
+                const Qt::ItemFlags flags = item->flags();
                 constexpr Qt::ItemFlag enabledFlag = Qt::ItemIsEnabled;
-                if (enabled)
-                    flags |= enabledFlag;
-                else
-                    flags &= ~ enabledFlag;
-                item->setFlags(flags);
+                if (bool(flags & enabledFlag) != enabled)
+                    item->setFlags(flags ^ enabledFlag);
             }
         }
         table_.blockSignals(blocked);
     }
+}
+
+void CustomActionsPage::onShowHelpToggled()
+{
+    if (helpFrame_ == nullptr) {
+        helpFrame_.reset(new QFrame);
+        QVBoxLayout * const layout = new QVBoxLayout(helpFrame_.get());
+
+        layout->addWidget(
+            GuiUtilities::getCaptionLabel(tr("Columns description"),
+                                          helpFrame_.get(), true, 0),
+            0, Qt::AlignCenter);
+
+        const auto al = [&](const QString & text) {
+            addLabel(text, helpFrame_.get(), layout);
+        };
+        al(tr("1. <i>Text</i> is displayed in the menu."));
+        al(tr("2. <i>Command</i> is executed if this action is triggered. "
+              "'?' symbols are replaced with absolute paths to items; "
+              "\"??\" is replaced with \"?\"."));
+        al(tr("3,4. <i>Min</i>, <i>Max</i> - minimum and maximum number of "
+              "selected items respectively. Custom action is available only if "
+              "number of selected items is between <i>Min</i> and <i>Max</i>. "
+              "<i>Max</i>=-1 means \"without upper bound\"."));
+        al(tr("5. <i>Type</i> - allowed type of selected items."));
+        al(tr("6. <i>Comment</i> - field that is not used by the program. "
+              "It can be used to provide user with additional information "
+              "about custom action."));
+        al(tr("7. <i>Enabled</i>: disabled actions are not shown in menu."));
+
+        this->layout()->addWidget(helpFrame_.get());
+    }
+    else
+        helpFrame_.reset();
 }

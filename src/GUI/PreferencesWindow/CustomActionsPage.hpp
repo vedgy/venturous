@@ -21,7 +21,10 @@
 
 # include "PreferencesPage.hpp"
 
+# include <QFrame>
 # include <QTableWidget>
+
+# include <memory>
 
 
 class Preferences;
@@ -37,12 +40,18 @@ public:
     void writeUiPreferencesTo(Preferences & destination) const override;
 
 private:
+    void insertRow(int row);
+
+
     QTableWidget table_;
+    std::unique_ptr<QFrame> helpFrame_;
 
 private slots:
+    void addRow();
     void insertRow();
     void removeSelectedRows();
     void onCellChanged(int row, int column);
+    void onShowHelpToggled();
 };
 
 # endif // VENTUROUS_CUSTOM_ACTIONS_PAGE_HPP
