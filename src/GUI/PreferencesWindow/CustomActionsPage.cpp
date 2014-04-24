@@ -142,6 +142,7 @@ CustomActionsPage::CustomActionsPage(
                   tr("Remove selected rows from the table."),
                   this, SLOT(removeSelectedRows()), actionsLayout);
         QCheckBox * const helpCheckBox = new QCheckBox(tr("Show help"), this);
+        helpCheckBox->setToolTip(tr("Show description of table columns."));
         connect(helpCheckBox, SIGNAL(toggled(bool)), SLOT(onShowHelpToggled()));
         actionsLayout->addWidget(helpCheckBox);
 
@@ -269,8 +270,13 @@ void CustomActionsPage::onShowHelpToggled()
         };
         al(tr("1. <i>Text</i> is displayed in the menu."));
         al(tr("2. <i>Command</i> is executed if this action is triggered. "
-              "'?' symbols are replaced with absolute paths to items; "
-              "\"??\" is replaced with \"?\"."));
+              "The following rules apply to <i>Command</i> text:<ul>"
+              "<li>most Bash shell rules with respect to double and single "
+              "quotes, backslash, whitespaces;</li>"
+              "<li>'?' symbol is replaced with absolute paths to items unless "
+              "escaped with '\\' or enclosed in single quotes;</li>"
+              "<li>'~' symbol is replaced with current user's HOME directory."
+              "</li></ul>"));
         al(tr("3,4. <i>Min</i>, <i>Max</i> - minimum and maximum number of "
               "selected items respectively. Custom action is available only if "
               "number of selected items is between <i>Min</i> and <i>Max</i>. "

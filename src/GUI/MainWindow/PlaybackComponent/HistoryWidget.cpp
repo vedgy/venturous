@@ -27,6 +27,7 @@
 # include <QPoint>
 # include <QList>
 # include <QString>
+# include <QStringList>
 # include <QFont>
 # include <QListWidgetItem>
 # include <QKeyEvent>
@@ -309,22 +310,22 @@ void HistoryWidget::contextMenuEvent(QContextMenuEvent * event)
 {
     const QPoint position = event->globalPos();
     QString commonPrefix;
-    std::vector<QString> itemNames;
+    QStringList itemNames;
     {
         const auto items = selectedItems();
         if (! items.empty()) {
-            itemNames.reserve(std::size_t(items.size()));
+            itemNames.reserve(items.size());
 
             const auto appendFilenameAndReturnDir =
             [& itemNames](const QListWidgetItem * item) {
-                const QString absolutePath = item->toolTip();
+                QString absolutePath = item->toolTip();
                 int i = absolutePath.lastIndexOf('/');
                 if (i <= 0) { // Root is not considered a separate dir.
-                    itemNames.emplace_back(absolutePath);
+                    itemNames << std::move(absolutePath);
                     return QString();
                 }
                 ++i;
-                itemNames.emplace_back(absolutePath.mid(i));
+                itemNames << absolutePath.mid(i);
                 return absolutePath.left(i);
             };
 

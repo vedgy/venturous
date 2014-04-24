@@ -26,7 +26,9 @@
 
 # include <QPoint>
 # include <QString>
+# include <QStringList>
 # include <QObject>
+# include <QDir>
 # include <QFileInfo>
 # include <QProcess>
 # include <QAction>
@@ -35,7 +37,7 @@
 # include <cstddef>
 # include <utility>
 # include <array>
-# include <vector>
+# include <tuple>
 # include <memory>
 
 
@@ -46,8 +48,7 @@ class CustomMenu : public QObject
     Q_OBJECT
 public:
     explicit CustomMenu(const CustomActions::Actions & actions,
-                        QString commonItemPrefix,
-                        std::vector<QString> itemNames);
+                        QString commonItemPrefix, QStringList itemNames);
     ~CustomMenu();
 
     /// @brief Shows popup menu if it is not empty at the specified position.
@@ -61,9 +62,11 @@ private slots:
 
 private:
     QString commonItemPrefix_;
-    std::vector<QString> itemNames_;
+    QStringList itemNames_;
     std::unique_ptr<QMenu> menu_;
 };
+
+
 
 class Validator
 {
@@ -71,7 +74,7 @@ public:
     typedef CustomActions::Action Action;
 
     explicit Validator(const QString & commonItemPrefix,
-                       const std::vector<QString> & itemNames)
+                       const QStringList & itemNames)
         : commonItemPrefix_(commonItemPrefix), itemNames_(itemNames) {}
 
     bool isDisplayable(const Action & action) {
@@ -82,22 +85,25 @@ public:
 
 private:
     bool isDisplayable(int minArgN, int maxArgN) const {
-        return itemNames_.size() >= std::size_t(minArgN) &&
-               (maxArgN == -1 || itemNames_.size() <= std::size_t(maxArgN));
+        return itemNames_.size() >= minArgN &&
+               (maxArgN == -1 || itemNames_.size() <= maxArgN);
     }
 
     bool isDisplayable(Action::Type type);
 
 
     const QString & commonItemPrefix_;
-    const std::vector<QString> & itemNames_;
+    const QStringList & itemNames_;
     std::array<bool, 2> displayedType_;
     bool checkedType_ = false;
 };
 
+std::pair<QString, QStringList> getProgramAndArgs(
+    QString command, QString commonItemPrefix, QStringList itemNames);
+
 
 CustomMenu::CustomMenu(const CustomActions::Actions & actions,
-                       QString commonItemPrefix, std::vector<QString> itemNames)
+                       QString commonItemPrefix, QStringList itemNames)
     : commonItemPrefix_(std::move(commonItemPrefix)),
       itemNames_(std::move(itemNames))
 {
@@ -133,44 +139,21 @@ bool CustomMenu::popup(const QPoint & position)
     return true;
 }
 
-
 void CustomMenu::onActionTriggered(QAction * const action)
 {
 # ifdef DEBUG_VENTUROUS_CUSTOM_ACTIONS
     std::cout << "Custom action was triggered: \"" +
               QtUtilities::qStringToString(action->text()) + "\"." << std::endl;
 # endif
-    const auto escapeQuotes = [](QString & s) { s.replace('"', "\"\"\""); };
 
-    QString command = action->toolTip();
-    escapeQuotes(command);
-    QString args;
-    if (! itemNames_.empty()) {
-        escapeQuotes(commonItemPrefix_);
-        for (QString & itemName : itemNames_) {
-            escapeQuotes(itemName);
-            args += '"' + commonItemPrefix_ + std::move(itemName) + "\" ";
-        }
-        args.resize(args.size() - 1);
-    }
-
-    for (int i = 0; i < command.size(); ++i) {
-        const char c = '?';
-        if (command[i] == c) {
-            if (i + 1 != command.size() && command[i + 1] == c) {
-                // escaped substitution character ("??").
-                command.remove(i, 1);
-            }
-            else {
-                command.replace(i, 1, args);
-                i += args.size() - 1;
-            }
-        }
-    }
-
-    QProcess::startDetached(command);
+    QString command;
+    QStringList args;
+    std::tie(command, args) =
+        getProgramAndArgs(action->toolTip(), std::move(commonItemPrefix_),
+                          std::move(itemNames_));
+    if (! command.isEmpty())
+        QProcess::startDetached(command, args);
 }
-
 
 
 bool Validator::isDisplayable(const Action::Type type)
@@ -200,6 +183,133 @@ bool Validator::isDisplayable(const Action::Type type)
     return displayedType(type);
 }
 
+
+QString joinArgs(const QString & commonItemPrefix,
+                 const QStringList & itemNames)
+{
+    if (itemNames.empty())
+        return "";
+    return commonItemPrefix + itemNames.join(' ' + commonItemPrefix);
+}
+
+QStringList getArgs(const QString & commonItemPrefix,
+                    const QStringList & itemNames)
+{
+    QStringList args;
+    args.reserve(itemNames.size());
+    for (const QString & name : itemNames)
+        args.push_back(commonItemPrefix + name);
+    return args;
+}
+
+std::pair<QString, QStringList> getProgramAndArgs(
+    QString command, QString commonItemPrefix, QStringList itemNames)
+{
+    QStringList args;
+
+    QString current;
+    enum class Mode : unsigned char { plain, inSingleQuotes, inDoubleQuotes };
+    Mode mode = Mode::plain;
+
+    for (int i = 0; i < command.size(); ++i) {
+        const auto pushToCurrent = [&] { current += command[i]; };
+        switch (command[i].toLatin1()) {
+            case '\\':
+                if (mode == Mode::plain) {
+                    if (++i == command.size())
+                        return { QString(), QStringList() }; // Wrong syntax.
+                    else
+                        pushToCurrent();
+                }
+                else if (mode == Mode::inDoubleQuotes) {
+                    if (++i != command.size()) { // Wrong syntax otherwise.
+                        // See https://www.gnu.org/software/bash/manual/html_node/Double-Quotes.html
+                        switch (command[i].toLatin1()) {
+                            case '$':
+                            case '`':
+                            case '"':
+                            case '\\':
+                            case '?':
+                                pushToCurrent(); // escaped.
+                                break;
+                            case '\n':
+                                break; // escaped newline is removed.
+                            default:
+                                --i; // appending backslash symbol.
+                                pushToCurrent();
+                        }
+                    }
+                }
+                else
+                    pushToCurrent();
+                break;
+            case '"':
+                if (mode == Mode::plain)
+                    mode = Mode::inDoubleQuotes;
+                else if (mode == Mode::inDoubleQuotes)
+                    mode = Mode::plain;
+                else
+                    pushToCurrent();
+                break;
+            case '\'':
+                if (mode == Mode::plain)
+                    mode = Mode::inSingleQuotes;
+                else if (mode == Mode::inDoubleQuotes)
+                    pushToCurrent();
+                else
+                    mode = Mode::plain;
+                break;
+            case ' ':
+            case '\t':
+            case '\n':
+                if (mode == Mode::plain) {
+                    if (! current.isEmpty()) {
+                        args << std::move(current);
+                        current.clear();
+                    }
+                }
+                else
+                    pushToCurrent();
+                break;
+            case '?':
+                if (mode == Mode::plain) {
+                    QStringList a = getArgs(commonItemPrefix, itemNames);
+                    if (! a.empty()) {
+                        a.front().prepend(std::move(current));
+                        current = std::move(a.back());
+                        a.pop_back();
+                        args << std::move(a);
+                    }
+                }
+                else if (mode == Mode::inDoubleQuotes)
+                    current += joinArgs(commonItemPrefix, itemNames);
+                else
+                    pushToCurrent();
+                break;
+            case '~':
+                if (mode == Mode::plain)
+                    current += QDir::homePath();
+                else
+                    pushToCurrent();
+                break;
+            default:
+                pushToCurrent();
+        }
+    }
+
+    if (mode != Mode::plain)
+        return { QString(), QStringList() }; // Wrong syntax.
+    if (! current.isEmpty())
+        args << std::move(current);
+    if (args.empty())
+        command.clear();
+    else {
+        command = std::move(args.front());
+        args.removeFirst();
+    }
+    return { std::move(command), std::move(args) };
+}
+
 }
 
 namespace CustomActions
@@ -217,7 +327,7 @@ bool operator == (const Action & lhs, const Action & rhs)
 }
 
 bool showMenu(const Actions & actions, QString commonItemPrefix,
-              std::vector<QString> itemNames, const QPoint & position)
+              QStringList itemNames, const QPoint & position)
 {
     CustomMenu * const menu = new CustomMenu(
         actions, std::move(commonItemPrefix), std::move(itemNames));

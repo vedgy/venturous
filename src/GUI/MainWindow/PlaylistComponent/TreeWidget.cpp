@@ -44,7 +44,6 @@
 # include <QKeyEvent>
 # include <QContextMenuEvent>
 
-# include <cstddef>
 # include <cassert>
 # include <utility>
 # include <algorithm>
@@ -353,7 +352,7 @@ void TreeWidget::contextMenuEvent(QContextMenuEvent * const event)
 # endif
     const QPoint position = event->globalPos();
     QString commonPrefix;
-    std::vector<QString> itemNames;
+    QStringList itemNames;
     {
         const auto selected = selectedItems();
         if (! selected.empty()) {
@@ -370,9 +369,9 @@ void TreeWidget::contextMenuEvent(QContextMenuEvent * const event)
                 }
             }
             commonPrefix = getAbsolutePath(parent);
-            itemNames.reserve(std::size_t(selected.size()));
+            itemNames.reserve(selected.size());
             for (const QTreeWidgetItem * item : selected)
-                itemNames.emplace_back(itemText(item));
+                itemNames << itemText(item);
         }
     }
     if (! CustomActions::showMenu(customActions_, std::move(commonPrefix),

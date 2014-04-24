@@ -21,6 +21,7 @@
 
 # include <QPoint>
 # include <QString>
+# include <QStringList>
 # include <QObject>
 
 # include <vector>
@@ -80,7 +81,7 @@ typedef std::vector<Action> Actions;
 /// @return true if popup menu was shown, false if there were no displayable
 /// actions.
 bool showMenu(const Actions & actions, QString commonItemPrefix,
-              std::vector<QString> itemNames, const QPoint & position);
+              QStringList itemNames, const QPoint & position);
 
 inline QString noActionsMessage()
 {
