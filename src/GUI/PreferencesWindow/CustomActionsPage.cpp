@@ -101,9 +101,11 @@ void setRow(QTableWidget & table, int row, const CustomActions::Action & action)
 {
     setText(table, row, 0, action.text);
     setText(table, row, 1, action.command);
-    setCellWidgetColumns(table, row, { action.minArgN, action.maxArgN,
-                                       static_cast<int>(action.type)
-                                     });
+    setCellWidgetColumns(table, row, {{
+            action.minArgN, action.maxArgN,
+            static_cast<int>(action.type)
+        }
+    });
     setText(table, row, 5, action.comment);
     setBool(table, row, 6, action.enabled);
 }
@@ -153,10 +155,11 @@ TableIndices getSortedSelected(const QTableWidget & table,
 
 CellWidgetValues getCellWidgetValues(const QTableWidget & table, int row)
 {
-    return {
-        qobject_cast<QSpinBox *>(table.cellWidget(row, 2))->value(),
-        qobject_cast<QSpinBox *>(table.cellWidget(row, 3))->value(),
-        qobject_cast<QComboBox *>(table.cellWidget(row, 4))->currentIndex()
+    return {{
+            qobject_cast<QSpinBox *>(table.cellWidget(row, 2))->value(),
+            qobject_cast<QSpinBox *>(table.cellWidget(row, 3))->value(),
+            qobject_cast<QComboBox *>(table.cellWidget(row, 4))->currentIndex()
+        }
     };
 }
 

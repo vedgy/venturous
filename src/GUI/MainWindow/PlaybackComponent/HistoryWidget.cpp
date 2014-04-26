@@ -44,25 +44,42 @@ namespace
 {
 /// @param absolutePath Non-empty absolute path.
 /// @return absolutePath without first nHiddenDirs directories. If nHiddenDirs
-/// exceeds number of directories in absolutePath, filename is returned.
-QString getShortenedPath(const QString & absolutePath, unsigned nHiddenDirs)
+/// exceeds number of directories in absolutePath, filename is returned.\n
+/// If nHiddenDirs < 0, -nHiddenDirs last components of path are returned.
+/// For instance, if nHiddenDirs == -2,
+/// "<directory that contains file>/filename" is returned.
+/// If -nHiddenDirs exceeds number of components in absolutePath, absolutePath
+/// is returned.
+QString getShortenedPath(const QString & absolutePath, int nHiddenDirs)
 {
     assert(! absolutePath.isEmpty());
-    // skipping first symbol due to ItemTree's path specifics.
-    int index = 1;
-    while (nHiddenDirs-- > 0) {
-        const int nextIndex = absolutePath.indexOf('/', index) + 1;
-        if (nextIndex == 0)
-            break; // not found.
-        index = nextIndex;
+    int index;
+    if (nHiddenDirs < 0) {
+        index = 0;
+        while (++nHiddenDirs <= 0) {
+            index = absolutePath.lastIndexOf('/', index - 1);
+            if (index <= 0)
+                break; // not found or found root symbol.
+        }
+        ++index;
+    }
+    else {
+        // skipping first symbol due to ItemTree's path specifics.
+        index = 1;
+        while (--nHiddenDirs >= 0) {
+            const int nextIndex = absolutePath.indexOf('/', index) + 1;
+            if (nextIndex == 0)
+                break; // not found.
+            index = nextIndex;
+        }
     }
 
-    if (index == 1)
+    if (index <= 1)
         return absolutePath;
     return absolutePath.mid(index);
 }
 
-void setShortenedTooltipToText(QListWidgetItem * item, unsigned nHiddenDirs)
+void setShortenedTooltipToText(QListWidgetItem * item, int nHiddenDirs)
 {
     assert(item != nullptr);
     item->setText(getShortenedPath(item->toolTip(), nHiddenDirs));

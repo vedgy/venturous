@@ -248,8 +248,8 @@ void loadHistory(const QDomElement & root,
                            history.copyPlayedEntryToTop);
     copyUniqueChildsTextTo(e, saveToDiskImmediately,
                            history.saveToDiskImmediately);
-    copyUniqueChildsTextToMax(e, nHiddenDirs,
-                              history.nHiddenDirs, H::maxNHiddenDirs);
+    copyUniqueChildsTextToRange(e, nHiddenDirs, history.nHiddenDirs,
+                                H::minNHiddenDirs, H::maxNHiddenDirs);
     copyUniqueChildsTextToRange(e, currentIndex, history.currentIndex,
                                 H::multipleItemsIndex, int(H::maxMaxSize));
 }
@@ -360,12 +360,13 @@ void loadCustomActions(const QDomElement & root,
 
 
 constexpr std::size_t Preferences::Playback::History::maxMaxSize;
-constexpr unsigned Preferences::Playback::History::maxNHiddenDirs;
+constexpr int Preferences::Playback::History::minNHiddenDirs;
+constexpr int Preferences::Playback::History::maxNHiddenDirs;
 constexpr int Preferences::Playback::History::multipleItemsIndex;
 
 Preferences::Playback::History::History()
     : maxSize(100), copyPlayedEntryToTop(false), saveToDiskImmediately(false),
-      nHiddenDirs(3), currentIndex(0)
+      nHiddenDirs(-2), currentIndex(0)
 {
 }
 

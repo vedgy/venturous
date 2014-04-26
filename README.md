@@ -46,7 +46,7 @@ GNU/Linux or MS Windows (might also work in OS X, not tested).
 
 3. If you want to install latest stable version, execute the following command:
 
-        git checkout tags/v0.9.2
+        git checkout tags/v0.9.4
 If you prefer latest development version (can be unstable), just skip this step.
 
 4. Run configuration script:

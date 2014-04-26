@@ -37,7 +37,7 @@ public:
     struct Playback {
         struct History {
             static constexpr std::size_t maxMaxSize = 9999;
-            static constexpr unsigned maxNHiddenDirs = 99;
+            static constexpr int minNHiddenDirs = -99, maxNHiddenDirs = 99;
             static constexpr int multipleItemsIndex = -1;
 
             explicit History();
@@ -46,7 +46,7 @@ public:
             std::size_t maxSize;
             bool copyPlayedEntryToTop;
             bool saveToDiskImmediately;
-            unsigned nHiddenDirs;
+            int nHiddenDirs;
 
             /// Internal option.
             int currentIndex;

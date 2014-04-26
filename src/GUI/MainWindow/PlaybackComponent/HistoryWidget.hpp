@@ -140,7 +140,7 @@ private:
     History history_;
 
     bool copyPlayedEntryToTop_;
-    unsigned nHiddenDirs_;
+    int nHiddenDirs_;
     /// Identical to Preferences::Playback::History::currentIndex, but is
     /// changed more frequently.
     /// If currentEntryIndex_ >= history_.items().size(), it means that

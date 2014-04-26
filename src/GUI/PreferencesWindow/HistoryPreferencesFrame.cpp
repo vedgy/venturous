@@ -59,10 +59,12 @@ HistoryPreferencesFrame::HistoryPreferencesFrame(
     layout->addRow(tr("Save to disk immediately"),
                    & saveToDiskImmediatelyCheckBox);
 
-    nHiddenDirsSpinBox.setRange(0, History::maxNHiddenDirs);
+    nHiddenDirsSpinBox.setRange(History::minNHiddenDirs,
+                                History::maxNHiddenDirs);
     nHiddenDirsSpinBox.setToolTip(
         tr("Number of directories in item path to be hidden\n"
            "in history window and status bar.\n"
+           "If negative, denotes -(number of path components to be left).\n"
            "Absolute path to item is always present in tooltip."));
     nHiddenDirsSpinBox.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     layout->addRow(tr("Number of hidden directories"), & nHiddenDirsSpinBox);
