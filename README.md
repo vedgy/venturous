@@ -13,9 +13,14 @@ compositions (movements) are often distributed as separate tracks. It is
 usually desirable to listen to movements in succession and in a proper order.
 
 Venturous has hierarchical playlist, which reflects file system. The playlist
-is protected from accidental changes.
+is protected from accidental changes.<br>
 Venturous also features playback history, which allows user to identify
-previously played items and play them again.
+previously played items and play them again.<br>
+Custom actions similar to those in Thunar file manager are available in
+playlist's and history's custom menus. Custom actions allow user to open
+selected items in external application.
+For example: open in file manager or in media player, edit text file,
+move item(s) to trash.
 
 ## Build requirements
 

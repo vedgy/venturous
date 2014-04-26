@@ -31,23 +31,27 @@
 # include <QStringList>
 # include <QObject>
 # include <QModelIndex>
+# include <QAbstractItemModel>
 # include <QTableWidgetItem>
+# include <QItemSelectionRange>
+# include <QItemSelection>
 # include <QItemSelectionModel>
 # include <QHBoxLayout>
 # include <QVBoxLayout>
 # include <QFrame>
 # include <QLabel>
 # include <QPushButton>
+# include <QToolButton>
 # include <QSpinBox>
 # include <QCheckBox>
 # include <QComboBox>
 # include <QTableWidget>
-# include <QKeyEvent>
 
 # include <cstddef>
 # include <utility>
 # include <functional>
 # include <algorithm>
+# include <array>
 # include <vector>
 
 
@@ -75,21 +79,31 @@ void setInt(QTableWidget & table, int row, int column,
     table.setCellWidget(row, column, spinBox);
 }
 
-void setRow(QTableWidget & table, int row, const CustomActions::Action & action)
+/// CustomActions::Action:: minArgN, maxArgN, type.
+typedef std::array<int, 3> CellWidgetValues;
+void setCellWidgetColumns(QTableWidget & table, int row,
+                          const CellWidgetValues & cellWidgetValues)
 {
     typedef CustomActions::Action A;
-    setText(table, row, 0, action.text);
-    setText(table, row, 1, action.command);
-    setInt(table, row, 2, action.minArgN, A::minMinArgN, A::maxMinArgN);
-    setInt(table, row, 3, action.maxArgN, A::minMaxArgN, A::maxMaxArgN);
+    setInt(table, row, 2, cellWidgetValues[0], A::minMinArgN, A::maxMinArgN);
+    setInt(table, row, 3, cellWidgetValues[1], A::minMaxArgN, A::maxMaxArgN);
     {
         QComboBox * const c = new QComboBox;
         c->addItems( { QObject::tr("File"), QObject::tr("Directory"),
                        QObject::tr("Any item")
                      });
-        c->setCurrentIndex(static_cast<int>(action.type));
+        c->setCurrentIndex(cellWidgetValues[2]);
         table.setCellWidget(row, 4, c);
     }
+}
+
+void setRow(QTableWidget & table, int row, const CustomActions::Action & action)
+{
+    setText(table, row, 0, action.text);
+    setText(table, row, 1, action.command);
+    setCellWidgetColumns(table, row, { action.minArgN, action.maxArgN,
+                                       static_cast<int>(action.type)
+                                     });
     setText(table, row, 5, action.comment);
     setBool(table, row, 6, action.enabled);
 }
@@ -111,6 +125,63 @@ void addButton(const QString & text, const QString & tooltip, QWidget * parent,
     layout->addWidget(button);
 }
 
+void addArrowButton(Qt::ArrowType type, QWidget * parent, const char * slot,
+                    QHBoxLayout * layout)
+{
+    QToolButton * const button = new QToolButton(parent);
+    button->setArrowType(type);
+    button->setToolTip(QObject::tr("Move selected rows %1.").
+                       arg(type == Qt::UpArrow ? QObject::tr("up")
+                           : QObject::tr("down")));
+    parent->connect(button, SIGNAL(clicked(bool)), slot);
+    layout->addWidget(button);
+}
+
+typedef std::vector<int> TableIndices;
+
+template <typename Compare = std::less<int>>
+TableIndices getSortedSelected(const QTableWidget & table,
+                               Compare comp = Compare())
+{
+    const auto indices = table.selectionModel()->selectedRows();
+    TableIndices sortedIndices(indices.size());
+    std::transform(indices.begin(), indices.end(), sortedIndices.begin(),
+                   std::bind(& QModelIndex::row, std::placeholders::_1));
+    std::sort(sortedIndices.begin(), sortedIndices.end(), comp);
+    return sortedIndices;
+}
+
+CellWidgetValues getCellWidgetValues(const QTableWidget & table, int row)
+{
+    return {
+        qobject_cast<QSpinBox *>(table.cellWidget(row, 2))->value(),
+        qobject_cast<QSpinBox *>(table.cellWidget(row, 3))->value(),
+        qobject_cast<QComboBox *>(table.cellWidget(row, 4))->currentIndex()
+    };
+}
+
+void moveRow(QTableWidget & table, int from, int to)
+{
+    setCellWidgetColumns(table, to, getCellWidgetValues(table, from));
+    const int nColumns = table.columnCount();
+    for (int col = 0; col < nColumns; ++col) {
+        QTableWidgetItem * const item = table.takeItem(from, col);
+        if (item != nullptr)
+            table.setItem(to, col, item);
+    }
+}
+
+void selectRows(QTableWidget & table, const TableIndices & indices)
+{
+    const int lastColumn = table.columnCount() - 1;
+    const QAbstractItemModel & model = * table.model();
+    QItemSelection selection;
+    selection.reserve(int(indices.size()));
+    for (int i : indices)
+        selection.push_back( { model.index(i, 0), model.index(i, lastColumn) });
+    table.selectionModel()->select(selection, QItemSelectionModel::Select);
+}
+
 }
 
 
@@ -129,7 +200,6 @@ CustomActionsPage::CustomActionsPage(
 
     QVBoxLayout * const layout = new QVBoxLayout(this);
     layout->addWidget(& table_);
-
     {
         QHBoxLayout * const actionsLayout = new QHBoxLayout;
         addButton(tr("Add row"), tr("Add row at the bottom of the table."),
@@ -141,6 +211,12 @@ CustomActionsPage::CustomActionsPage(
         addButton(tr("Remove selected"),
                   tr("Remove selected rows from the table."),
                   this, SLOT(removeSelectedRows()), actionsLayout);
+
+        addArrowButton(Qt::UpArrow, this, SLOT(moveSelectedRowsUp()),
+                       actionsLayout);
+        addArrowButton(Qt::DownArrow, this, SLOT(moveSelectedRowsDown()),
+                       actionsLayout);
+
         QCheckBox * const helpCheckBox = new QCheckBox(tr("Show help"), this);
         helpCheckBox->setToolTip(tr("Show description of table columns."));
         connect(helpCheckBox, SIGNAL(toggled(bool)), SLOT(onShowHelpToggled()));
@@ -168,13 +244,12 @@ void CustomActionsPage::writeUiPreferencesTo(Preferences & destination) const
         const int row = int(i);
         a.text = table_.item(row, 0)->text();
         a.command = table_.item(row, 1)->text();
-        a.minArgN =
-            qobject_cast<QSpinBox *>(table_.cellWidget(row, 2))->value();
-        a.maxArgN =
-            qobject_cast<QSpinBox *>(table_.cellWidget(row, 3))->value();
-        a.type = static_cast<CustomActions::Action::Type>(
-                     qobject_cast<QComboBox *>(table_.cellWidget(row, 4))
-                     ->currentIndex());
+        {
+            const CellWidgetValues values = getCellWidgetValues(table_, row);
+            a.minArgN = values[0];
+            a.maxArgN = values[1];
+            a.type = static_cast<CustomActions::Action::Type>(values[2]);
+        }
         a.comment = table_.item(row, 5)->text();
         a.enabled = table_.item(row, 6)->checkState() == Qt::Checked;
     }
@@ -214,19 +289,47 @@ void CustomActionsPage::insertRow()
 
 void CustomActionsPage::removeSelectedRows()
 {
-    const auto indices = table_.selectionModel()->selectedRows();
-    if (indices.empty())
-        return;
-
-    std::vector<int> descendingSortedIndices(indices.size());
-    std::transform(indices.begin(), indices.end(),
-                   descendingSortedIndices.begin(),
-                   std::bind(& QModelIndex::row, std::placeholders::_1));
-    std::sort(descendingSortedIndices.begin(), descendingSortedIndices.end(),
-              std::greater<int>());
-
+    const TableIndices descendingSortedIndices =
+        getSortedSelected(table_, std::greater<int>());
     for (int index : descendingSortedIndices)
         table_.removeRow(index);
+}
+
+void CustomActionsPage::moveSelectedRowsUp()
+{
+    TableIndices sortedIndices = getSortedSelected(table_);
+    bool selectionChanged = false;
+    for (std::size_t i = 0; i < sortedIndices.size(); ++i) {
+        const int index = sortedIndices[i];
+        if (index == int(i))
+            continue; // Nowhere to move.
+        table_.insertRow(index - 1);
+        moveRow(table_, index + 1, index - 1);
+        table_.removeRow(index + 1);
+        --sortedIndices[i];
+        selectionChanged = true;
+    }
+    if (selectionChanged)
+        selectRows(table_, sortedIndices);
+}
+
+void CustomActionsPage::moveSelectedRowsDown()
+{
+    TableIndices descendingSortedIndices =
+        getSortedSelected(table_, std::greater<int>());
+    bool selectionChanged = false;
+    for (std::size_t i = 0; i < descendingSortedIndices.size(); ++i) {
+        const int index = descendingSortedIndices[i];
+        if (table_.rowCount() - index == int(i + 1))
+            continue; // Nowhere to move.
+        table_.insertRow(index + 2);
+        moveRow(table_, index, index + 2);
+        table_.removeRow(index);
+        ++descendingSortedIndices[i];
+        selectionChanged = true;
+    }
+    if (selectionChanged)
+        selectRows(table_, descendingSortedIndices);
 }
 
 void CustomActionsPage::onCellChanged(const int row, const int column)

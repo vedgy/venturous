@@ -50,6 +50,8 @@ private slots:
     void addRow();
     void insertRow();
     void removeSelectedRows();
+    void moveSelectedRowsUp();
+    void moveSelectedRowsDown();
     void onCellChanged(int row, int column);
     void onShowHelpToggled();
 };
