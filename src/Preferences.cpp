@@ -77,6 +77,7 @@ const QString localRoot = "History",
 
 const QString localRoot = "Playback",
               autoSetExternalPlayerOptions = "AutoSetExternalPlayerOptions",
+              autoHideExternalPlayerWindow = "AutoHideExternalPlayerWindow",
               nextFromHistory = "NextFromHistory",
               desktopNotifications = "DesktopNotifications",
               startupPolicy = "StartupPolicy";
@@ -160,6 +161,8 @@ void appendPlayback(QDomDocument & doc, QDomElement & root,
 
     e.appendChild(createElement(doc, autoSetExternalPlayerOptions,
                                 playback.autoSetExternalPlayerOptions));
+    e.appendChild(createElement(doc, autoHideExternalPlayerWindow,
+                                playback.autoHideExternalPlayerWindow));
 
     e.appendChild(createElement(doc, nextFromHistory,
                                 playback.nextFromHistory));
@@ -264,6 +267,8 @@ void loadPlayback(const QDomElement & root, Preferences::Playback & playback)
 
     copyUniqueChildsTextTo(e, autoSetExternalPlayerOptions,
                            playback.autoSetExternalPlayerOptions);
+    copyUniqueChildsTextTo(e, autoHideExternalPlayerWindow,
+                           playback.autoHideExternalPlayerWindow);
 
     copyUniqueChildsTextTo(e, nextFromHistory, playback.nextFromHistory);
     copyUniqueChildsTextTo(e, desktopNotifications,
@@ -375,8 +380,9 @@ constexpr Preferences::Playback::StartupPolicyUnderlyingType
 Preferences::Playback::maxStartupPolicy;
 
 Preferences::Playback::Playback()
-    : autoSetExternalPlayerOptions(true), nextFromHistory(false),
-      desktopNotifications(true), startupPolicy(StartupPolicy::doNothing)
+    : autoSetExternalPlayerOptions(true), autoHideExternalPlayerWindow(false),
+      nextFromHistory(false), desktopNotifications(true),
+      startupPolicy(StartupPolicy::doNothing)
 {
 }
 
@@ -498,6 +504,8 @@ bool operator == (const Preferences::Playback & lhs,
 {
     return lhs.history == rhs.history &&
            lhs.autoSetExternalPlayerOptions == rhs.autoSetExternalPlayerOptions
+           &&
+           lhs.autoHideExternalPlayerWindow == rhs.autoHideExternalPlayerWindow
            && lhs.nextFromHistory == rhs.nextFromHistory &&
            lhs.desktopNotifications == rhs.desktopNotifications &&
            lhs.startupPolicy == rhs.startupPolicy;

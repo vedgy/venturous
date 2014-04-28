@@ -110,16 +110,26 @@ void MainWindow::showNotificationAreaIcon()
 {
     if (notificationAreaIcon_ != nullptr)
         return;
-    QMenu * const iconMenu = new QMenu(APPLICATION_NAME, this);
-    iconMenu->addActions( { actions_->playback.play, actions_->playback.stop,
-                            actions_->playback.previous,
-                            actions_->playback.next,
-                            actions_->file.preferences, actions_->file.quit
-                          });
-    iconMenu->insertSeparator(actions_->file.preferences);
+    {
+        QMenu * const iconMenu = new QMenu(APPLICATION_NAME, this);
+        const Actions::Playback & pb = actions_->playback;
+        iconMenu->addActions( { pb.play, pb.stop, pb.previous, pb.next });
+        iconMenu->addSeparator();
+        {
+            QMenu * const externalPlayerMenu =
+                iconMenu->addMenu(tr("External player"));
+            externalPlayerMenu->addActions( { pb.showExternalPlayerWindow,
+                                              pb.hideExternalPlayerWindow
+                                            });
+            iconMenu->addSeparator();
+        }
+        iconMenu->addActions( { actions_->file.preferences,
+                                actions_->file.quit
+                              });
 
-    notificationAreaIcon_.reset(new QSystemTrayIcon(windowIcon(), this));
-    notificationAreaIcon_->setContextMenu(iconMenu);
+        notificationAreaIcon_.reset(new QSystemTrayIcon(windowIcon(), this));
+        notificationAreaIcon_->setContextMenu(iconMenu);
+    }
     connect(notificationAreaIcon_.get(),
             SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
             SLOT(onNotificationAreaIconActivated(

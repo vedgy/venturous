@@ -39,6 +39,12 @@ PlaybackPage::PlaybackPage(QWidget * const parent, const Qt::WindowFlags f)
     layout->addRow(tr("Always set external player options"),
                    & autoSetOptionsCheckBox);
 
+    autoHideWindowCheckBox.setToolTip(
+        tr("If checked, external player window is hidden\n"
+           "each time player is launched."));
+    layout->addRow(tr("Always hide external player window"),
+                   & autoHideWindowCheckBox);
+
     nextFromHistoryCheckBox.setToolTip(
         tr("If checked, \"Next\" action first tries to get next item\n"
            "from history; if it is not available, plays random item.\n"
@@ -72,6 +78,7 @@ void PlaybackPage::setUiPreferences(const Preferences & source)
     const Preferences::Playback & playback = source.playback;
 
     autoSetOptionsCheckBox.setChecked(playback.autoSetExternalPlayerOptions);
+    autoHideWindowCheckBox.setChecked(playback.autoHideExternalPlayerWindow);
     nextFromHistoryCheckBox.setChecked(playback.nextFromHistory);
     desktopNotificationsCheckBox.setChecked(playback.desktopNotifications);
     startupPolicyComboBox.setCurrentIndex(static_cast<int>(
@@ -85,6 +92,7 @@ void PlaybackPage::writeUiPreferencesTo(Preferences & destination) const
     Preferences::Playback & playback = destination.playback;
 
     playback.autoSetExternalPlayerOptions = autoSetOptionsCheckBox.isChecked();
+    playback.autoHideExternalPlayerWindow = autoHideWindowCheckBox.isChecked();
     playback.nextFromHistory = nextFromHistoryCheckBox.isChecked();
     playback.desktopNotifications = desktopNotificationsCheckBox.isChecked();
     playback.startupPolicy = static_cast<Preferences::Playback::StartupPolicy>(

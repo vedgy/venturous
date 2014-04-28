@@ -47,6 +47,7 @@ struct Actions {
         explicit Playback(const Icons::Theme & theme);
         QAction * play, * stop, * previous, * replayLast,
                 * nextFromHistory, * nextRandom, * next, * playAll;
+        QAction * showExternalPlayerWindow, * hideExternalPlayerWindow;
         QAction * importHistory, * exportHistory, * clearHistory;
     } playback;
 

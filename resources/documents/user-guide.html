@@ -7,7 +7,7 @@
 </head>
 
 <body>
-<h1>Venturous - version 0.9.4</h1>
+<h1>Venturous - version 0.9.5-dev</h1>
 
 <a id="Index"><h2>Table of contents</h2></a>
     <ul>
@@ -243,10 +243,10 @@
     Venturous does not interact with external player at all. In playing mode
     Venturous controls external player: starts playing next random item from
     playlist when playback finishes; quits Audacious before quitting itself.</p>
-    <p>There are eight actions and "History" submenu in Playback menu.
-    All these 8 actions are available as ventool commands.
-    Four most common actions are present on toolbar and notification area icon
-    context menu.</p>
+    <p>There are eight actions, "External player" and "History" submenus in
+    Playback menu. All these 8 actions are available as ventool commands.
+    Four most common actions and actions from "External player" submenu are
+    present on toolbar and in notification area icon context menu.</p>
     <ol>
         <li>"Play" - launches external player and continues playing whatever
         was played last time in that external player (Audacious); enters
@@ -271,6 +271,8 @@
         <li>In case of failure (no corresponding item in history or
         empty playlist), "Stop" action is triggered.</li>
     </ul>
+    <p>"External player" submenu contains two actions: "Show window" and
+    "Hide window", which allow to show / hide Audacious main window.</p>
     <p>All external player's functionality - both actions and options - is
     also available to user. Note: Audacious is started with special command line
     arguments, which ensure that it quits after playback is finished.
@@ -280,13 +282,22 @@
     stopping playback in Audacious, managed by Venturous, is changed.
     Pausing playback in Audacious works as expected though.</p>
     <p>Apart from mentioned above "Next from history" option, "Playback" tab of
-    Preferences contains History options and 3 other playback options:</p>
+    Preferences contains History options and 4 other playback options:</p>
     <ol>
         <li>"Always set external player options" - this option is on by default,
         which ensures that external player is configured properly. But if user
         desires to change those options manually to achieve some peculiar
         behavior or if he never changes them and wants to save CPU cycles,
         switching setting options off can be useful.</li>
+        <li>"Always hide external player window" - allows to hide Audacious
+        window each time player is launched. This option is especially
+        useful if Audacious notification area icon ("Status Icon") is disabled.
+        In this case hiding external player window prevents Audacious window
+        popping up annoyance. Note that with Audacious Status Icon disabled,
+        user has to issue <b><i>audtool&nbsp;mainwin-show&nbsp;on</i></b>
+        command or trigger "Show external player window" action in Venturous
+        Playback menu / toolbar in order to show Audacious main window after
+        hiding it.</li>
         <li>"Desktop notifications" - if enabled, desktop notification is
         shown after played item is changed. If <i>libnotify</i> is not
         installed, notifications will not be shown and this option should be

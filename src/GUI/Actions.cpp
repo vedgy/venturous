@@ -54,6 +54,8 @@ Actions::Playback::Playback(const Icons::Theme & theme)
                              tr("Next &random"), this)),
       next(new QAction(theme.playbackNext(), tr("&Next"), this)),
       playAll(new QAction(theme.playbackPlayAll(), tr("Play &all"), this)),
+      showExternalPlayerWindow(new QAction(tr("&Show window"), this)),
+      hideExternalPlayerWindow(new QAction(tr("&Hide window"), this)),
       importHistory(new QAction(theme.load(), tr("&Import ..."), this)),
       exportHistory(new QAction(theme.saveAs(), tr("&Export ..."), this)),
       clearHistory(new QAction(theme.clear(), tr("&Clear"), this))
@@ -74,13 +76,23 @@ Actions::Playback::Playback(const Icons::Theme & theme)
 
     playAll->setIconText("PA");
 
-    const QString historyName = tr(" history");
-    importHistory->setIconText("Im");
-    importHistory->setToolTip(tr("Import") + historyName);
-    exportHistory->setIconText("Ex");
-    exportHistory->setToolTip(tr("Export") + historyName);
-    clearHistory->setIconText("Cl");
-    clearHistory->setToolTip(tr("Clear") + historyName);
+    {
+        const QString externalPlayerWindow = tr(" external player window");
+        showExternalPlayerWindow->setIconText("SPW");
+        showExternalPlayerWindow->setToolTip(tr("Show") + externalPlayerWindow);
+        hideExternalPlayerWindow->setIconText("HPW");
+        hideExternalPlayerWindow->setToolTip(tr("Hide") + externalPlayerWindow);
+    }
+
+    {
+        const QString historyName = tr(" history");
+        importHistory->setIconText("Im");
+        importHistory->setToolTip(tr("Import") + historyName);
+        exportHistory->setIconText("Ex");
+        exportHistory->setToolTip(tr("Export") + historyName);
+        clearHistory->setIconText("Cl");
+        clearHistory->setToolTip(tr("Clear") + historyName);
+    }
 }
 
 

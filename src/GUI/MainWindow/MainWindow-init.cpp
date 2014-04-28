@@ -70,12 +70,24 @@ void initMenuBar(QMenuBar & menuBar, const Actions & actions)
     {
         const Actions::Playback & pbA = actions.playback;
         QMenu * const playback = menuBar.addMenu(QObject::tr("Play&back"));
-        playback->addActions( { pbA.play, pbA.stop, pbA.previous, pbA.replayLast});
+        playback->addActions( { pbA.play, pbA.stop, pbA.previous,
+                                pbA.replayLast
+                              });
         playback->insertSeparator(pbA.previous);
         playback->addSeparator();
-        playback->addActions( { pbA.nextFromHistory, pbA.nextRandom, pbA.next });
+        playback->addActions( { pbA.nextFromHistory, pbA.nextRandom,
+                                pbA.next
+                              });
         playback->addSeparator();
         playback->addAction(pbA.playAll);
+        playback->addSeparator();
+        {
+            QMenu * const externalPlayer =
+                playback->addMenu(QObject::tr("External player"));
+            externalPlayer->addActions( { pbA.showExternalPlayerWindow,
+                                          pbA.hideExternalPlayerWindow
+                                        });
+        }
         {
             QMenu * const history = playback->addMenu(QObject::tr("History"));
             history->addActions( { pbA.importHistory, pbA.exportHistory });
@@ -115,6 +127,11 @@ void initToolBar(QToolBar & toolBar, const Actions & actions)
 {
     const Actions::Playback & pbA = actions.playback;
     toolBar.addActions( { pbA.play, pbA.stop, pbA.previous, pbA.next });
+    addStretch(toolBar);
+
+    toolBar.addActions( { pbA.showExternalPlayerWindow,
+                          pbA.hideExternalPlayerWindow
+                        });
     addStretch(toolBar);
 
     toolBar.addAction(actions.help.help);

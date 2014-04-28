@@ -153,6 +153,9 @@ private slots:
     void playbackReplayLast();
     void playbackNextFromHistory();
 
+    void showExternalPlayerWindow();
+    void hideExternalPlayerWindow();
+
     void importHistory();
     void exportHistory();
 };

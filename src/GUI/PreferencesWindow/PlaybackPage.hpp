@@ -36,6 +36,7 @@ public:
 
 private:
     QCheckBox autoSetOptionsCheckBox;
+    QCheckBox autoHideWindowCheckBox;
     QCheckBox nextFromHistoryCheckBox;
     QCheckBox desktopNotificationsCheckBox;
     QComboBox startupPolicyComboBox;

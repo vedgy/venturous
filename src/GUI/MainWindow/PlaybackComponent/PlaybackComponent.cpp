@@ -23,6 +23,8 @@
 # include "Actions.hpp"
 # include "Preferences.hpp"
 
+# include <VenturousCore/MediaPlayer.hpp>
+
 # include <QtCoreUtilities/String.hpp>
 
 # include <QString>
@@ -93,6 +95,11 @@ preferences.playback.history)
             SLOT(playbackReplayLast()));
     connect(actions.nextFromHistory, SIGNAL(triggered(bool)),
             SLOT(playbackNextFromHistory()));
+
+    connect(actions.showExternalPlayerWindow, SIGNAL(triggered(bool)),
+            SLOT(showExternalPlayerWindow()));
+    connect(actions.hideExternalPlayerWindow, SIGNAL(triggered(bool)),
+            SLOT(hideExternalPlayerWindow()));
 
     connect(actions.importHistory, SIGNAL(triggered(bool)),
             SLOT(importHistory()));
@@ -172,6 +179,7 @@ void PlaybackComponent::setPreferencesExceptHistory(
     }
     const Preferences::Playback & pb = preferences.playback;
     mediaPlayer_.setAutoSetOptions(pb.autoSetExternalPlayerOptions);
+    mediaPlayer_.setAutoHideWindow(pb.autoHideExternalPlayerWindow);
     desktopNotifications_ = pb.desktopNotifications;
     saveHistoryToDiskImmediately_ = pb.history.saveToDiskImmediately;
     if (saveHistoryToDiskImmediately_)
@@ -346,6 +354,16 @@ void PlaybackComponent::playbackNextFromHistory()
 {
     if (! playNextFromHistory())
         playbackStop();
+}
+
+void PlaybackComponent::showExternalPlayerWindow()
+{
+    MediaPlayer::setPlayerWindowVisible(true);
+}
+
+void PlaybackComponent::hideExternalPlayerWindow()
+{
+    MediaPlayer::setPlayerWindowVisible(false);
 }
 
 void PlaybackComponent::importHistory()

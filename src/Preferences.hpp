@@ -66,6 +66,7 @@ public:
 
 
         bool autoSetExternalPlayerOptions;
+        bool autoHideExternalPlayerWindow;
         bool nextFromHistory;
         bool desktopNotifications;
         StartupPolicy startupPolicy;

@@ -40,13 +40,13 @@ public:
     /// patterns are removed. Then supplied patterns are added (if unknown) and
     /// checked.
     void setUiPatterns(const QStringList & patterns);
-    /// @brief Returns all (unique!) checked patterns.
+    /// @return All (unique!) checked patterns.
     QStringList getUiPatterns() const;
 
     /// @brief Adds unchecked patterns.
     void addUnknownPatterns(const QStringList & unknownPatterns);
 
-    /// @brief Returns all (unique!) selected unknown patterns.
+    /// @return All (unique!) selected unknown patterns.
     QStringList getSelectedUnknownPatterns() const;
 
 public slots:
