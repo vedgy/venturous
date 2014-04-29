@@ -32,6 +32,7 @@
 # include <QObject>
 # include <QModelIndex>
 # include <QAbstractItemModel>
+# include <QIcon>
 # include <QTableWidgetItem>
 # include <QItemSelectionRange>
 # include <QItemSelection>
@@ -117,10 +118,11 @@ void addLabel(const QString & text, QWidget * parent, QVBoxLayout * layout)
     layout->addWidget(label);
 }
 
-void addButton(const QString & text, const QString & tooltip, QWidget * parent,
+void addButton(const QIcon & icon, const QString & text,
+               const QString & tooltip, QWidget * parent,
                const char * slot, QHBoxLayout * layout)
 {
-    QPushButton * const button = new QPushButton(text, parent);
+    QPushButton * const button = new QPushButton(icon, text, parent);
     button->setToolTip(tooltip);
     button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     parent->connect(button, SIGNAL(clicked(bool)), slot);
@@ -189,6 +191,7 @@ void selectRows(QTableWidget & table, const TableIndices & indices)
 
 
 CustomActionsPage::CustomActionsPage(
+    const QIcon & addIcon, const QIcon & removeIcon,
     QWidget * const parent, const Qt::WindowFlags f)
     : PreferencesPage(parent, f)
 {
@@ -205,13 +208,14 @@ CustomActionsPage::CustomActionsPage(
     layout->addWidget(& table_);
     {
         QHBoxLayout * const actionsLayout = new QHBoxLayout;
-        addButton(tr("Add row"), tr("Add row at the bottom of the table."),
+        addButton(addIcon, tr("Add row"),
+                  tr("Add row at the bottom of the table."),
                   this, SLOT(addRow()), actionsLayout);
-        addButton(tr("Insert row"),
+        addButton(addIcon, tr("Insert row"),
                   tr("Insert a new row before the first selected row\n"
                      "or at the bottom of the table if nothing is selected."),
                   this, SLOT(insertRow()), actionsLayout);
-        addButton(tr("Remove selected"),
+        addButton(removeIcon, tr("Remove selected"),
                   tr("Remove selected rows from the table."),
                   this, SLOT(removeSelectedRows()), actionsLayout);
 
@@ -346,7 +350,7 @@ void CustomActionsPage::onCellChanged(const int row, const int column)
         const bool enabled =
             table_.item(row, column)->checkState() == Qt::Checked;
         for (int col = 0; col < column; ++col) {
-            const auto item = table_.item(row, col);
+            QTableWidgetItem * const item = table_.item(row, col);
             if (item == nullptr)
                 table_.cellWidget(row, col)->setEnabled(enabled);
             else {

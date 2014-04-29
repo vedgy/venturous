@@ -179,6 +179,7 @@ MainWindow::MainWindow(std::unique_ptr<QSharedMemory> sharedMemory,
 
         actions_.reset(new Actions(* theme));
         setWindowIcon(theme->venturous());
+        preferencesComponent_->setTheme(* theme);
     }
 
     initMenuBar(menuBar_, * actions_);

@@ -62,14 +62,18 @@ public:
     const QIcon & playbackNextRandom() const;
     const QIcon & playbackNext() const;
     const QIcon & playbackPlayAll() const;
+    const QIcon & audioPlayerShow() const;
+    const QIcon & audioPlayerHide() const;
 
     const QIcon & edit() const;
     const QIcon & apply() const;
     const QIcon & cancel() const;
     const QIcon & add() const;
+    const QIcon & remove() const;
     const QIcon & addDir() const;
     const QIcon & cleanUp() const;
     const QIcon & clear() const;
+    const QIcon & undo() const;
     const QIcon & revert() const;
     const QIcon & load() const;
     const QIcon & saveAs() const;
@@ -83,7 +87,7 @@ public:
     const QIcon & bothMediaDir() const;
 
 private:
-    std::array<QIcon, 27> icons_;
+    std::array<QIcon, 31> icons_;
 };
 
 }

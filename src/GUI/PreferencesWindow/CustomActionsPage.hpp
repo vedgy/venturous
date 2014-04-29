@@ -21,20 +21,23 @@
 
 # include "PreferencesPage.hpp"
 
-# include <QFrame>
+# include <QtGlobal>
 # include <QTableWidget>
 
 # include <memory>
 
 
 class Preferences;
+QT_FORWARD_DECLARE_CLASS(QIcon)
+QT_FORWARD_DECLARE_CLASS(QFrame)
 
 class CustomActionsPage : public PreferencesPage
 {
     Q_OBJECT
 public:
-    explicit CustomActionsPage(QWidget * parent = nullptr,
-                               Qt::WindowFlags f = 0);
+    explicit CustomActionsPage(
+        const QIcon & addIcon, const QIcon & removeIcon,
+        QWidget * parent = nullptr, Qt::WindowFlags f = 0);
 
     void setUiPreferences(const Preferences & source) override;
     void writeUiPreferencesTo(Preferences & destination) const override;

@@ -3,5 +3,5 @@ set -e
 cd "$( dirname "${BASH_SOURCE[0]}" )"
 source set_paths
 cd "$path_to_theme"
-url="https://docs.google.com/uc?export=download&id=0B0F-aqLyFk_PZ1VSby05U2EwRlE"
+url="https://docs.google.com/uc?export=download&id=0B0F-aqLyFk_PQXMzM3pJc1ZuR28"
 ./download_all_png "$url"

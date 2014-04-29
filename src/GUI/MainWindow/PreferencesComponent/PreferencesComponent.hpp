@@ -24,13 +24,17 @@
 # include <QtGlobal>
 # include <QString>
 # include <QObject>
+# include <QIcon>
 
 # include <memory>
 
 
 class InputController;
 class PreferencesWindow;
-QT_FORWARD_DECLARE_CLASS(QIcon)
+namespace Icons
+{
+class Theme;
+}
 QT_FORWARD_DECLARE_CLASS(QWidget)
 
 /// WARNING: each method can block execution if not stated otherwise.
@@ -44,6 +48,9 @@ public:
                                   const QString & preferencesDir);
     /// NOTE: does not block execution.
     ~PreferencesComponent();
+
+    /// NOTE: does not block execution.
+    void setTheme(const Icons::Theme & theme);
 
     /// NOTE: does not block execution.
     void showPreferencesWindow(const QIcon & addIcon, QWidget * parent);
@@ -87,6 +94,7 @@ private:
 
     InputController & inputController_;
     const QString preferencesFilename_;
+    QIcon removeIcon_;
 
     Preferences savedPreferences_;
     std::unique_ptr<PreferencesWindow> preferencesWindow_;

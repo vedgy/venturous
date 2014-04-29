@@ -47,8 +47,8 @@
 
 namespace
 {
-constexpr std::size_t playbackStartIndex = 3, playlistStartIndex = 11,
-                      helpStartIndex = 21, addingPolicyStartIndex = 23;
+constexpr std::size_t playbackStartIndex = 3, playlistStartIndex = 13,
+                      helpStartIndex = 25, addingPolicyStartIndex = 27;
 
 bool isEmpty(const QIcon & icon)
 {
@@ -243,6 +243,16 @@ const QIcon & Theme::playbackPlayAll() const
     return icons_[playbackStartIndex + 7];
 }
 
+const QIcon & Theme::audioPlayerShow() const
+{
+    return icons_[playbackStartIndex + 8];
+}
+
+const QIcon & Theme::audioPlayerHide() const
+{
+    return icons_[playbackStartIndex + 9];
+}
+
 
 const QIcon & Theme::edit() const
 {
@@ -264,34 +274,44 @@ const QIcon & Theme::add() const
     return icons_[playlistStartIndex + 3];
 }
 
-const QIcon & Theme::addDir() const
+const QIcon & Theme::remove() const
 {
     return icons_[playlistStartIndex + 4];
 }
 
-const QIcon & Theme::cleanUp() const
+const QIcon & Theme::addDir() const
 {
     return icons_[playlistStartIndex + 5];
 }
 
-const QIcon & Theme::clear() const
+const QIcon & Theme::cleanUp() const
 {
     return icons_[playlistStartIndex + 6];
 }
 
-const QIcon & Theme::revert() const
+const QIcon & Theme::clear() const
 {
     return icons_[playlistStartIndex + 7];
 }
 
-const QIcon & Theme::load() const
+const QIcon & Theme::undo() const
 {
     return icons_[playlistStartIndex + 8];
 }
 
-const QIcon & Theme::saveAs() const
+const QIcon & Theme::revert() const
 {
     return icons_[playlistStartIndex + 9];
+}
+
+const QIcon & Theme::load() const
+{
+    return icons_[playlistStartIndex + 10];
+}
+
+const QIcon & Theme::saveAs() const
+{
+    return icons_[playlistStartIndex + 11];
 }
 
 

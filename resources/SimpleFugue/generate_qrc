@@ -2,5 +2,5 @@
 set -ex
 cd "$( dirname "${BASH_SOURCE[0]}" )"
 source set_paths
-python "$path_to_theme/scripts/generate-qrc-2.py" \
+python "$path_to_theme/scripts/generate_qrc_2.py" \
         "$path_to_theme" "SimpleFugue.qrc" "$icon_list_abs_path"

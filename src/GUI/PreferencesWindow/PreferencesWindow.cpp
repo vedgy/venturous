@@ -50,11 +50,11 @@ void addScrollableTab(QTabWidget * parent,
 
 
 PreferencesWindow::PreferencesWindow(
-    Preferences & preferences, const QIcon & addIcon, QWidget * const parent)
+    Preferences & preferences, const Icons & icons, QWidget * const parent)
     : QTabWidget(parent), preferences_(preferences),
       tabs_ {{
-        new GeneralPage, new PlaybackPage, new FilenamePatternsPage(addIcon),
-        new AddingPolicyPage, new CustomActionsPage
+        new GeneralPage, new PlaybackPage, new FilenamePatternsPage(icons.add),
+        new AddingPolicyPage, new CustomActionsPage(icons.add, icons.remove)
     }
 } {
     setWindowFlags(Qt::Dialog);

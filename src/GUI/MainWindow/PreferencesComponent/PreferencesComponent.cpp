@@ -26,6 +26,7 @@
 # include "InputController.hpp"
 # include "WindowUtilities.hpp"
 # include "PreferencesWindow.hpp"
+# include "Icons.hpp"
 
 # include <QtCoreUtilities/Error.hpp>
 # include <QtCoreUtilities/String.hpp>
@@ -65,12 +66,18 @@ PreferencesComponent::~PreferencesComponent()
     savePreferences(true);
 }
 
+void PreferencesComponent::setTheme(const Icons::Theme & theme)
+{
+    removeIcon_ = theme.remove();
+}
+
 void PreferencesComponent::showPreferencesWindow(
     const QIcon & addIcon, QWidget * const parent)
 {
     if (preferencesWindow_ == nullptr) {
         preferencesWindow_.reset(
-            new PreferencesWindow(preferences, addIcon, parent));
+            new PreferencesWindow(preferences, { addIcon, removeIcon_ },
+                                  parent));
         preferencesWindow_->setUiPreferences();
         connect(preferencesWindow_.get(), SIGNAL(preferencesUpdated()),
                 SLOT(onPreferencesUpdated()));

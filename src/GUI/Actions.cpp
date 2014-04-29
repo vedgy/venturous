@@ -54,8 +54,10 @@ Actions::Playback::Playback(const Icons::Theme & theme)
                              tr("Next &random"), this)),
       next(new QAction(theme.playbackNext(), tr("&Next"), this)),
       playAll(new QAction(theme.playbackPlayAll(), tr("Play &all"), this)),
-      showExternalPlayerWindow(new QAction(tr("&Show window"), this)),
-      hideExternalPlayerWindow(new QAction(tr("&Hide window"), this)),
+      showExternalPlayerWindow(new QAction(theme.audioPlayerShow(),
+                                           tr("&Show window"), this)),
+      hideExternalPlayerWindow(new QAction(theme.audioPlayerHide(),
+                                           tr("&Hide window"), this)),
       importHistory(new QAction(theme.load(), tr("&Import ..."), this)),
       exportHistory(new QAction(theme.saveAs(), tr("&Export ..."), this)),
       clearHistory(new QAction(theme.clear(), tr("&Clear"), this))

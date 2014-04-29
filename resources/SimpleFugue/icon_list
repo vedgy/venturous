@@ -9,13 +9,17 @@ actions/media-history-next
 actions/media-next-random
 actions/media-skip-forward
 actions/media-play-all
+actions/audio-player-show
+actions/audio-player-hide
 actions/list-edit
 actions/dialog-ok-apply
 actions/dialog-cancel
 actions/list-add
+actions/list-remove
 places/folder-add
 actions/clean-up
 actions/edit-clear
+actions/edit-undo
 actions/document-revert
 actions/document-open
 actions/document-save-as

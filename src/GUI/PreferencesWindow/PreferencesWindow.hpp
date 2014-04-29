@@ -33,8 +33,13 @@ class PreferencesWindow : public QTabWidget
 {
     Q_OBJECT
 public:
-    explicit PreferencesWindow(Preferences & preferences, const QIcon & addIcon,
-                               QWidget * parent = nullptr);
+    struct Icons {
+        const QIcon & add, & remove;
+    };
+
+    explicit PreferencesWindow(
+        Preferences & preferences, const Icons & icons,
+        QWidget * parent = nullptr);
 
     /// @brief Configures UI according to preferences_.
     void setUiPreferences();
