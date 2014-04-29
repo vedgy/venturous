@@ -16,10 +16,11 @@
  Venturous.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-# ifndef VENTUROUS_FILENAME_PATTERNS_PAGE_HPP
-# define VENTUROUS_FILENAME_PATTERNS_PAGE_HPP
+# ifndef VENTUROUS_ADDING_DIRECTORY_PAGE_HPP
+# define VENTUROUS_ADDING_DIRECTORY_PAGE_HPP
 
 # include "PreferencesPage.hpp"
+# include "AddingPolicyFrame.hpp"
 # include "PatternListWidget.hpp"
 
 # include <QtGlobal>
@@ -30,13 +31,13 @@ QT_FORWARD_DECLARE_CLASS(QString)
 QT_FORWARD_DECLARE_CLASS(QIcon)
 QT_FORWARD_DECLARE_CLASS(QGridLayout)
 
-class FilenamePatternsPage : public PreferencesPage
+class AddingDirectoryPage : public PreferencesPage
 {
     Q_OBJECT
 public:
-    explicit FilenamePatternsPage(const QIcon & addIcon,
-                                  QWidget * parent = nullptr,
-                                  Qt::WindowFlags f = 0);
+    explicit AddingDirectoryPage(const QIcon & addIcon,
+                                 QWidget * parent = nullptr,
+                                 Qt::WindowFlags f = 0);
 
     void setUiPreferences(const Preferences & source) override;
     void writeUiPreferencesTo(Preferences & destination) const override;
@@ -48,6 +49,7 @@ private:
     void addCopyButton(QGridLayout * layout, int row, const QString & iconName,
                        const QString & tooltip, const char * slot);
 
+    AddingPolicyFrame addingPolicyFrame_;
     PatternListWidget filePatternList_, mediaDirFilePatternList_;
 
 private slots:
@@ -55,4 +57,4 @@ private slots:
     void copyRight();
 };
 
-# endif // VENTUROUS_FILENAME_PATTERNS_PAGE_HPP
+# endif // VENTUROUS_ADDING_DIRECTORY_PAGE_HPP

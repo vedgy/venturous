@@ -37,9 +37,8 @@ public:
         const QIcon & add, & remove;
     };
 
-    explicit PreferencesWindow(
-        Preferences & preferences, const Icons & icons,
-        QWidget * parent = nullptr);
+    explicit PreferencesWindow(Preferences & preferences, const Icons & icons,
+                               QWidget * parent = nullptr);
 
     /// @brief Configures UI according to preferences_.
     void setUiPreferences();
@@ -55,7 +54,7 @@ private:
 
     Preferences & preferences_;
 
-    const std::array<PreferencesPage *, 5> tabs_;
+    const std::array<PreferencesPage *, 4> tabs_;
 };
 
 # endif // VENTUROUS_PREFERENCES_WINDOW_HPP

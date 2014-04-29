@@ -100,9 +100,9 @@ set(Sources
     ${PreferencesWindow_Path}/GeneralPage.cpp
     ${PreferencesWindow_Path}/HistoryPreferencesFrame.cpp
     ${PreferencesWindow_Path}/PlaybackPage.cpp
+    ${PreferencesWindow_Path}/AddingPolicyFrame.cpp
     ${PreferencesWindow_Path}/PatternListWidget.cpp
-    ${PreferencesWindow_Path}/FilenamePatternsPage.cpp
-    ${PreferencesWindow_Path}/AddingPolicyPage.cpp
+    ${PreferencesWindow_Path}/AddingDirectoryPage.cpp
     ${PreferencesWindow_Path}/CustomActionsPage.cpp
     ${PreferencesWindow_Path}/PreferencesWindow.cpp
 

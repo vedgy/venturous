@@ -16,7 +16,7 @@
  Venturous.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-# include "FilenamePatternsPage.hpp"
+# include "AddingDirectoryPage.hpp"
 
 # include "Icons.hpp"
 # include "Preferences.hpp"
@@ -24,59 +24,73 @@
 # include <QSize>
 # include <QString>
 # include <QIcon>
+# include <QVBoxLayout>
 # include <QGridLayout>
 # include <QLabel>
 # include <QPushButton>
 
 
-FilenamePatternsPage::FilenamePatternsPage(const QIcon & addIcon,
+AddingDirectoryPage::AddingDirectoryPage(const QIcon & addIcon,
         QWidget * const parent, const Qt::WindowFlags f)
     : PreferencesPage(parent, f)
 {
-    QGridLayout * const layout = new QGridLayout(this);
+    QVBoxLayout * const mainLayout = new QVBoxLayout(this);
 
-    const QString filesMatchPatterns =
-        tr("Files that match checked patterns\n");
-    const QString copySelectedPatterns =
-        tr("Copy selected patterns from %1 to %2 column.");
-    const QString left = tr("left"), right = tr("right");
+    addingPolicyFrame_.setFrameStyle(QFrame::Panel | QFrame::Raised);
+    addingPolicyFrame_.setLineWidth(2);
+    mainLayout->addWidget(& addingPolicyFrame_);
+    mainLayout->addSpacing(10);
+    {
+        QGridLayout * const layout = new QGridLayout;
 
-    filePatternList_.setToolTip(filesMatchPatterns +
-                                tr("can be added as playable items."));
-    addColumn(layout, 0, tr("File patterns"), filePatternList_, addIcon);
+        const QString filesMatchPatterns =
+            tr("Files that match checked patterns\n");
+        const QString copySelectedPatterns =
+            tr("Copy selected patterns from %1 to %2 column.");
+        const QString left = tr("left"), right = tr("right");
 
-    addCopyButton(layout, 2, "CopyRight", copySelectedPatterns.arg(left, right),
-                  SLOT(copyRight()));
+        filePatternList_.setToolTip(filesMatchPatterns +
+                                    tr("can be added as playable items."));
+        addColumn(layout, 0, tr("File patterns"), filePatternList_, addIcon);
 
-    addCopyButton(layout, 4, "CopyLeft", copySelectedPatterns.arg(right, left),
-                  SLOT(copyLeft()));
+        addCopyButton(layout, 2, "CopyRight",
+                      copySelectedPatterns.arg(left, right), SLOT(copyRight()));
 
-    mediaDirFilePatternList_.setToolTip(
-        filesMatchPatterns + tr("mark their parent directory as media dir."));
-    addColumn(layout, 2, tr("Media directory file patterns"),
-              mediaDirFilePatternList_, addIcon);
+        addCopyButton(layout, 4, "CopyLeft",
+                      copySelectedPatterns.arg(right, left), SLOT(copyLeft()));
 
-    layout->setRowStretch(1, 3);
-    layout->setRowStretch(3, 1);
-    layout->setRowStretch(5, 3);
+        mediaDirFilePatternList_.setToolTip(
+            filesMatchPatterns +
+            tr("mark their parent directory as media dir."));
+        addColumn(layout, 2, tr("Media directory file patterns"),
+                  mediaDirFilePatternList_, addIcon);
+
+        layout->setRowStretch(1, 3);
+        layout->setRowStretch(3, 1);
+        layout->setRowStretch(5, 3);
+
+        mainLayout->addLayout(layout);
+    }
 }
 
-void FilenamePatternsPage::setUiPreferences(const Preferences & source)
+void AddingDirectoryPage::setUiPreferences(const Preferences & source)
 {
+    addingPolicyFrame_.setUiPreferences(source.addingPolicy);
     filePatternList_.setUiPatterns(source.addingPolicy.filePatterns);
     mediaDirFilePatternList_.setUiPatterns(
         source.addingPolicy.mediaDirFilePatterns);
 }
 
-void FilenamePatternsPage::writeUiPreferencesTo(Preferences & destination) const
+void AddingDirectoryPage::writeUiPreferencesTo(Preferences & destination) const
 {
+    addingPolicyFrame_.writeUiPreferencesTo(destination.addingPolicy);
     destination.addingPolicy.filePatterns = filePatternList_.getUiPatterns();
     destination.addingPolicy.mediaDirFilePatterns =
         mediaDirFilePatternList_.getUiPatterns();
 }
 
 
-void FilenamePatternsPage::addColumn(
+void AddingDirectoryPage::addColumn(
     QGridLayout * const layout, const int column,
     const QString & caption, PatternListWidget & patternList,
     const QIcon & addIcon)
@@ -91,7 +105,7 @@ void FilenamePatternsPage::addColumn(
     layout->addWidget(addButton, 6, column);
 }
 
-void FilenamePatternsPage::addCopyButton(
+void AddingDirectoryPage::addCopyButton(
     QGridLayout * const layout, const int row, const QString & iconName,
     const QString & tooltip, const char * const slot)
 {
@@ -105,13 +119,13 @@ void FilenamePatternsPage::addCopyButton(
 }
 
 
-void FilenamePatternsPage::copyLeft()
+void AddingDirectoryPage::copyLeft()
 {
     filePatternList_.addUnknownPatterns(
         mediaDirFilePatternList_.getSelectedUnknownPatterns());
 }
 
-void FilenamePatternsPage::copyRight()
+void AddingDirectoryPage::copyRight()
 {
     mediaDirFilePatternList_.addUnknownPatterns(
         filePatternList_.getSelectedUnknownPatterns());

@@ -16,15 +16,18 @@
  Venturous.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-# include "AddingPolicyPage.hpp"
+# include "AddingPolicyFrame.hpp"
 
-# include "Preferences.hpp"
+# include "GuiUtilities.hpp"
+
+# include <VenturousCore/AddingItems.hpp>
 
 # include <QString>
 # include <QObject>
 # include <QHBoxLayout>
 # include <QVBoxLayout>
 # include <QFrame>
+# include <QLabel>
 # include <QCheckBox>
 
 
@@ -56,12 +59,14 @@ void addIfBothSubOption(
 }
 
 
-AddingPolicyPage::AddingPolicyPage(
+AddingPolicyFrame::AddingPolicyFrame(
     QWidget * const parent, const Qt::WindowFlags f)
-    : PreferencesPage(parent, f), addFilesCheckBox(tr("Add files")),
+    : QFrame(parent, f), addFilesCheckBox(tr("Add files")),
       addMediaDirsCheckBox(tr("Add media dirs"))
 {
     QVBoxLayout * const mainLayout = new QVBoxLayout(this);
+    mainLayout->addWidget(GuiUtilities::getCaptionLabel(tr("Policy"), this),
+                          0, Qt::AlignCenter);
     {
         const QString tooltip =
             tr("If checked, %1\nare considered playable items.");
@@ -93,29 +98,27 @@ AddingPolicyPage::AddingPolicyPage(
         addIfBothSubOption(subOptionLayout, ifBothAddMediaDirsCheckBox,
                            tr("media dirs"));
     }
-    mainLayout->addStretch();
 }
 
-void AddingPolicyPage::setUiPreferences(const Preferences & source)
+void AddingPolicyFrame::setUiPreferences(const AddingItems::Policy & source)
 {
-    const AddingItems::Policy & policy = source.addingPolicy;
-    addFilesCheckBox.setChecked(policy.addFiles);
-    addMediaDirsCheckBox.setChecked(policy.addMediaDirs);
-    ifBothAddFilesCheckBox.setChecked(policy.ifBothAddFiles);
-    ifBothAddMediaDirsCheckBox.setChecked(policy.ifBothAddMediaDirs);
+    addFilesCheckBox.setChecked(source.addFiles);
+    addMediaDirsCheckBox.setChecked(source.addMediaDirs);
+    ifBothAddFilesCheckBox.setChecked(source.ifBothAddFiles);
+    ifBothAddMediaDirsCheckBox.setChecked(source.ifBothAddMediaDirs);
 }
 
-void AddingPolicyPage::writeUiPreferencesTo(Preferences & destination) const
+void AddingPolicyFrame::writeUiPreferencesTo(
+    AddingItems::Policy & destination) const
 {
-    AddingItems::Policy & policy = destination.addingPolicy;
-    policy.addFiles = addFilesCheckBox.isChecked();
-    policy.addMediaDirs = addMediaDirsCheckBox.isChecked();
-    policy.ifBothAddFiles = ifBothAddFilesCheckBox.isChecked();
-    policy.ifBothAddMediaDirs = ifBothAddMediaDirsCheckBox.isChecked();
+    destination.addFiles = addFilesCheckBox.isChecked();
+    destination.addMediaDirs = addMediaDirsCheckBox.isChecked();
+    destination.ifBothAddFiles = ifBothAddFilesCheckBox.isChecked();
+    destination.ifBothAddMediaDirs = ifBothAddMediaDirsCheckBox.isChecked();
 }
 
 
-void AddingPolicyPage::onPrimaryCheckBoxToggled()
+void AddingPolicyFrame::onPrimaryCheckBoxToggled()
 {
     const bool bothPrimaryChecked = addFilesCheckBox.isChecked() &&
                                     addMediaDirsCheckBox.isChecked();

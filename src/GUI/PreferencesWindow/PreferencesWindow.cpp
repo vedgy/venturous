@@ -20,8 +20,7 @@
 
 # include "GeneralPage.hpp"
 # include "PlaybackPage.hpp"
-# include "FilenamePatternsPage.hpp"
-# include "AddingPolicyPage.hpp"
+# include "AddingDirectoryPage.hpp"
 # include "CustomActionsPage.hpp"
 # include "Preferences.hpp"
 
@@ -53,8 +52,8 @@ PreferencesWindow::PreferencesWindow(
     Preferences & preferences, const Icons & icons, QWidget * const parent)
     : QTabWidget(parent), preferences_(preferences),
       tabs_ {{
-        new GeneralPage, new PlaybackPage, new FilenamePatternsPage(icons.add),
-        new AddingPolicyPage, new CustomActionsPage(icons.add, icons.remove)
+        new GeneralPage, new PlaybackPage, new AddingDirectoryPage(icons.add),
+        new CustomActionsPage(icons.add, icons.remove)
     }
 } {
     setWindowFlags(Qt::Dialog);
@@ -63,9 +62,8 @@ PreferencesWindow::PreferencesWindow(
     setWindowTitle(tr("%1 preferences").arg(APPLICATION_NAME));
     addScrollableTab(this, tabs_[0], tr("&General"));
     addScrollableTab(this, tabs_[1], tr("&Playback"));
-    addScrollableTab(this, tabs_[2], tr("&Filename patterns"));
-    addScrollableTab(this, tabs_[3], tr("&Directory adding policy"));
-    addScrollableTab(this, tabs_[4], tr("&Custom actions"));
+    addScrollableTab(this, tabs_[2], tr("&Adding directory"));
+    addScrollableTab(this, tabs_[3], tr("&Custom actions"));
 }
 
 
