@@ -104,6 +104,7 @@ set(Sources
     ${PreferencesWindow_Path}/PatternListWidget.cpp
     ${PreferencesWindow_Path}/AddingDirectoryPage.cpp
     ${PreferencesWindow_Path}/CustomActionsPage.cpp
+    ${PreferencesWindow_Path}/RevertAndRestoreDefaultsTab.cpp
     ${PreferencesWindow_Path}/PreferencesWindow.cpp
 
     ${PreferencesComponent_Path}/PreferencesComponent.cpp

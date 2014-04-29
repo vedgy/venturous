@@ -68,16 +68,17 @@ PreferencesComponent::~PreferencesComponent()
 
 void PreferencesComponent::setTheme(const Icons::Theme & theme)
 {
-    removeIcon_ = theme.remove();
+    icons_.add = theme.add();
+    icons_.remove = theme.remove();
+    icons_.undo = theme.undo();
+    icons_.revert = theme.revert();
 }
 
-void PreferencesComponent::showPreferencesWindow(
-    const QIcon & addIcon, QWidget * const parent)
+void PreferencesComponent::showPreferencesWindow(QWidget * const parent)
 {
     if (preferencesWindow_ == nullptr) {
         preferencesWindow_.reset(
-            new PreferencesWindow(preferences, { addIcon, removeIcon_ },
-                                  parent));
+            new PreferencesWindow(preferences, icons_, parent));
         preferencesWindow_->setUiPreferences();
         connect(preferencesWindow_.get(), SIGNAL(preferencesUpdated()),
                 SLOT(onPreferencesUpdated()));

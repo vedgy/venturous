@@ -493,7 +493,7 @@
     icon's context menu.
     Each option in Preferences has verbose tooltip. Hover over control element
     (spinbox, checkbox or combobox) to activate tooltip.</p>
-    <p>Preferences window has four tabs:</p>
+    <p>Preferences window has five tabs:</p>
     <ol>
         <li>"General" - contains many independent option groups.
         Some of these options are described in
@@ -532,6 +532,10 @@
         clicking these buttons. Several custom actions are available by default.
         These default custom actions are examples and can be edited or removed
         just as well as actions created by user.</li>
+        <li>"Revert/restore" - does not contain any options but allows to
+        revert changes in other tabs. User can either revert changes
+        since opening Preferences window or restore default values in any
+        preceding tab.</li>
     </ol>
     <p>There are two options in "General" and "Playback" tabs of Preferences to
     save preferences and history to disk immediately. These options can be
@@ -572,8 +576,10 @@
         <li>Start Venturous. Default value of option is restored, you can
         verify this by opening Preferences window.</li>
     </ol>
-    <p>If you want to restore all default values, just remove or rename file
-    Venturous.xml. You can also copy your preferences (as well as playlist and
+    <p>If you want to restore all default values, you can click
+    "Restore defaults" button (Target tab = &lt;all&gt;) in "Revert/restore"
+    tab of Preferences or just remove / rename file Venturous.xml.
+    You can also copy your preferences (as well as playlist and
     history) to other user or computer by copying file(s) to the corresponding
     directory. Beware of differences in different Venturous versions though:
     some options are added, other are renamed or removed.

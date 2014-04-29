@@ -22,14 +22,18 @@
 # include "PlaybackPage.hpp"
 # include "AddingDirectoryPage.hpp"
 # include "CustomActionsPage.hpp"
+# include "RevertAndRestoreDefaultsTab.hpp"
 # include "Preferences.hpp"
 
 # include <QString>
+# include <QStringList>
 # include <QWidget>
 # include <QScrollArea>
 # include <QTabWidget>
 # include <QKeyEvent>
 
+# include <cstddef>
+# include <cassert>
 # include <functional>
 # include <algorithm>
 
@@ -60,21 +64,48 @@ PreferencesWindow::PreferencesWindow(
     setWindowModality(Qt::WindowModal);
     setMinimumSize(200, 200);
     setWindowTitle(tr("%1 preferences").arg(APPLICATION_NAME));
-    addScrollableTab(this, tabs_[0], tr("&General"));
-    addScrollableTab(this, tabs_[1], tr("&Playback"));
-    addScrollableTab(this, tabs_[2], tr("&Adding directory"));
-    addScrollableTab(this, tabs_[3], tr("&Custom actions"));
-}
 
+    const QStringList tabNames { tr("General"), tr("Playback"),
+              tr("Adding directory"), tr("Custom actions")
+    };
+    assert(int(tabs_.size()) == tabNames.size());
+    for (std::size_t i = 0; i < tabs_.size(); ++i)
+        addScrollableTab(this, tabs_[i], '&' + tabNames[int(i)]);
+
+    RevertAndRestoreDefaultsTab * const revertTab =
+        new RevertAndRestoreDefaultsTab(tabNames, icons.undo, icons.revert,
+                                        this);
+    connect(revertTab, SIGNAL(revertPreferences(int)),
+            SLOT(revertPreferences(int)));
+    connect(revertTab, SIGNAL(restoreDefaultPreferences(int)),
+            SLOT(restoreDefaultPreferences(int)));
+    addScrollableTab(this, revertTab, tr("&Revert/restore"));
+}
 
 void PreferencesWindow::setUiPreferences()
 {
-    std::for_each(tabs_.cbegin(), tabs_.cend(),
-                  std::bind(& PreferencesPage::setUiPreferences,
-                            std::placeholders::_1, std::cref(preferences_)));
+    setUiPreferences(preferences_);
     restoreGeometry(preferences_.preferencesWindowGeometry);
 }
 
+
+
+void PreferencesWindow::setUiPreferences(const Preferences & source)
+{
+    std::for_each(tabs_.cbegin(), tabs_.cend(),
+                  std::bind(& PreferencesPage::setUiPreferences,
+                            std::placeholders::_1, std::cref(source)));
+}
+
+void PreferencesWindow::setUiPreferences(
+    const int tab, const Preferences & source)
+{
+    const std::size_t page = tab;
+    if (page == tabs_.size())
+        setUiPreferences(source);
+    else
+        tabs_[page]->setUiPreferences(source);
+}
 
 void PreferencesWindow::keyPressEvent(QKeyEvent * const event)
 {
@@ -91,4 +122,15 @@ void PreferencesWindow::closeEvent(QCloseEvent *)
                             std::placeholders::_1, std::ref(preferences_)));
     preferences_.preferencesWindowGeometry = saveGeometry();
     emit preferencesUpdated();
+}
+
+
+void PreferencesWindow::revertPreferences(const int tab)
+{
+    setUiPreferences(tab, preferences_);
+}
+
+void PreferencesWindow::restoreDefaultPreferences(const int tab)
+{
+    setUiPreferences(tab, Preferences());
 }

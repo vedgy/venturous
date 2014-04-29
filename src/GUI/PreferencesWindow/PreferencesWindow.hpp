@@ -34,7 +34,7 @@ class PreferencesWindow : public QTabWidget
     Q_OBJECT
 public:
     struct Icons {
-        const QIcon & add, & remove;
+        QIcon add, remove, undo, revert;
     };
 
     explicit PreferencesWindow(Preferences & preferences, const Icons & icons,
@@ -49,12 +49,24 @@ signals:
     void preferencesUpdated();
 
 private:
+    /// @brief Calls setUiPreferences(source) for all tabs_.
+    void setUiPreferences(const Preferences & source);
+    /// @brief Sets UI preferences of specified tab from source.
+    /// If (tab == tabs_.size()), calls setUiPreferences(source).
+    void setUiPreferences(int tab, const Preferences & source);
+
     void keyPressEvent(QKeyEvent *) override;
     void closeEvent(QCloseEvent *) override;
 
     Preferences & preferences_;
 
     const std::array<PreferencesPage *, 4> tabs_;
+
+private slots:
+    /// @brief Calls setUiPreferences(tab, preferences_).
+    void revertPreferences(int tab);
+    /// @brief Calls setUiPreferences(tab, Preferences()).
+    void restoreDefaultPreferences(int tab);
 };
 
 # endif // VENTUROUS_PREFERENCES_WINDOW_HPP

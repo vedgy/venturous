@@ -308,8 +308,7 @@ void MainWindow::onFileQuit()
 
 void MainWindow::onFilePreferences()
 {
-    preferencesComponent_->showPreferencesWindow(
-        actions_->playlist.addFiles->icon(), this);
+    preferencesComponent_->showPreferencesWindow(this);
 }
 
 void MainWindow::onPlaybackNext()

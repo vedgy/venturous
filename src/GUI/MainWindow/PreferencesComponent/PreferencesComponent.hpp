@@ -19,18 +19,17 @@
 # ifndef VENTUROUS_PREFERENCES_COMPONENT_HPP
 # define VENTUROUS_PREFERENCES_COMPONENT_HPP
 
+# include "PreferencesWindow.hpp"
 # include "Preferences.hpp"
 
 # include <QtGlobal>
 # include <QString>
 # include <QObject>
-# include <QIcon>
 
 # include <memory>
 
 
 class InputController;
-class PreferencesWindow;
 namespace Icons
 {
 class Theme;
@@ -53,7 +52,7 @@ public:
     void setTheme(const Icons::Theme & theme);
 
     /// NOTE: does not block execution.
-    void showPreferencesWindow(const QIcon & addIcon, QWidget * parent);
+    void showPreferencesWindow(QWidget * parent);
 
     /// @brief Closes preferences window if it is open.
     void closePreferencesWindow();
@@ -94,7 +93,7 @@ private:
 
     InputController & inputController_;
     const QString preferencesFilename_;
-    QIcon removeIcon_;
+    PreferencesWindow::Icons icons_;
 
     Preferences savedPreferences_;
     std::unique_ptr<PreferencesWindow> preferencesWindow_;
