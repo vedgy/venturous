@@ -32,7 +32,7 @@ GNU/Linux or MS Windows (might also work in OS X, not tested).
 * cmake (2.8 or later)
 * make
 * g++ (4.7 or later)
-* qt4 OR qt5 (Core, XML and GUI/Widgets modules)
+* qt4 OR qt5 development libraries (Core, XML and GUI/Widgets modules)
 
 ## How to build and install
 
@@ -68,16 +68,15 @@ to use it for icon generation, pass "generate-png" argument to
 `update_and_configure_submodules`.
 
 ## Runtime requirements
-* g++ (4.7 or later)
-* qt4 OR qt5 (Core, XML and GUI/Widgets modules)
-* Audacious version 3.4 or newer.
+* qt4 OR qt5 shared libraries (Core, XML and GUI/Widgets modules)
+* Audacious version 3.4 or later.
 * audacious and audtool executables must be present in PATH.
     There are two problems with this requirement in MS Windows:
     * Audacious bin directory is not added in PATH environment
     variable automatically. User has to manually add it there.
     * audtool is usually unavailable in Windows at all. With audtool
     missing only basic Venturous features work.
-* libnotify (optional - for desktop notifications)
+* notify-send from libnotify (optional - for desktop notifications)
 
 ## How to uninstall
 Enter `venturous/build` directory, acquire root privileges (`sudo` or `su`)

@@ -184,6 +184,17 @@ bool Validator::isDisplayable(const Action::Type type)
 }
 
 
+bool needsEscapingWithinDoubleQuotes(char c)
+{
+    // See https://www.gnu.org/software/bash/manual/html_node/Double-Quotes.html
+    return c == '$' || c == '`' || c == '"' || c == '\\';
+}
+
+char toChar(const QChar & qc)
+{
+    return qc.toLatin1();
+}
+
 QString joinArgs(const QString & commonItemPrefix,
                  const QStringList & itemNames)
 {
@@ -213,7 +224,7 @@ std::pair<QString, QStringList> getProgramAndArgs(
 
     for (int i = 0; i < command.size(); ++i) {
         const auto pushToCurrent = [&] { current += command[i]; };
-        switch (command[i].toLatin1()) {
+        switch (toChar(command[i])) {
             case '\\':
                 if (mode == Mode::plain) {
                     if (++i == command.size())
@@ -223,20 +234,12 @@ std::pair<QString, QStringList> getProgramAndArgs(
                 }
                 else if (mode == Mode::inDoubleQuotes) {
                     if (++i != command.size()) { // Wrong syntax otherwise.
-                        // See https://www.gnu.org/software/bash/manual/html_node/Double-Quotes.html
-                        switch (command[i].toLatin1()) {
-                            case '$':
-                            case '`':
-                            case '"':
-                            case '\\':
-                            case '?':
-                                pushToCurrent(); // escaped.
-                                break;
-                            case '\n':
-                                break; // escaped newline is removed.
-                            default:
-                                --i; // appending backslash symbol.
-                                pushToCurrent();
+                        const char c = toChar(command[i]);
+                        if (c == '?' || needsEscapingWithinDoubleQuotes(c))
+                            pushToCurrent(); // escaped.
+                        else if (c != '\n') { // escaped newline is removed.
+                            --i; // appending backslash symbol.
+                            pushToCurrent();
                         }
                     }
                 }

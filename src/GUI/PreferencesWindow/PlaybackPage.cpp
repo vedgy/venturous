@@ -53,7 +53,8 @@ PlaybackPage::PlaybackPage(QWidget * const parent, const Qt::WindowFlags f)
 
     desktopNotificationsCheckBox.setToolTip(tr(
             "If checked, desktop notifications will be shown when\n"
-            "played item is changed (requires libnotify library)."));
+            "played item is changed (requires notify-send executable\n"
+            "(from libnotify) in PATH)."));
     layout->addRow(tr("Desktop notifications"), & desktopNotificationsCheckBox);
 
     startupPolicyComboBox.addItems( {

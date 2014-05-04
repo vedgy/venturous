@@ -326,6 +326,12 @@ CustomActions::Actions defaultCustomActions()
             QObject::tr("Move to Trash"), "trash-put ?", 1, -1,
             CustomActions::Action::Type::anyItem,
             "trash-cli" + mustBeInstalled, false
+        },
+        CustomActions::Action  {
+            QObject::tr("Open containing directory"),
+            R"(bash -c "thunar \"`dirname \"?\"`\"")", 1, 1,
+            CustomActions::Action::Type::anyItem,
+            "Thunar" + mustBeInstalled, false
         }
     };
 }
