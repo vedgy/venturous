@@ -7,7 +7,7 @@
 </head>
 
 <body>
-<h1>Venturous - version 0.9.5-dev</h1>
+<h1><i>Venturous</i> - version 0.9.5-dev</h1>
 
 <a id="Index"><h2>Table of contents</h2></a>
     <ul>
@@ -18,189 +18,203 @@
         <li><a href="#EditingPlaylist">Editing playlist tree</a></li>
         <li><a href="#ManagingPlayback">Managing playback</a></li>
         <li><a href="#PlaybackHistory">Playback history</a></li>
-        <li><a href="#Ventool">Ventool and global shortcuts</a></li>
+        <li><a href="#Ventool"><i>Ventool</i> and global shortcuts</a></li>
         <li><a href="#NotificationArea">Notification area icon</a></li>
-        <li><a href="#ConfiguringVenturous">Configuring Venturous</a></li>
+        <li><a href="#ConfiguringVenturous">Configuring <i>Venturous</i></a>
+        </li>
         <li><a href="#ReportingBugs">Reporting bugs and feature requests</a>
         </li>
     </ul>
 
 
 <a id="Overview"><h2>Overview</h2></a>
-    <p>Venturous is a random playback manager, which uses media player's command
-    line interface. Currently only Audacious media player is supported, but
-    adding support for other players should be quite simple.</p>
-    <p>Venturous is built around one feature, which is missing in most (maybe
-    even all) media players: user-defined items for random playback. This
+    <p><i>Venturous</i> is a random playback manager, which uses media player's
+    command line interface. Currently only <i>Audacious</i> media player is
+    supported, but adding support for other players should be quite simple.</p>
+    <p><i>Venturous</i> is built around one feature, which is missing in most
+    (maybe even all) media players: user-defined items for random playback. This
     feature is especially useful for grouping separate tracks that are
     actually parts of one composition. For example, parts of classical music
     compositions (movements) are often distributed as separate tracks. It is
     usually desirable to listen to movements in succession and in a proper
     order.</p>
-    <p>Venturous features tree-like playlist, which reflects files' and
+    <p><i>Venturous</i> features tree-like playlist, which reflects files' and
     directories' location. Each item (file or directory) in playlist tree can be
     marked as playable. Items that are marked as playable can be sent to
     external player's [temporary] playlist. Normal workflow is the following:
-    after external player's playback is finished, Venturous selects next random
-    playable item, sends it to temporary playlist and starts playback. So,
-    effectively, random playback of user-defined items is achieved.</p>
+    after external player's playback is finished, <i>Venturous</i> selects next
+    random playable item, sends it to temporary playlist and starts playback.
+    So, effectively, random playback of user-defined items is achieved.</p>
     <p>The simplest way to group several audio files in one playable item is to
-    place them in common directory, add it to Venturous playlist, mark it as
-    playable and unmark or remove underlying auto-marked nodes (if any).
+    place them in common directory, add it to <i>Venturous</i> playlist, mark it
+    as playable and unmark or remove underlying auto-marked nodes (if any).
     Another way to group audio files is providing meta data (cue) file, which
     contains entries for all files in the group, and adding it to playlist tree.
     </p>
-    <p>Venturous features playback history, which allows user to identify
+    <p><i>Venturous</i> features playback history, which allows user to identify
     previously played items and play them again.</p>
-    <p>Custom actions similar to those in Thunar file manager are available in
-    playlist's and history's custom menus. Custom actions allow user to open
-    selected items in external application.
+    <p>Custom actions similar to those in <i>Thunar</i> file manager are
+    available in playlist's and history's custom menus. Custom actions allow
+    user to open selected items in external application.
     For example: open in file manager or in media player, edit text file,
     move item(s) to trash.</p>
-    <p>Another nice feature of Venturous is graceful quit. In many popular
-    desktop environments and window managers Audacious would not save playback
+    <p>Another nice feature of <i>Venturous</i> is graceful quit.
+    In many popular desktop environments and window managers
+    <i>Audacious</i> would not save playback
     state if it was running while user shut down / restarted / logged out.
-    Venturous does save its state in these cases in most popular desktop
-    environments. Furthermore, since Venturous manages Audacious, it also
-    ensures that Audacious quits in time and thus saves Audacious playback state
-    too.</p>
-    <p>Venturous saves preferences, playlist, backup playlist and history
+    <i>Venturous</i> does save its state in these cases in most popular desktop
+    environments. Furthermore, since <i>Venturous</i> manages <i>Audacious</i>,
+    it also ensures that <i>Audacious</i> quits in time and thus saves
+    <i>Audacious</i> playback state too.</p>
+    <p><i>Venturous</i> saves preferences, playlist, backup playlist and history
     separately for each user by default.
-    Default Venturous preferences directory location is
-    "~/.config/venturous" (here '~' expands to current user's HOME directory).
-    Preferences location can be configured at Venturous build time
-    (PREFERENCES_DIR CMake cache variable).</p>
+    Default <i>Venturous</i> preferences directory location is
+    <i>~/.config/venturous</i> (here '~' expands to current user's <i>HOME</i>
+    directory).
+    Preferences location can be configured at <i>Venturous</i> build time
+    (<i>PREFERENCES_DIR</i> CMake cache variable).</p>
 
 
 <a id="Requirements"><h2>Requirements</h2></a>
     <ol>
-        <li>Audacious version 3.4 or newer.</li>
-        <li>audacious and audtool executables must be present in PATH.<br />
+        <li><i>Audacious</i> version 3.4 or newer.</li>
+        <li><i>audacious</i> and <i>audtool</i> executables must be present in
+        <i>PATH</i>.<br />
         There are two problems with this requirement in MS Windows:
         <ol type="A">
-            <li>Audacious bin directory is not added in PATH environment
-            variable automatically. User has to manually add it there.</li>
-            <li>audtool is usually unavailable in Windows at all. With audtool
-            missing only basic Venturous features work.</li>
+            <li>Audacious <i>bin</i> directory is not added in <i>PATH</i>
+            environment variable automatically.
+            User has to manually add it there.</li>
+            <li><i>audtool</i> is usually unavailable in Windows at all.
+            With <i>audtool</i> missing only basic <i>Venturous</i> features
+            work.</li>
         </ol></li>
     </ol>
 
 
 <a id="AddingFiles"><h2>Adding files to playlist</h2></a>
     <p>Adding files can be done in playlist edit mode. There are menu actions
-    (Playlist menu) and toolbar buttons that allow adding individual files
-    or recursively add directories. There are also options on toolbar and in
-    preferences that influence adding directories policy.</p>
-    <p>Venturous adds two types of items in playlist tree: files and media dirs.
-    "Add files" or "Add media dirs" checkboxes in "Adding directory" tab
-    of Preferences must be checked to enable adding these items. Alternatively,
+    (<i>Playlist</i> menu) and toolbar buttons that allow adding individual
+    files or recursively add directories. There are also options on toolbar and
+    in preferences that influence adding directories policy.</p>
+    <p><i>Venturous</i> adds two types of items in playlist tree: files and
+    media dirs. <i>Add files</i> or <i>Add media dirs</i> checkboxes in
+    <i>Adding directory</i> tab of <i>Preferences</i> must be checked to enable
+    adding these items. Alternatively,
     adding these items can be enabled / disabled via corresponding toolbar
-    buttons: "Consider adding files", "Consider adding media dirs".</p>
+    buttons: <i>Consider adding files</i>, <i>Consider adding media dirs</i>.
+    </p>
     <p>Naturally, not all files or directories will be added in playlist tree.
-    Only files that match checked "File patterns" and directories that
-    contain (directly!) files that match "Media directory file patterns" will
-    be added. These patterns can be configured in "Adding directory" tab of
-    Preferences. Only meta data patterns are enabled in "File patterns" by
-    default. This means that only *.cue files will be added as playable items.
-    All audio patterns, supported by Audacious, are enabled in
-    "Media directory file patterns" by default. This means that all directories
-    that directly contain audio files will be added as playable items
-    (assuming that "Add media dirs" is enabled).</p>
+    Only files that match checked <i>File patterns</i> and directories that
+    contain (directly!) files that match <i>Media directory file patterns</i>
+    will be added. These patterns can be configured in
+    <i>Adding directory</i> tab of <i>Preferences</i>.
+    Only meta data patterns are enabled in <i>File patterns</i> by default.
+    This means that only <i>*.cue</i> files will be added as playable items.
+    All audio patterns supported by <i>Audacious</i> are enabled in
+    <i>Media directory file patterns</i> by default. This means that all
+    directories that directly contain audio files will be added as
+    playable items (assuming that <i>Add media dirs</i> is enabled).</p>
     <p>A conflict situation is possible with adding directories: when both
     adding files and media dirs is enabled, and media dir contains files that
-    match "File patterns". Adding both directory and its files might be
-    undesirable. This situation is designated as "If both...". There are two
-    checkboxes in "Adding directory" tab of Preferences for fine-tuning
-    adding behavior in this situation. There are also two corresponding buttons
-    on toolbar.</p>
+    match <i>File patterns</i>. Adding both directory and its files might be
+    undesirable. This situation is designated as <i>If both...</i>.
+    There are two checkboxes in <i>Adding directory</i> tab of
+    <i>Preferences</i> for fine-tuning adding behavior in this situation.
+    There are also two corresponding buttons on toolbar.</p>
     <p>See also <a href="#EditingPlaylist">Editing playlist tree</a></p>
     <a id="AddingExample">
     <h3>Usage example: adding different categories of music</h3></a>
         <p>Assume that we have 3 categories of music: individual audio
         file, directory with interconnected files, large audio file + cue
-        file. How to add these all to Venturous playlist?
+        file. How to add these all to <i>Venturous</i> playlist?
         It can be done as follows:</p>
         <ol>
             <li>Separate music that belongs to these categories in 3
-            directories. Let us name them "files", "dirs" and "cue".</li>
-            <li>Check "Add media dirs" in "Adding directory" tab of
-            Preferences (or "Consider adding media directories" on toolbar).
-            Uncheck "Add files" in "Adding directory" tab of
-            Preferences (or "Consider adding files" on toolbar).
-            Trigger action "Add directory" and select "dirs".</li>
-            <li>Uncheck "Add media dirs" and check "Add files". Make sure
-            that only default file patterns are checked (all meta data
-            patterns) in "Adding directory" tab of Preferences.
-            "Add directory" -> select "cue".</li>
-            <li>Go to "Adding directory" tab of Preferences. Select any
-            item in "File patterns" list to transfer focus. Press CTRL+A to
-            select all file patterns. Press Space to invert all file
-            patterns' checked states. Press Escape to close Preferences
-            window (changes are saved automatically).
-            "Add directory" -> select "files".</li>
+            directories. Let us name them <i>files</i>, <i>dirs</i> and
+            <i>cue</i> respectively.</li>
+            <li>Check <i>Add media dirs</i> in <i>Adding directory</i> tab of
+            <i>Preferences</i> (or <i>Consider adding media directories</i> on
+            toolbar). Uncheck <i>Add files</i> in <i>Adding directory</i> tab of
+            <i>Preferences</i> (or <i>Consider adding files</i> on toolbar).
+            Trigger action <i>Add directory</i> and select <i>dirs</i>.</li>
+            <li>Uncheck <i>Add media dirs</i> and check <i>Add files</i>.
+            Make sure that only default file patterns are checked (all meta data
+            patterns) in <i>Adding directory</i> tab of <i>Preferences</i>.
+            <i>Add directory</i> -> select <i>cue</i>.</li>
+            <li>Go to <i>Adding directory</i> tab of <i>Preferences</i>.
+            Select any item in <i>File patterns</i> list to transfer focus.
+            Press <i>CTRL+A</i> to
+            select all file patterns. Press <i>Space</i> to invert all file
+            patterns' checked states. Press <i>Escape</i> to close
+            <i>Preferences</i> window (changes are saved automatically).
+            <i>Add directory</i> -> select <i>files</i>.</li>
         </ol>
 
 
 <a id="PlaylistTree"><h2>Playlist tree</h2></a>
     <p>Playlist tree is protected from accidental changes. Protection is
-    achieved by introducing two modes: non-edit (default on Venturous start) and
-    edit mode. Playlist's background is greenish in non-edit mode and purplish
+    achieved by introducing two modes: non-edit (default on
+    <i>Venturous</i> start) and edit mode.
+    Playlist's background is greenish in non-edit mode and purplish
     in edit mode.</p>
     <p>Checked items are considered for random playback selection and can be
     played manually by activating (double click) in non-edit mode.
     Extended selection is available in both modes (multiple items can be
-    selected with SHIFT or CTRL keys; CTRL+A selects all items).
-    Pressing Enter or Return key starts playing all playable descendants of
-    selected items in both modes.</p>
+    selected with <i>SHIFT</i> or <i>CTRL</i> keys; <i>CTRL+A</i> selects all
+    items). Pressing <i>Enter</i> or <i>Return</i> key starts playing all
+    playable descendants of selected items in both modes.</p>
     <p>Apart from obvious folding / unfolding nodes using '+' symbol, there are
     other ways of changing playlist view. Double clicking playlist entry
     folds / unfolds it, but be aware that it also activates it in non-edit mode,
     so if the entry is playable, it will be played.
     The following keys for manipulating current
-    entry folded state are supported (these are standard Qt key bindings,
-    so excerpts from Qt documentation follow):</p>
+    entry folded state are supported (these are standard <i>Qt</i> key bindings,
+    so excerpts from <i>Qt</i> documentation follow):</p>
     <ul>
-        <li>Up - moves the cursor to the item in the same column on the previous
-        row. If the parent of the current item has no more rows to navigate to,
+        <li><i>Up</i> - moves the cursor to the item in the same column
+        on the previous row.
+        If the parent of the current item has no more rows to navigate to,
         the cursor moves to the relevant item in the last row of the sibling
         that precedes the parent.</li>
-        <li>Down - moves the cursor to the item in the same column on the next
-        row. If the parent of the current item has no more rows to navigate to,
+        <li><i>Down</i> - moves the cursor to the item in the same column
+        on the next row.
+        If the parent of the current item has no more rows to navigate to,
         the cursor moves to the relevant item in the first row of the sibling
         that follows the parent.</li>
-        <li>Left - hides the children of the current item (if present) by
+        <li><i>Left</i> - hides the children of the current item (if present) by
         collapsing a branch.</li>
-        <li>Minus - same as LeftArrow.</li>
-        <li>Right - reveals the children of the current item (if present) by
-        expanding a branch.</li>
-        <li>Plus - same as RightArrow.</li>
-        <li>Asterisk - expands all children of the current item (if present).
-        </li>
-        <li>PageUp - moves the cursor up one page.</li>
-        <li>PageDown - moves the cursor down one page.</li>
-        <li>Home - moves the cursor to an item in the same column of the first
-        row of the first top-level item in the model.</li>
-        <li>End - moves the cursor to an item in the same column of the last row
-        of the last top-level item in the model.</li>
+        <li><i>Minus</i> - same as <i>Left Arrow</i>.</li>
+        <li><i>Right</i> - reveals the children of the current item (if present)
+        by expanding a branch.</li>
+        <li><i>Plus</i> - same as <i>Right Arrow</i>.</li>
+        <li><i>Asterisk</i> - expands all children of the current item
+        (if present).</li>
+        <li><i>Page Up</i> - moves the cursor up one page.</li>
+        <li><i>Page Down</i> - moves the cursor down one page.</li>
+        <li><i>Home</i> - moves the cursor to an item in the same column of
+        the first row of the first top-level item in the model.</li>
+        <li><i>End</i> - moves the cursor to an item in the same column of
+        the last row of the last top-level item in the model.</li>
     </ul>
-    <p>There is a related option in "General" tab of Preferences: "Auto unfolded
-    levels in the tree". It determines how many levels of the tree are unfolded
-    by default.</p>
+    <p>There is a related option in <i>General</i> tab of <i>Preferences</i>:
+    <i>Auto unfolded levels in the tree</i>.
+    It determines how many levels of the tree are unfolded by default.</p>
 
 
 <a id="EditingPlaylist"><h2>Editing playlist tree</h2></a>
-    <p>When Venturous starts, playlist is in non-edit mode. User has to check
-    menu action "Edit mode" in Playlist menu or toolbar button with the same
-    name in order to enter edit mode.</p>
+    <p>When <i>Venturous</i> starts, playlist is in non-edit mode.
+    User has to check menu action <i>Edit mode</i> in <i>Playlist</i> menu
+    or toolbar button with the same name in order to enter edit mode.</p>
     <p>In edit mode selected items can be removed by pressing
-    Delete key. If item is removed, all its descendants are also removed
+    <i>Delete</i> key. If item is removed, all its descendants are also removed
     recursively. Single item can be checked / unchecked by mouse-clicking.
     Pressing one of the following keys while playlist has focus will apply
     corresponding action to all selected items:</p>
     <ul>
-        <li>Insert - check</li>
-        <li>Backspace - uncheck</li>
-        <li>Space - toggle checked state</li>
+        <li><i>Insert</i> - check</li>
+        <li><i>Backspace</i> - uncheck</li>
+        <li><i>Space</i> - toggle checked state</li>
     </ul>
     <p>When user triggers action that requires edit or non-edit tree
     mode enabled, and if this mode is not currently active, dialog appears,
@@ -208,182 +222,205 @@
     <p>Adding files and directories is also enabled only in tree edit mode.
     For more information about adding items to playlist see
     <a href="#AddingFiles">Adding files to playlist</a></p>
-    <p>There are several additional actions in Playlist menu:</p>
+    <p>There are several additional actions in <i>Playlist</i> menu:</p>
     <ol>
-        <li>"Clean up" - removes all items that are not playable and have
+        <li><i>Clean up</i> - removes all items that are not playable and have
         no playable descendants.</li>
-        <li>"Clear" - removes all items from playlist.</li>
-        <li>"Restore previous" - restores playlist that was used before
+        <li><i>Clear</i> - removes all items from playlist.</li>
+        <li><i>Restore previous</i> - restores playlist that was used before
         the last saved playlist.</li>
-        <li>"Load ..." - loads previously saved playlist. Note: loading
-        "items" file from Venturous preferences directory is equivalent to
-        cancelling unsaved playlist changes; loading "items.backup" is
-        equivalent to "Restore previous" action.</li>
-        <li>"Save as ..." - saves current playlist to user-defined file.
+        <li><i>Load ...</i> - loads previously saved playlist. Note: loading
+        <i>items</i> file from <i>Venturous</i> preferences directory is
+        equivalent to cancelling unsaved playlist changes;
+        loading <i>items.backup</i> file is equivalent to
+        <i>Restore previous</i> action.</li>
+        <li><i>Save as ...</i> - saves current playlist to user-defined file.
         Playlist tree must be in non-edit mode in order to be saved.</li>
     </ol>
     <p>While playlist is being edited, old saved playlist is used for random
-    playback. Click "Apply changes" action in Playlist menu to save changes
-    and start using edited playlist. Click "Cancel changes" in the same menu to
-    cancel editing without saving. Alternatively, unchecking "Edit mode" in
+    playback. Trigger <i>Apply changes</i> action in <i>Playlist</i> menu to
+    save changes and start using edited playlist.
+    Trigger <i>Cancel changes</i> in the same menu to
+    cancel editing without saving. Alternatively, unchecking <i>Edit mode</i> in
     menu or toolbar will trigger dialog that asks whether changes have to be
     saved.</p>
     <p>It is also possible to manually edit playlist tree. It is stored in
-    &lt;Venturous preferences directory&gt;/items file in plain text format.
+    <i>&lt;Venturous preferences directory&gt;/items</i> file in plain text
+    format.
     Note that tabs should not be replaced by spaces in this file. Only tab
-    character designates tree level indentation. "items.backup" file in the same
-    directory has identical format.</p>
-    <p>In case of urgent Venturous quit (such as quit notice from desktop
+    character designates tree level indentation.
+    <i>items.backup</i> file in the same directory has identical format.</p>
+    <p>In case of urgent <i>Venturous</i> quit (such as quit notice from desktop
     environment), if playlist is in edit mode, changes are applied and saved.
     </p>
 
 
 <a id="ManagingPlayback"><h2>Managing playback</h2></a>
     <p>There are two playback modes: stopped and playing. In stopped mode
-    Venturous does not interact with external player at all. In playing mode
-    Venturous controls external player: starts playing next random item from
-    playlist when playback finishes; quits Audacious before quitting itself.</p>
-    <p>There are eight actions, "External player" and "History" submenus in
-    Playback menu. All these 8 actions are available as ventool commands.
-    Four most common actions and actions from "External player" submenu are
+    <i>Venturous</i> does not interact with external player at all.
+    In playing mode <i>Venturous</i> controls external player: starts playing
+    next random item from playlist when playback finishes;
+    quits <i>Audacious</i> before quitting itself.</p>
+    <p>There are eight actions, <i>External player</i> and <i>History</i>
+    submenus in <i>Playback</i> menu. All these 8 actions are available as
+    <i>ventool</i> commands.
+    Four most common actions and actions from <i>External player</i> submenu are
     present on toolbar and in notification area icon context menu.</p>
     <ol>
-        <li>"Play" - launches external player and continues playing whatever
-        was played last time in that external player (Audacious); enters
-        playing playback mode.</li>
-        <li>"Stop" - quits external player and enters stopped playback mode.
-        </li>
-        <li>"Previous" - plays previous item from history.</li>
-        <li>"Replay last" - plays current item from history.</li>
-        <li>"Next from history" - plays next item from history.</li>
-        <li>"Next random" - plays random item from playlist.</li>
-        <li>"Next" - if "Next from history" option is enabled in
-        preferences, tries "Next from history" action first. If the option
+        <li><i>Play</i> - launches external player and continues playing
+        whatever was played last time in that external player
+        (<i>Audacious</i>); enters playing playback mode.</li>
+        <li><i>Stop</i> - quits external player and enters
+        stopped playback mode.</li>
+        <li><i>Previous</i> - plays previous item from history.</li>
+        <li><i>Replay last</i> - plays current item from history.</li>
+        <li><i>Next from history</i> - plays next item from history.</li>
+        <li><i>Next random</i> - plays random item from playlist.</li>
+        <li><i>Next</i> - if <i>Next from history</i> option is enabled in
+        preferences, tries <i>Next from history</i> action first. If the option
         is disabled or there is no next item in history,
-        triggers "Next random" action.</li>
-        <li>"Play all" - plays all playable items from playlist.</li>
+        triggers <i>Next random</i> action.</li>
+        <li><i>Play all</i> - plays all playable items from playlist.</li>
     </ol>
-    <p>Common behavior of last six actions (all except "Play" and "Stop"):</p>
+    <p>Common behavior of last six actions
+    (all except <i>Play</i> and <i>Stop</i>):</p>
     <ul>
         <li>In case of success, external player is started or restarted with
         specified item(s) in temporary playlist; playing playback mode is
         entered.</li>
         <li>In case of failure (no corresponding item in history or
-        empty playlist), "Stop" action is triggered.</li>
+        empty playlist), <i>Stop</i> action is triggered.</li>
     </ul>
-    <p>"External player" submenu contains two actions: "Show window" and
-    "Hide window", which allow to show / hide Audacious main window.</p>
+    <p><i>External player</i> submenu contains two actions:
+    <i>Show window</i> and <i>Hide window</i>, which allow to show / hide
+    <i>Audacious</i> main window.</p>
     <p>All external player's functionality - both actions and options - is
-    also available to user. Note: Audacious is started with special command line
-    arguments, which ensure that it quits after playback is finished.
-    So, if user stops playback in Audacious or quits it,
-    Venturous assumes that last item was played and starts playing next item.
-    It means that usual meaning of quitting and
-    stopping playback in Audacious, managed by Venturous, is changed.
-    Pausing playback in Audacious works as expected though.</p>
-    <p>Apart from mentioned above "Next from history" option, "Playback" tab of
-    Preferences contains History options and 4 other playback options:</p>
+    also available to user. Note: <i>Audacious</i> is started with special
+    command line arguments, which ensure that it quits
+    after playback is finished.
+    So, if user stops playback in <i>Audacious</i> or quits it,
+    <i>Venturous</i> assumes that last item was played and starts playing
+    next item.
+    It means that usual meaning of quitting and stopping playback
+    in <i>Audacious</i>, managed by <i>Venturous</i>, is changed.
+    Pausing playback in <i>Audacious</i> works as usual though.</p>
+    <p>Apart from described above <i>Next from history</i> option,
+    <i>Playback</i> tab of <i>Preferences</i> contains
+    <i>History</i> options and 4 other playback options:</p>
     <ol>
-        <li>"Always set external player options" - this option is on by default,
-        which ensures that external player is configured properly. But if user
+        <li><i>Always set external player options</i> - this option is on
+        by default, which ensures that external player is configured properly.
+        But if user
         desires to change those options manually to achieve some peculiar
         behavior or if he never changes them and wants to save CPU cycles,
         switching setting options off can be useful.</li>
-        <li>"Always hide external player window" - allows to hide Audacious
-        window each time player is launched. This option is especially
-        useful if Audacious notification area icon ("Status Icon") is disabled.
-        In this case hiding external player window prevents Audacious window
-        popping up annoyance. Note that with Audacious Status Icon disabled,
+        <li><i>Always hide external player window</i> - allows to hide
+        <i>Audacious</i> window each time player is launched.
+        This option is especially useful if <i>Audacious</i> notification area
+        icon (<i>Status Icon</i>) is disabled.
+        In this case hiding external player window prevents <i>Audacious</i>
+        window popping up annoyance.
+        Note that with <i>Audacious Status Icon</i> disabled,
         user has to issue <b><i>audtool&nbsp;mainwin-show&nbsp;on</i></b>
-        command or trigger "Show external player window" action in Venturous
-        Playback menu / toolbar in order to show Audacious main window after
-        hiding it.</li>
-        <li>"Desktop notifications" - if enabled, desktop notification is
+        command or trigger <i>Show external player window</i> action in
+        Venturous <i>Playback</i> menu / toolbar in order to show
+        <i>Audacious</i> main window after hiding it.</li>
+        <li><i>Desktop notifications</i> - if enabled, desktop notification is
         shown after played item is changed. If <i>notify-send</i> executable
-        from <i>libnotify</i> is not available in PATH, notifications will not
-        be shown and this option should be
+        from <i>libnotify</i> is not available in <i>PATH</i>, notifications
+        will not be shown and this option should be
         turned off to avoid starting useless process.</li>
-        <li>"Startup action" - allows triggering one of four playback actions
-        on Venturous start. Note that more sophisticated startup behavior can be
-        achieved with Ventool commands. For example:<br />
+        <li><i>Startup action</i> - allows triggering one of
+        four playback actions on <i>Venturous</i> start.
+        Note that more sophisticated startup behavior can be
+        achieved with <i>Ventool</i> commands. For example:<br />
         <b><i>(venturous&nbsp;>&nbsp;/dev/null&nbsp;&amp;)\<br />
         &amp;&amp;&nbsp;sleep&nbsp;1\<br />
         &amp;&amp;&nbsp;ventool&nbsp;previous</i></b><br />
         command allows to play previous item from history at the start.
         See also <a href="#Ventool">Ventool and global shortcuts</a></li>
     </ol>
-    <h3>Usage example: enable searching and playing music in Audacious
-    as an alternative to tree playlist in Venturous</h3>
-        <p>Audacious supports multiple playlists in tabs. So the following
-        can be done:</p>
+    <h3>Usage example: enable searching and playing music in <i>Audacious</i>
+    as an alternative to tree playlist in <i>Venturous</i></h3>
+        <p><i>Audacious</i> supports multiple playlists in tabs.
+        So the following can be done:</p>
         <ol>
-            <li>Add all your music to Venturous playlist in your
+            <li>Add all your music to <i>Venturous</i> playlist in your
             preferred way (see
             <a href="#AddingExample">Adding directories example</a>).</li>
-            <li>Trigger "Play all" action.</li>
-            <li>Rename Audacious temporary playlist "Now Playing" to
-            "All music" (playlist tab context menu has "Rename ..."
+            <li>Trigger <i>Play all</i> action.</li>
+            <li>Rename <i>Audacious</i> temporary playlist <i>Now Playing</i> to
+            <i>All music</i> (playlist tab context menu has <i>Rename ...</i>
             action).</li>
         </ol>
-        This way you can use Venturous, which will always add files to
-        "Now Playing" playlist, and have another permanent Audacious
+        This way you can use <i>Venturous</i>, which will always add files to
+        <i>Now Playing</i> playlist, and have another permanent <i>Audacious</i>
         playlist with all your music.
 
 
 <a id="PlaybackHistory"><h2>Playback history</h2></a>
     <p>Playback history displays previously played items (latest on top).
     History can be exported to plain text file and imported from file in the
-    same format. These actions are accessible in "History" submenu of Playback
-    menu. This submenu also contains "Clear" action, which removes all entries
-    from playback history.</p>
+    same format. These actions are accessible in <i>History</i> submenu
+    of <i>Playback</i> menu. This submenu also contains <i>Clear</i> action,
+    which removes all entries from playback history.</p>
     <p>Extended selection of entries is supported. Pressing one of the following
-    keys while History window is active, will
+    keys while <i>History</i> window is active, will
     apply corresponding action to all selected entries:</p>
     <ul>
-        <li>Enter (or Return) - start playback of selected entries.</li>
-        <li>Delete - remove selected entries.</li>
+        <li><i>Enter</i> (or <i>Return</i>) - start playback
+        of selected entries.</li>
+        <li><i>Delete</i> - remove selected entries.</li>
     </ul>
     <p>If history entry is activated (double click), playback of this entry is
-    started. Pressing Backspace key sets current history index to -1
-    (this index is also set when multiple items are played). Pressing Insert
-    key has the following effect, depending on number of selected entries:</p>
+    started. Pressing <i>Backspace</i> key sets current history index to -1
+    (this index is also set when multiple items are played).
+    The effect of pressing <i>Insert</i> key varies depending on number
+    of selected entries:</p>
     <ul>
         <li>If no entries are selected, has no effect.</li>
         <li>If one entry is selected, it becomes current.</li>
         <li>If multiple entries are selected, result is equivalent to pressing
-        Backspace key.</li>
+        <i>Backspace</i> key.</li>
     </ul>
-    <p>History options are available in "Playback" tab of Preferences:</p>
+    <p><i>History</i> options are available in
+    <i>Playback</i> tab of <i>Preferences</i>:</p>
     <ul>
-        <li>"Maximum size" - maximum number of entries in history. Big number of
-        history entries (more than several thousands) can cause performance
-        issues, so this value is limited. &lt;Maximum size&gt; latest
-        entries are stored in history.</li>
-        <li>"Copy played entry to top" - allows to record items, replayed from
-        history, thus providing more accurate playback log. The downside of
-        copying entry to top is that it makes navigating history further than
-        penultimate entry inconvenient.</li>
-        <li>"Number of hidden directories" - allows to hide first N directories
-        (or, if negative, leave last -N components)
-        of item path in History window and status bar. It is useful because
+        <li><i>Maximum size</i> - maximum number of entries in history.
+        Big number of history entries (more than several thousands) can cause
+        performance issues, so this value is limited.
+        <i>&lt;Maximum size&gt;</i> latest entries are stored in history.</li>
+        <li><i>Copy played entry to top</i> - allows to record items,
+        replayed from history, thus providing more accurate playback log.
+        The downside of copying entry to top is that it makes navigating
+        history further than penultimate entry inconvenient
+        (impossible with <i>Previous</i> action).</li>
+        <li><i>Number of hidden directories</i> - allows to hide first
+        <i>N</i> directories (or, if negative, leave last <i>-N</i> components)
+        of item path in <i>History</i> window and status bar.
+        It is useful because
         usually first directories are common for all or almost all entries.
         For example, all items in playlist could start with
-        "/home/&lt;user name&gt;/Music/".
+        <i>/home/&lt;user name&gt;/Music/</i>.
         It is preferable then to hide this common prefix.
         Note that absolute path is always available in tooltip
-        both for History entries and for status bar label.</li>
+        both for <i>History</i> entries and for status bar label.</li>
     </ul>
 
 
-<a id="Ventool"><h2>Ventool and global shortcuts</h2></a>
-    <p>Command line tool that controls Venturous is built and installed
-    with Venturous by default (switching off BUILD_VENTOOL CMake option during
-    Venturous build process prevents building and installing it). All available
-    Ventool commands can be found by running "ventool help" from terminal.</p>
-    <p>Ventool allows to manage playback and quit Venturous from command line.
+<a id="Ventool"><h2><i>Ventool</i> and global shortcuts</h2></a>
+    <p>Command line tool that controls <i>Venturous</i> is built and installed
+    with <i>Venturous</i> by default (switching off <i>BUILD_VENTOOL</i>
+    CMake option during <i>Venturous</i> build process prevents building and
+    installing it). All available <i>Ventool</i> commands can be found by
+    running <b><i>ventool&nbsp;help</i></b> command from terminal.</p>
+    <p><i>Ventool</i> allows to manage playback and quit <i>Venturous</i> from
+    command line.
     It can also be used to create various global keyboard shortcuts. One
-    shortcut can be assigned to "venturous" command (launching Venturous);
-    another one - to "ventool quit" (quitting Venturous). Ventool playback
+    shortcut can be assigned to <i>venturous</i> command
+    (launching <i>Venturous</i>);
+    another one - to <i>ventool quit</i> (quitting <i>Venturous</i>).
+    <i>Ventool</i> playback
     commands provide global multimedia shortcuts interface.
     Exact procedure of assigning shortcuts to commands depends on
     user's desktop environment / window manager
@@ -391,208 +428,224 @@
 
 
 <a id="NotificationArea"><h2>Notification area icon</h2></a>
-    <p>There is an option to show Venturous icon in notification area in
-    Venturous preferences. There are also two related suboptions under this
-    option.</p>
+    <p>There is an option to show <i>Venturous</i> icon in notification area in
+    <i>Venturous</i> preferences.
+    There are also two related suboptions under this option.</p>
     <p>Notification area icon is disabled by default because many popular
     desktop environments and window managers do not support placing application
     icons in notification area or even do not have notification area at all. If
-    you enable notification area icon, close Preferences window, but still can
-    not see Venturous icon in notification area, it probably means that this
-    feature is not supported in your environment. In this case it is advised to
+    you enable notification area icon, close <i>Preferences</i> window,
+    but still can not see <i>Venturous</i> icon in notification area,
+    it probably means that this feature is not supported in your environment.
+    In this case it is advised to
     disable notification area icon without delay. Obviously, notification area
     icon would unjustly consume some small amount of RAM and use some processor
     time. The bigger problem with inaccessible icon is the following: if at
     least one of notification area suboptions is enabled, there can be a
-    situation, when Venturous is running, but you have no easy access to its
-    graphical user interface.
-    Fortunately you can still issue commands via Ventool - and there is a
-    Ventool command to show Venturous window.
-    Suboption "Start Venturous to notification area" is especially problematic
-    in this case. After hiding or quitting Venturous with this option enabled
-    and no notification area, there are several ways to show Venturous window
-    again:</p>
+    situation, when <i>Venturous</i> is running, but you have no easy access
+    to its graphical user interface.
+    Fortunately you can still issue commands via <i>Ventool</i> - and there is a
+    <i>Ventool</i> command to show <i>Venturous</i> window.
+    Suboption <i>Start Venturous to notification area</i>
+    is especially problematic in this case.
+    After hiding or quitting <i>Venturous</i> with this option enabled
+    and no notification area, there are several ways to
+    show <i>Venturous</i> window again:</p>
     <ul>
-        <li>Calling "ventool show" command.</li>
+        <li>Calling <b><i>ventool&nbsp;show</i></b> command.</li>
         <li>Manual editing preferences XML file
-        (&lt;Venturous preferences directory&gt;/Venturous.xml) or just removing
-        it to restore default configuration.</li>
+        (<i>&lt;Venturous preferences directory&gt;/Venturous.xml</i>)
+        or just removing it to restore default configuration.</li>
         <li>Enabling notification area in desktop environment / window manager.
         </li>
     </ul>
     <p>If you are lucky enough to have notification area icon support in your
     environment, you get several features. Left or middle click on Venturous
-    notification area icon shows / hides Venturous window. Right click shows
-    context menu with following actions:</p>
+    notification area icon shows / hides <i>Venturous</i> window.
+    Right click shows a context menu with following actions:</p>
     <ul>
-        <li>Play</li>
-        <li>Stop</li>
-        <li>Previous</li>
-        <li>Next</li>
+        <li><i>Play</i></li>
+        <li><i>Stop</i></li>
+        <li><i>Previous</i></li>
+        <li><i>Next</i></li>
         <li>External player (submenu)
         <ul>
-            <li>Show window</li>
-            <li>Hide window</li>
+            <li><i>Show window</i></li>
+            <li><i>Hide window</i></li>
         </ul>
         </li>
-        <li>Preferences ...</li>
-        <li>Quit</li>
+        <li><i>Preferences ...</i></li>
+        <li><i>Quit</i></li>
     </ul>
-    <p>There is a problem with "Close Venturous to notification area" option.
+    <p>There is a problem with <i>Close Venturous to notification area</i>
+    option.
     Many popular desktop environments close visible windows before exit.
-    This allows Venturous to ask user about applying changes to playlist
+    This allows <i>Venturous</i> to ask user about applying changes to playlist
     if playlist is in edit mode. It also allows reporting saving errors.
-    If "Close Venturous to notification area" option is enabled, two scenarios
-    are possible:</p>
+    If <i>Close Venturous to notification area</i> option is enabled,
+    two scenarios are possible:</p>
     <ul>
-        <li>If Venturous window is not hidden, it would just become hidden, not
-        closed. This can block desktop environment quit.
+        <li>If <i>Venturous</i> window is not hidden, it would just become
+        hidden, not closed. This can block desktop environment quit.
         It can also result in something else (depending on
         desktop environment / window manager).</li>
-        <li>If Venturous window is hidden, it will receive urgent quit warning
-        (in most desktop environments). Changes to playlist would be applied
+        <li>If <i>Venturous</i> window is hidden, it will receive urgent quit
+        warning (in most desktop environments).
+        Changes to playlist would be applied
         without user's confirmation if it was in edit mode. Errors would not be
-        shown to user but written to stderr. This would usually result in
+        shown to user but written to <i>stderr</i>. This would usually result in
         errors unnoticed by user.</li>
     </ul>
 
 
-<a id="ConfiguringVenturous"><h2>Configuring Venturous</h2></a>
+<a id="ConfiguringVenturous"><h2>Configuring <i>Venturous</i></h2></a>
     <h3>Build-time configuration (CMake options and cache variables)</h3>
     <ul>
-        <li>"FORCE_QT4" : BOOLEAN (default: OFF) -
-        if enabled, Qt4 will always be used, otherwise, Qt5 is used if
-        available. Note: even though Qt5 is the default here, Venturous build
-        script sets this option ON, so user would have to manually switch it
-        OFF to use Qt5. Qt4 is preferred (for now) because of font
-        rendering issues in Qt5.</li>
-        <li>"PREFERENCES_DIR" : STRING (default: "~/.config/venturous") -
-            directory that contains user preferences and playlist
-            (here '~' expands to current user's HOME directory).</li>
-        <li>"ALWAYS_EMBED_ICONS" : BOOLEAN (default: ON) -
+        <li><i>FORCE_QT4</i> : <i>BOOLEAN</i> (default: <i>OFF</i>) -
+        if enabled, <i>Qt4</i> will always be used, otherwise,
+        <i>Qt5</i> is used if available.
+        Note: even though <i>Qt5</i> is the default here, <i>Venturous</i> build
+        script sets this option <i>ON</i>, so user would have to manually switch
+        it <i>OFF</i> to use <i>Qt5</i>. <i>Qt4</i> is preferred (for now)
+        because of font rendering issues in <i>Qt5</i>.</li>
+        <li><i>PREFERENCES_DIR</i> : <i>STRING</i>
+        (default: <i>~/.config/venturous</i>) -
+        directory that contains user preferences and playlist
+        (here '~' expands to current user's <i>HOME</i> directory).</li>
+        <li><i>ALWAYS_EMBED_ICONS</i> : <i>BOOLEAN</i> (default: <i>ON</i>) -
         if disabled, embedding icons will be done only in MS Windows. It is not
         recommended to switch embedding off because in this case short text
         labels instead of some icons will be displayed on toolbar. Saving less
-        than 1 Mb of disk space due to smaller Venturous executable size usually
-        isn't worth the inconvenience. Note: if all necessary icons are present
+        than 1 Mb of disk space due to smaller <i>Venturous</i> executable size
+        usually isn't worth the inconvenience.
+        Note: if all necessary icons are present
         in system theme (which is unlikely), there may be no need to embed
         icons.</li>
-        <li>"DEBUG_VENTUROUS" : BOOLEAN (default: OFF) -
-        if enabled, details of internal Venturous workflow will be written to
-        program output (stdout). Enabling this option will decrease
-        performance, so it is disabled by default. This option is useful during
-        Venturous development.</li>
-        <li>"BUILD_VENTOOL" : BOOLEAN (default: ON) -
-        if enabled, Ventool is built along with Venturous. If you do not need
-        command line interface and global shortcuts for Venturous, feel free to
-        disable this option. See also
-        <a href="#Ventool">Ventool and global shortcuts</a></li>
+        <li><i>DEBUG_VENTUROUS</i> : <i>BOOLEAN</i> (default: <i>OFF</i>) -
+        if enabled, details of internal <i>Venturous</i> workflow will be
+        written to program output (<i>stdout</i>).
+        Enabling this option harms performance, so it is disabled by default.
+        This option is useful during <i>Venturous</i> development.</li>
+        <li><i>BUILD_VENTOOL</i> : <i>BOOLEAN</i> (default: <i>ON</i>) -
+        if enabled, <i>Ventool</i> is built along with <i>Venturous</i>.
+        If you do not need command line interface and global shortcuts for
+        <i>Venturous</i>, feel free to disable this option. See also
+        <a href="#Ventool"><i>Ventool</i> and global shortcuts</a></li>
     </ul>
-    <h3>Run-time configuration (Venturous preferences)</h3>
-    <p>Venturous preferences can be accessed in several ways: "Preferences ..."
-    action in File menu, corresponding toolbar button or notification area
-    icon's context menu.
-    Each option in Preferences has verbose tooltip. Hover over control element
-    (spinbox, checkbox or combobox) to activate tooltip.</p>
-    <p>Preferences window has five tabs:</p>
+    <h3>Run-time configuration (<i>Venturous</i> preferences)</h3>
+    <p><i>Venturous</i> preferences can be accessed in several ways:
+    <i>Preferences ...</i> action in <i>File</i> menu, corresponding toolbar
+    button or notification area icon's context menu.
+    Each option in <i>Preferences</i> has verbose tooltip. Hover over control
+    element (spinbox, checkbox or combobox) to activate tooltip.</p>
+    <p><i>Preferences</i> window has five tabs:</p>
     <ol>
-        <li>"General" - contains many independent option groups.
+        <li><i>General</i> - contains many independent option groups.
         Some of these options are described in
         <a href="#PlaylistTree">Playlist tree</a> and
         <a href="#NotificationArea">Notification area icon</a> sections.</li>
-        <li>"Playback" - contains playback and history options.
+        <li><i>Playback</i> - contains playback and history options.
         Most of these options are described in
         <a href="#ManagingPlayback">Managing playback</a> and
         <a href="#PlaybackHistory">Playback history</a> sections.</li>
-        <li>"Adding directory" - contains policy and two editable lists:
-        "File patterns", "Media directory file patterns".
+        <li><i>Adding directory</i> - contains policy and two editable lists:
+        <i>File patterns</i>, <i>Media directory file patterns</i>.
         Adding directory policy options and pattern lists are described in
         verbose tooltips and in
         <a href="#AddingFiles">Adding files to playlist</a> section.
         Possible ways of tuning pattern lists follow.
         Checking / unchecking individual patterns is possible. Extended
         selection of patterns is supported.
-        Selecting caption row ("Meta data patterns", "Audio patterns" or
-        "Other patterns") results in applying action to all underlying patterns.
-        You can add new patterns using "Add pattern" button; edit user-defined
-        patterns (under "Other patterns" captions); copy user-defined patterns
-        to another column using "Copy right" and "Copy left" buttons.
+        Selecting caption row (<i>Meta data patterns</i>,
+        <i>Audio patterns</i> or <i>Other patterns</i>) results
+        in applying action to all underlying patterns.
+        You can add new patterns using <i>Add pattern</i> button;
+        edit user-defined patterns (under <i>Other patterns</i> caption);
+        copy user-defined patterns to another column using
+        <i>Copy right</i> and <i>Copy left</i> buttons.
         Pressing one of the following keys will apply corresponding action to
         all selected patterns:
         <ul>
-            <li>Insert - check</li>
-            <li>Backspace - uncheck</li>
-            <li>Space - toggle checked state</li>
-            <li>Delete - remove (is applied only to user-defined patterns,
-            because built-in patterns can not be removed)</li>
+            <li><i>Insert</i> - check</li>
+            <li><i>Backspace</i> - uncheck</li>
+            <li><i>Space</i> - toggle checked state</li>
+            <li><i>Delete</i> - remove (is applied only to user-defined
+            patterns because built-in patterns can not be removed)</li>
         </ul></li>
-        <li>"Custom actions" - allows customizing context menu actions on
+        <li><i>Custom actions</i> - allows customizing context menu actions on
         selected items in playlist and history. Detailed description of custom
-        actions' configuration can be accessed by checking "Show help" checkbox
-        under the table. Tooltips of buttons under the table describe effects of
+        actions' configuration can be accessed by checking
+        <i>Show help</i> checkbox under the table.
+        Tooltips of buttons under the table describe effects of
         clicking these buttons. Several custom actions are available by default.
         These default custom actions are examples and can be edited or removed
         just as well as actions created by user.</li>
-        <li>"Revert/restore" - does not contain any options but allows to
+        <li><i>Revert/restore</i> - does not contain any options but allows to
         revert changes in other tabs. User can either revert changes
-        since opening Preferences window or restore default values in any
+        since opening <i>Preferences</i> window or restore default values in any
         preceding tab.</li>
     </ol>
-    <p>There are two options in "General" and "Playback" tabs of Preferences to
-    save preferences and history to disk immediately. These options can be
+    <p>There are two options in <i>General</i> and <i>Playback</i> tabs
+    of <i>Preferences</i> to save preferences and history to disk immediately.
+    These options can be
     especially useful with desktop environments and window managers that do not
-    warn Venturous before quit, but just terminate the process. In this case
-    preferences can not be saved before quit, so saving them immediately is
-    desirable.</p>
+    warn <i>Venturous</i> before quit, but just terminate the process.
+    In this case preferences can not be saved automatically before quit,
+    so saving them immediately is desirable.</p>
     <h3>Additional run-time tweaks</h3>
     <ul>
-        <li>Resizing and moving Venturous, History and Preferences windows
-        is possible.</li>
-        <li>Venturous toolbar has a handle that allows to detach and move it.
+        <li>Resizing and moving <i>Venturous</i>, <i>History</i> and
+        <i>Preferences</i> windows is possible.</li>
+        <li><i>Venturous</i> toolbar has a handle that allows to detach and
+        move it.
         Toolbar can be attached to any window side (top, bottom, left or right).
-        In order to attach toolbar to desired Venturous window side, its handle
-        has to be dragged to the corresponding edge of the window.</li>
-        <li>Venturous toolbar can be hidden. "Toolbar" action has to be toggled
-        in context menu of main menu bar or toolbar in order to change toolbar's
-        visibility.</li>
-        <li>Identical moving, attaching and hiding of History window is
-        possible. History window has its own title bar, which can be used
+        In order to attach toolbar to desired <i>Venturous</i> window side, its
+        handle has to be dragged to the corresponding edge of the window.</li>
+        <li><i>Venturous</i> toolbar can be hidden. <i>Toolbar</i> action has to
+        be toggled in context menu of main menu bar or toolbar in order to
+        change toolbar's visibility.</li>
+        <li>Identical moving, attaching and hiding of <i>History</i> window is
+        possible. <i>History</i> window has its own title bar, which can be used
         for moving in place of toolbar handle.</li>
-        <li>There is an option in "General" tab of Preferences: "Status bar". If
-        checked, status bar is displayed with last played item label on it.
-        If History window is visible, status bar information is redundant.
-        But if History is hidden, status bar might be useful.</li>
+        <li>There is an option in <i>General</i> tab of <i>Preferences</i>:
+        <i>Status bar</i>. If checked, status bar is displayed with
+        last played item label on it. If <i>History</i> window is visible,
+        status bar information is redundant.
+        But if <i>History</i> is hidden, status bar might be useful.</li>
     </ul>
     <p>All tweaks, described above, are saved to preferences and thus preserved
-    between Venturous launches.</p>
-    <p>If you want to restore default value of some option, quit Venturous;
-    edit &lt;Venturous preferences directory&gt;/Venturous.xml: remove option's
-    opening tag, closing tag and everything in between. For example, in order to
-    restore Ventool check interval default value, you can do the following:</p>
+    between <i>Venturous</i> launches.</p>
+    <p>If you want to restore default value of some option,
+    quit <i>Venturous</i>; edit
+    <i>&lt;Venturous preferences directory&gt;/Venturous.xml</i>:
+    remove option's opening tag, closing tag and everything in between.
+    For example, in order to restore Ventool check interval
+    default value, you can do the following:</p>
     <ol>
-        <li>Quit Venturous.</li>
+        <li>Quit <i>Venturous</i>.</li>
         <li>Remove line
-        "&lt;VentoolCheckInterval&gt;2000&lt;/VentoolCheckInterval&gt;" from
-        &lt;Venturous preferences directory&gt;/Venturous.xml</li>
-        <li>Start Venturous. Default value of option is restored, you can
-        verify this by opening Preferences window.</li>
+        <i>&lt;VentoolCheckInterval&gt;2000&lt;/VentoolCheckInterval&gt;</i>
+        from <i>&lt;Venturous preferences directory&gt;/Venturous.xml</i>.</li>
+        <li>Start <i>Venturous</i>. Default value of option is restored, you can
+        verify this by opening <i>Preferences</i> window.</li>
     </ol>
     <p>If you want to restore all default values, you can click
-    "Restore defaults" button (Target tab = &lt;all&gt;) in "Revert/restore"
-    tab of Preferences or just remove / rename file Venturous.xml.
+    <i>Restore defaults</i> button (Target tab = <i>&lt;all&gt;</i>) in
+    <i>Revert/restore</i> tab of <i>Preferences</i> or just remove / rename
+    file <i>Venturous.xml</i>.
     You can also copy your preferences (as well as playlist and
     history) to other user or computer by copying file(s) to the corresponding
-    directory. Beware of differences in different Venturous versions though:
-    some options are added, other are renamed or removed.
+    directory. Beware of differences in different <i>Venturous</i> versions
+    though: some options are added, others are renamed or removed.
     But these differences do not usually cause any issues except that
     some options are not picked up from preferences file
     and are set to default values.</p>
 
 
 <a id="ReportingBugs"><h2>Reporting bugs and feature requests</h2></a>
-    If you find a bug in Venturous or error in this manual, please, report it
-    at <a href="https://github.com/vedgy/venturous/issues">
-    Venturous GitHub repository</a>
+    If you find a bug in <i>Venturous</i> or error in this manual, please,
+    report it at <a href="https://github.com/vedgy/venturous/issues">
+    Venturous <i>GitHub</i> repository</a>
 
 </body>
 
