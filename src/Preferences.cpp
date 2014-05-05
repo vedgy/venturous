@@ -301,8 +301,8 @@ void loadAddingItemsPolicy(const QDomElement & root,
 CustomActions::Actions defaultCustomActions()
 {
     const QString mustBeInstalled = QObject::tr(" must be installed.");
-    return CustomActions::Actions {
-        CustomActions::Action{
+    CustomActions::Actions actions {
+        CustomActions::Action {
             QObject::tr("Open in file manager"), "thunar ?", 0, -1,
             CustomActions::Action::Type::anyItem,
             "Thunar" + mustBeInstalled, true
@@ -317,23 +317,42 @@ CustomActions::Actions defaultCustomActions()
             CustomActions::Action::Type::file,
             "gedit" + mustBeInstalled, false
         },
-        CustomActions::Action  {
+        CustomActions::Action {
+            QObject::tr("Open containing directory"),
+            R"(bash -c "thunar \"`dirname \"?\"`\"")", 1, 1,
+            CustomActions::Action::Type::anyItem,
+            "Thunar" + mustBeInstalled +
+            QObject::tr(" Does not work correctly if path contains "
+            "certain special symbols."),
+            false
+        },
+        CustomActions::Action {
             QObject::tr("Move to music trash"), "mv ? ~/Music/trash/", 1, -1,
             CustomActions::Action::Type::anyItem,
             QObject::tr("~/Music/trash directory must exist."), false
         },
-        CustomActions::Action  {
+        CustomActions::Action {
             QObject::tr("Move to Trash"), "trash-put ?", 1, -1,
             CustomActions::Action::Type::anyItem,
             "trash-cli" + mustBeInstalled, false
-        },
-        CustomActions::Action  {
-            QObject::tr("Open containing directory"),
-            R"(bash -c "thunar \"`dirname \"?\"`\"")", 1, 1,
-            CustomActions::Action::Type::anyItem,
-            "Thunar" + mustBeInstalled, false
         }
     };
+
+# ifdef WIN32_DEFAULT_CUSTOM_ACTIONS
+    {
+        CustomActions::Action & fileManager = actions[0];
+        fileManager.command = "explorer ?";
+        fileManager.maxArgN = 1;
+        fileManager.comment.clear();
+
+        CustomActions::Action & textEditor = actions[2];
+        textEditor.command = "notepad ?";
+        textEditor.maxArgN = 1;
+        textEditor.comment.clear();
+    }
+# endif
+
+    return actions;
 }
 
 void loadCustomActions(const QDomElement & root,

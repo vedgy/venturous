@@ -195,12 +195,41 @@ char toChar(const QChar & qc)
     return qc.toLatin1();
 }
 
+# ifdef WIN32_CUSTOM_ACTIONS_USE_BACKSLASH
+QString & inPlaceReplaceSlashesWithBackslashes(QString & source)
+{
+    return source.replace('/', '\\');
+}
+QString replaceSlashesWithBackslashes(QString source)
+{
+    return source.replace('/', '\\');
+}
+
+# include <algorithm>
+
+QStringList replaceSlashesWithBackslashes(const QStringList & source)
+{
+    QStringList result = source;
+    std::for_each(result.begin(), result.end(), [](QString & str) {
+        inPlaceReplaceSlashesWithBackslashes(str);
+    });
+    return result;
+}
+# endif // WIN32_CUSTOM_ACTIONS_USE_BACKSLASH
+
 QString joinArgs(const QString & commonItemPrefix,
                  const QStringList & itemNames)
 {
     if (itemNames.empty())
         return "";
+# ifdef WIN32_CUSTOM_ACTIONS_USE_BACKSLASH
+    const QString commonPrefix =
+        replaceSlashesWithBackslashes(commonItemPrefix);
+    const QStringList names = replaceSlashesWithBackslashes(itemNames);
+    return commonPrefix + names.join(' ' + commonPrefix);
+# else
     return commonItemPrefix + itemNames.join(' ' + commonItemPrefix);
+# endif
 }
 
 QStringList getArgs(const QString & commonItemPrefix,
@@ -208,8 +237,16 @@ QStringList getArgs(const QString & commonItemPrefix,
 {
     QStringList args;
     args.reserve(itemNames.size());
+# ifdef WIN32_CUSTOM_ACTIONS_USE_BACKSLASH
+    const QString commonPrefix =
+        replaceSlashesWithBackslashes(commonItemPrefix);
+    QStringList names = replaceSlashesWithBackslashes(itemNames);
+    for (QString & name : names)
+        args.push_back(commonPrefix + std::move(name));
+# else
     for (const QString & name : itemNames)
         args.push_back(commonItemPrefix + name);
+# endif
     return args;
 }
 
@@ -290,8 +327,13 @@ std::pair<QString, QStringList> getProgramAndArgs(
                     pushToCurrent();
                 break;
             case '~':
-                if (mode == Mode::plain)
-                    current += QDir::homePath();
+                if (mode == Mode::plain) {
+                    QString homePath = QDir::homePath();
+# ifdef WIN32_CUSTOM_ACTIONS_USE_BACKSLASH
+                    inPlaceReplaceSlashesWithBackslashes(homePath);
+# endif
+                    current += std::move(homePath);
+                }
                 else
                     pushToCurrent();
                 break;

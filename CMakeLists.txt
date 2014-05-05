@@ -18,6 +18,9 @@ set(PREFERENCES_DIR ~/.config/venturous CACHE STRING
 option(ALWAYS_EMBED_ICONS
         "Always bundle icons with the executable. If disabled, embedding will be done only for WIN32 target."
             ON)
+option(ADAPT_CUSTOM_ACTIONS_IF_WIN32
+        "Adapt custom actions for MS Windows for WIN32 target. This option has no effect for other targets."
+        ON)
 option(DEBUG_VENTUROUS "Print details of internal workflow to stdout." OFF)
 option(BUILD_VENTOOL "Build ${Tool_Name} along with ${Target_Name}." ON)
 
@@ -123,6 +126,13 @@ qtAddResources(Resources ${Resources_Path}/Venturous.qrc)
 if(ALWAYS_EMBED_ICONS OR WIN32)
     qtAddResources(Resources ${Resources_Path}/SimpleFugue/SimpleFugue.qrc)
     add_definitions(-DEMBEDDED_ICONS)
+endif()
+
+if(WIN32 AND ADAPT_CUSTOM_ACTIONS_IF_WIN32)
+    add_definitions(
+        -DWIN32_DEFAULT_CUSTOM_ACTIONS
+        -DWIN32_CUSTOM_ACTIONS_USE_BACKSLASH
+    )
 endif()
 
 
