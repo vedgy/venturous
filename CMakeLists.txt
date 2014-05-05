@@ -79,6 +79,10 @@ add_definitions(
 set(Sources_Path src)
 set(GUI_Path ${Sources_Path}/GUI)
 set(PreferencesWindow_Path ${GUI_Path}/PreferencesWindow)
+set(GeneralPage_Path ${PreferencesWindow_Path}/GeneralPage)
+set(PlaybackPage_Path ${PreferencesWindow_Path}/PlaybackPage)
+set(AddingDirectoryPage_Path ${PreferencesWindow_Path}/AddingDirectoryPage)
+set(CustomActionsPage_Path ${PreferencesWindow_Path}/CustomActionsPage)
 set(MainWindow_Path ${GUI_Path}/MainWindow)
 set(PreferencesComponent_Path ${MainWindow_Path}/PreferencesComponent)
 set(PlaybackComponent_Path ${MainWindow_Path}/PlaybackComponent)
@@ -88,8 +92,10 @@ set(Resources_Path resources)
 include_directories(
     ${QtCoreUtilities_PublicHeaders_Path} ${QtXmlUtilities_PublicHeaders_Path}
     ${TemplateUtilities_PublicHeaders_Path} ${VenturousCore_PublicHeaders_Path}
-    ${Sources_Path} ${GUI_Path} ${PreferencesWindow_Path} ${MainWindow_Path}
-    ${PreferencesComponent_Path} ${PlaybackComponent_Path}
+    ${Sources_Path} ${GUI_Path}
+    ${PreferencesWindow_Path} ${GeneralPage_Path} ${PlaybackPage_Path}
+    ${AddingDirectoryPage_Path} ${CustomActionsPage_Path}
+    ${MainWindow_Path} ${PreferencesComponent_Path} ${PlaybackComponent_Path}
     ${PlaylistComponent_Path}
 )
 
@@ -100,13 +106,13 @@ set(Sources
     ${GUI_Path}/GuiUtilities.cpp
     ${GUI_Path}/Icons.cpp ${GUI_Path}/Actions.cpp ${GUI_Path}/CustomActions.cpp
 
-    ${PreferencesWindow_Path}/GeneralPage.cpp
-    ${PreferencesWindow_Path}/HistoryPreferencesFrame.cpp
-    ${PreferencesWindow_Path}/PlaybackPage.cpp
-    ${PreferencesWindow_Path}/AddingPolicyFrame.cpp
-    ${PreferencesWindow_Path}/PatternListWidget.cpp
-    ${PreferencesWindow_Path}/AddingDirectoryPage.cpp
-    ${PreferencesWindow_Path}/CustomActionsPage.cpp
+    ${GeneralPage_Path}/GeneralPage.cpp
+    ${PlaybackPage_Path}/HistoryPreferencesFrame.cpp
+    ${PlaybackPage_Path}/PlaybackPage.cpp
+    ${AddingDirectoryPage_Path}/AddingPolicyFrame.cpp
+    ${AddingDirectoryPage_Path}/PatternListWidget.cpp
+    ${AddingDirectoryPage_Path}/AddingDirectoryPage.cpp
+    ${CustomActionsPage_Path}/CustomActionsPage.cpp
     ${PreferencesWindow_Path}/RevertAndRestoreDefaultsTab.cpp
     ${PreferencesWindow_Path}/PreferencesWindow.cpp
 
