@@ -31,7 +31,7 @@ GNU/Linux or MS Windows (might also work in OS X, not tested).
 * wget OR curl OR inkscape
 * cmake (2.8 or later)
 * make
-* g++ (4.7 or later)
+* g++ (4.7 or later) [recent versions of clang++ also suffice but only with qt5]
 * qt4 OR qt5 development libraries (Core, XML and GUI/Widgets modules)
 
 ## How to build and install
@@ -46,7 +46,7 @@ GNU/Linux or MS Windows (might also work in OS X, not tested).
 
 3. If you want to install latest stable version, execute the following command:
 
-        git checkout tags/v0.9.4
+        git checkout tags/v1.0
 If you prefer latest development version (can be unstable), just skip this step.
 
 4. Run configuration script:
@@ -75,7 +75,8 @@ to use it for icon generation, pass "generate-png" argument to
     * Audacious bin directory is not added in PATH environment
     variable automatically. User has to manually add it there.
     * audtool is usually unavailable in Windows at all. With audtool
-    missing only basic Venturous features work.
+    missing only basic Venturous features work. The biggest problem is that
+    stopping playback is very buggy in this case.
 * notify-send from libnotify (optional - for desktop notifications)
 
 ## How to uninstall

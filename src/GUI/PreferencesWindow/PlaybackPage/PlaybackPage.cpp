@@ -32,7 +32,7 @@ PlaybackPage::PlaybackPage(QWidget * const parent, const Qt::WindowFlags f)
     QFormLayout * const layout = new QFormLayout(this);
 
     autoSetOptionsCheckBox.setToolTip(
-        tr("If checked, recommended external player options\n"
+        tr("If checked, essential external player options\n"
            "are set each time player is launched.\n"
            "Otherwise, it is user's responsibility to ensure\n"
            "that external player options are correct."));

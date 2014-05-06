@@ -33,7 +33,7 @@
 class PlaylistComponent;
 class PlaybackComponent;
 class PreferencesComponent;
-class Actions;
+struct Actions;
 QT_FORWARD_DECLARE_CLASS(QSharedMemory)
 
 /// WARNING: each method can block execution if not stated otherwise.

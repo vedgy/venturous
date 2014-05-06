@@ -32,7 +32,7 @@
 
 
 class InputController;
-class Actions;
+struct Actions;
 class Preferences;
 namespace AddingItems
 {

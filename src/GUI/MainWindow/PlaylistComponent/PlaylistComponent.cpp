@@ -56,7 +56,6 @@ QString ioError() { return QObject::tr("I/O error"); }
 QString savingFailed() { return QObject::tr("Saving playlist failed."); }
 
 QString editModeTitle() { return QObject::tr("Edit mode"); }
-QString defaultPath() { return QDir::homePath(); }
 
 }
 
