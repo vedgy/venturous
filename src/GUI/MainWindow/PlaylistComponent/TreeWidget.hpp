@@ -65,7 +65,7 @@ public:
     /// @param updateTree If true and additionally edit mode was actually
     /// changed, tree would be updated acccording to new active tree state.
     /// NOTE: assuming that edit mode is actually changed:
-    /// setEditMode(on, true) is equialent to, but faster than
+    /// setEditMode(on, true) is equialent to but faster than
     /// setEditMode(on, false); updateTree().
     void setEditMode(bool on, bool updateTree);
 

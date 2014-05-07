@@ -112,7 +112,8 @@ bool PreferencesComponent::handlePreferencesErrors(
             return true;
         }
         catch (const QtUtilities::Error & error) {
-            const QString message = errorPrefix + ": " + error.message();
+            const QString message = errorPrefix + ": " +
+                                    QString::fromUtf8(error.what());
             if (silentMode) {
                 std::cerr << ERROR_PREFIX <<
                           QtUtilities::qStringToString(message) << std::endl;
