@@ -19,13 +19,19 @@
 # ifndef VENTUROUS_CUSTOM_ACTIONS_HPP
 # define VENTUROUS_CUSTOM_ACTIONS_HPP
 
-# include <QPoint>
+# include <QtGlobal>
 # include <QString>
-# include <QStringList>
-# include <QObject>
 
 # include <vector>
 
+
+namespace GuiUtilities
+{
+class TooltipShower;
+}
+QT_FORWARD_DECLARE_CLASS(QPoint)
+QT_FORWARD_DECLARE_CLASS(QStringList)
+QT_FORWARD_DECLARE_CLASS(QWidget)
 
 namespace CustomActions
 {
@@ -82,11 +88,13 @@ typedef std::vector<Action> Actions;
 /// actions.
 bool showMenu(const Actions & actions, QString commonItemPrefix,
               QStringList itemNames, const QPoint & position);
-
-inline QString noActionsMessage()
-{
-    return QObject::tr("No custom actions are enabled for selected item(s).");
-}
+/// @brief Calls showMenu(actions, commonItemPrefix, itemNames, position).
+/// If it returns false, shows appropriate tooltip using tooltipShower
+/// and widget at position.
+void showMenu(const Actions & actions, QString commonItemPrefix,
+              QStringList itemNames, const QPoint & position,
+              GuiUtilities::TooltipShower & tooltipShower,
+              QWidget * widget = nullptr);
 
 }
 

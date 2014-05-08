@@ -374,10 +374,9 @@ void TreeWidget::contextMenuEvent(QContextMenuEvent * const event)
                 itemNames << itemText(item);
         }
     }
-    if (! CustomActions::showMenu(customActions_, std::move(commonPrefix),
-                                  std::move(itemNames), position)) {
-        tooltipShower_.show(position, CustomActions::noActionsMessage(), this);
-    }
+    CustomActions::showMenu(
+        customActions_, std::move(commonPrefix), std::move(itemNames),
+        position, tooltipShower_, this);
 }
 
 template <typename ItemUser>

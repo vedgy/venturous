@@ -24,6 +24,8 @@
 
 # include "CustomActions.hpp"
 
+# include "GuiUtilities.hpp"
+
 # include <QPoint>
 # include <QString>
 # include <QStringList>
@@ -377,6 +379,22 @@ bool showMenu(const Actions & actions, QString commonItemPrefix,
     CustomMenu * const menu = new CustomMenu(
         actions, std::move(commonItemPrefix), std::move(itemNames));
     return menu->popup(position);
+}
+
+void showMenu(const Actions & actions, QString commonItemPrefix,
+              QStringList itemNames, const QPoint & position,
+              GuiUtilities::TooltipShower & tooltipShower,
+              QWidget * const widget)
+{
+    const int nItems = itemNames.size();
+    if (! showMenu(actions, std::move(commonItemPrefix), std::move(itemNames),
+                   position)) {
+        tooltipShower.show(
+            position,
+            QObject::tr("No custom actions are enabled for selected item%1.").
+            arg(nItems == 1 ? "" : "s"),
+            widget);
+    }
 }
 
 }

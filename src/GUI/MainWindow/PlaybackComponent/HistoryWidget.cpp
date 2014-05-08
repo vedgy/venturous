@@ -323,7 +323,7 @@ void HistoryWidget::removeSelectedItems()
     }
 }
 
-void HistoryWidget::contextMenuEvent(QContextMenuEvent * event)
+void HistoryWidget::contextMenuEvent(QContextMenuEvent * const event)
 {
     const QPoint position = event->globalPos();
     QString commonPrefix;
@@ -360,10 +360,9 @@ void HistoryWidget::contextMenuEvent(QContextMenuEvent * event)
             }
         }
     }
-    if (! CustomActions::showMenu(customActions_, std::move(commonPrefix),
-                                  std::move(itemNames), position)) {
-        tooltipShower_.show(position, CustomActions::noActionsMessage(), this);
-    }
+    CustomActions::showMenu(
+        customActions_, std::move(commonPrefix), std::move(itemNames),
+        position, tooltipShower_, this);
 }
 
 
