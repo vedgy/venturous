@@ -78,18 +78,17 @@ PlaylistComponent::PlaylistComponent(
 # endif
     treeWidget_.setAutoUnfoldedLevels(preferences.treeAutoUnfoldedLevels);
 
-    const std::string errorMessage = itemTree_.load(itemsFilename_);
-    if (errorMessage.empty()) {
-        itemTree_.nodesChanged();
-        treeWidget_.updateTree();
-    }
-    else {
-        itemTree_.topLevelNodes().clear();
-        itemTree_.nodesChanged();
-        showLoadingPlaylistErrorMessage(
-            errorMessage,
-            tr("If you have not yet created (and saved) %1 playlist for "
-               "current user, ignore this error.").arg(APPLICATION_NAME));
+    if (QFileInfo(qItemsFilename_).isFile()) {
+        const std::string errorMessage = itemTree_.load(itemsFilename_);
+        if (errorMessage.empty()) {
+            itemTree_.nodesChanged();
+            treeWidget_.updateTree();
+        }
+        else {
+            itemTree_.topLevelNodes().clear();
+            itemTree_.nodesChanged();
+            showLoadingPlaylistErrorMessage(errorMessage);
+        }
     }
 
     mainWindow.setCentralWidget(& treeWidget_);
@@ -157,12 +156,16 @@ bool PlaylistComponent::quit()
 
 
 void PlaylistComponent::showLoadingPlaylistErrorMessage(
-    const std::string & errorMessage, const QString & suffix)
+    const QString & errorMessage)
 {
-    QString message = tr("Error: ") + QtUtilities::toQString(errorMessage);
-    if (! suffix.isEmpty())
-        message += '\n' + suffix;
-    inputController_.showMessage(tr("Loading playlist failed"), message);
+    inputController_.showMessage(tr("Loading playlist failed"),
+                                 tr("Error: ") + errorMessage);
+}
+
+void PlaylistComponent::showLoadingPlaylistErrorMessage(
+    const std::string & errorMessage)
+{
+    showLoadingPlaylistErrorMessage(QtUtilities::toQString(errorMessage));
 }
 
 void PlaylistComponent::updateActionsState()
@@ -320,13 +323,19 @@ void PlaylistComponent::loadTemporaryPlaylist(FilenameGetter filenameGetter)
         return;
     const QString file = filenameGetter();
     if (! file.isEmpty()) {
-        const std::string errorMessage =
-            temporaryTree_->load(QtUtilities::qStringToString(file));
-        if (! errorMessage.empty()) {
-            temporaryTree_->topLevelNodes().clear();
-            showLoadingPlaylistErrorMessage(errorMessage);
+        if (QFileInfo(file).isFile()) {
+            const std::string errorMessage =
+                temporaryTree_->load(QtUtilities::qStringToString(file));
+            if (! errorMessage.empty()) {
+                temporaryTree_->topLevelNodes().clear();
+                showLoadingPlaylistErrorMessage(errorMessage);
+            }
+            treeWidget_.updateTree();
         }
-        treeWidget_.updateTree();
+        else {
+            showLoadingPlaylistErrorMessage(
+                tr("\"%1\" - no such file.").arg(file));
+        }
     }
 }
 

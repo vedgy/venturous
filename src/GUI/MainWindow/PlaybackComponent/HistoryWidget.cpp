@@ -28,6 +28,8 @@
 # include <QList>
 # include <QString>
 # include <QStringList>
+# include <QDir>
+# include <QFileInfo>
 # include <QFont>
 # include <QListWidgetItem>
 # include <QKeyEvent>
@@ -141,6 +143,8 @@ bool HistoryWidget::load(const std::string & filename)
 
 bool HistoryWidget::save(const std::string & filename) const
 {
+    QDir dir;
+    dir.mkpath(QFileInfo(QtUtilities::toQString(filename)).absolutePath());
     return history_.save(filename);
 }
 

@@ -391,8 +391,8 @@ void showMenu(const Actions & actions, QString commonItemPrefix,
                    position)) {
         tooltipShower.show(
             position,
-            QObject::tr("No custom actions are enabled for selected item%1.").
-            arg(nItems == 1 ? "" : "s"),
+            QObject::tr("No custom actions are enabled for selected %1.").
+            arg(nItems == 1 ? QObject::tr("item") : QObject::tr("items")),
             widget);
     }
 }

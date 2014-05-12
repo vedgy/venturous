@@ -32,7 +32,7 @@
 # include <QtCoreUtilities/String.hpp>
 
 # include <QString>
-# include <QFile>
+# include <QFileInfo>
 # include <QMessageBox>
 
 # include <cassert>
@@ -50,7 +50,7 @@ PreferencesComponent::PreferencesComponent(
               QtUtilities::qStringToString(preferencesFilename_) << std::endl;
 # endif
 
-    if (QFile::exists(preferencesFilename_)) {
+    if (QFileInfo(preferencesFilename_).isFile()) {
         if (handlePreferencesErrors([this] {
         savedPreferences_.load(preferencesFilename_);
         }, tr("Loading preferences failed"))) {

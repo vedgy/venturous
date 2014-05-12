@@ -24,7 +24,7 @@
 
 
 # ifdef EMBEDDED_ICONS
-# include <QFile>
+# include <QFileInfo>
 # endif // EMBEDDED_ICONS
 
 # include "Icons.hpp"
@@ -159,12 +159,12 @@ Theme::Theme(const bool alwaysUseFallbackIcons)
             for (int size : sizes) {
                 const QString filename = prefix + QString("%1x%1").arg(size) +
                                          contextAndName + ".png";
-                if (QFile::exists(filename))
+                if (QFileInfo(filename).isFile())
                     icons_[i].addFile(filename, QSize(size, size));
             }
             const QString scalableIcon = prefix + "scalable" +
                                          contextAndName + ".svg";
-            if (QFile::exists(scalableIcon))
+            if (QFileInfo(scalableIcon).isFile())
                 icons_[i].addFile(scalableIcon);
 
 # ifdef DEBUG_VENTUROUS_ICONS

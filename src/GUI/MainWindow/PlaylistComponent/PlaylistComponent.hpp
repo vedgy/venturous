@@ -79,11 +79,11 @@ signals:
     void editModeChanged();
 
 private:
-    /// @brief Shows QMessageBox with given errorMessage.
-    /// @param suffix If not empty, ('\n' + suffix) is appended to default
-    /// error message.
-    void showLoadingPlaylistErrorMessage(const std::string & errorMessage,
-                                         const QString & suffix = QString());
+    /// @brief Shows QMessageBox with an appropriate title and errorMessage.
+    void showLoadingPlaylistErrorMessage(const QString & errorMessage);
+    /// @brief Calls
+    /// showLoadingPlaylistErrorMessage(QtUtilities::toQString(errorMessage));
+    void showLoadingPlaylistErrorMessage(const std::string & errorMessage);
 
     /// Must be called after switching edit mode.
     /// NOTE: does not block execution.
