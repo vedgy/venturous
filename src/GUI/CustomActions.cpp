@@ -366,10 +366,10 @@ constexpr int Action::minMinArgN, Action::maxMinArgN,
 
 bool operator == (const Action & lhs, const Action & rhs)
 {
-    return lhs.text == rhs.text && lhs.command == rhs.command &&
+    return lhs.enabled == rhs.enabled &&
+           lhs.text == rhs.text && lhs.command == rhs.command &&
            lhs.minArgN == rhs.minArgN && lhs.maxArgN == rhs.maxArgN &&
-           lhs.type == rhs.type && lhs.comment == rhs.comment &&
-           lhs.enabled == rhs.enabled;
+           lhs.type == rhs.type && lhs.comment == rhs.comment;
 }
 
 bool showMenu(const Actions & actions, QString commonItemPrefix,

@@ -84,13 +84,13 @@ namespace CustomActions
 {
 VENTUROUS_PREFERENCES_STRING_CONSTANT(localRoot, "CustomActions")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(action, "action")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(enabled, "Enabled")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(text, "Text")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(command, "Command")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(minArgN, "MinArgN")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(maxArgN, "MaxArgN")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(type, "Type")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(comment, "Comment")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(enabled, "Enabled")
 }
 
 VENTUROUS_PREFERENCES_STRING_CONSTANT(root, APPLICATION_NAME)
@@ -178,6 +178,7 @@ void appendCustomActions(XmlElement & parent,
 
     for (const CustomActions::Action & a : actions) {
         XmlElement e = base.appendChild(action());
+        e.appendChild(enabled(), a.enabled);
         e.appendChild(text(), a.text);
         e.appendChild(command(), a.command);
         e.appendChild(minArgN(), a.minArgN);
@@ -186,7 +187,6 @@ void appendCustomActions(XmlElement & parent,
                       static_cast<CustomActions::Action::TypeUnderlyingType>(
                           a.type));
         e.appendChild(comment(), a.comment);
-        e.appendChild(enabled(), a.enabled);
     }
 }
 
@@ -259,38 +259,37 @@ CustomActions::Actions defaultCustomActions()
     const QString mustBeInstalled = QObject::tr(" must be installed.");
     CustomActions::Actions actions {
         CustomActions::Action {
-            QObject::tr("Open in file manager"), "thunar ?", 0, -1,
+            true, QObject::tr("Open in file manager"), "thunar ?", 0, -1,
             CustomActions::Action::Type::anyItem,
-            "Thunar" + mustBeInstalled, true
+            "Thunar" + mustBeInstalled
         },
         CustomActions::Action {
-            QObject::tr("Open in VLC"), "vlc ?", 0, -1,
+            false, QObject::tr("Open in VLC"), "vlc ?", 0, -1,
             CustomActions::Action::Type::anyItem,
-            "VLC" + mustBeInstalled, false
+            "VLC" + mustBeInstalled
         },
         CustomActions::Action {
-            QObject::tr("Edit text file"), "mousepad ?", 0, -1,
+            false, QObject::tr("View/edit text file"), "mousepad ?", 0, -1,
             CustomActions::Action::Type::file,
-            "Mousepad" + mustBeInstalled, false
+            "Mousepad" + mustBeInstalled
         },
         CustomActions::Action {
-            QObject::tr("Open containing directory"),
+            false, QObject::tr("Open containing directory"),
             R"(bash -c "thunar \"`dirname \"?\"`\"")", 1, 1,
             CustomActions::Action::Type::anyItem,
             "Thunar" + mustBeInstalled +
             QObject::tr(" Does not work correctly if path contains "
-            "certain special symbols."),
-            false
+            "certain special symbols.")
         },
         CustomActions::Action {
-            QObject::tr("Move to music trash"), "mv ? ~/Music/trash/", 1, -1,
-            CustomActions::Action::Type::anyItem,
-            QObject::tr("~/Music/trash directory must exist."), false
+            false, QObject::tr("Move to music trash"), "mv ? ~/Music/trash/",
+            1, -1, CustomActions::Action::Type::anyItem,
+            QObject::tr("~/Music/trash directory must exist.")
         },
         CustomActions::Action {
-            QObject::tr("Move to Trash"), "trash-put ?", 1, -1,
+            false, QObject::tr("Move to Trash"), "trash-put ?", 1, -1,
             CustomActions::Action::Type::anyItem,
-            "trash-cli" + mustBeInstalled, false
+            "trash-cli" + mustBeInstalled
         }
     };
 
@@ -327,6 +326,7 @@ void loadCustomActions(const QDomElement & parent,
         const QDomElement & e = collection[i];
         Action & a = actions[i];
 
+        copyUniqueChildsTextTo(e, enabled(), a.enabled);
         copyUniqueChildsTextTo(e, text(), a.text);
         copyUniqueChildsTextTo(e, command(), a.command);
         copyUniqueChildsTextToRange(e, minArgN(), a.minArgN,
@@ -339,7 +339,6 @@ void loadCustomActions(const QDomElement & parent,
                 a.type = static_cast<Action::Type>(t);
         }
         copyUniqueChildsTextTo(e, comment(), a.comment);
-        copyUniqueChildsTextTo(e, enabled(), a.enabled);
     }
 }
 

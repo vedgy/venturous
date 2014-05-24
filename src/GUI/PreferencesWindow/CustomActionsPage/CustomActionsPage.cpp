@@ -49,6 +49,7 @@
 # include <QTableWidget>
 
 # include <cstddef>
+# include <cassert>
 # include <utility>
 # include <functional>
 # include <algorithm>
@@ -80,35 +81,50 @@ void setInt(QTableWidget & table, int row, int column,
     table.setCellWidget(row, column, spinBox);
 }
 
+namespace Columns
+{
+constexpr int enabled = 0, text = enabled + 1, command = text + 1,
+              min = 3, max = min + 1, type = max + 1, comment = type + 1,
+              n = 7;
+}
+
+namespace CellWidgetId
+{
+constexpr int min = 0, max = 1, type = 2;
+}
+
 /// CustomActions::Action:: minArgN, maxArgN, type.
 typedef std::array<int, 3> CellWidgetValues;
 void setCellWidgetColumns(QTableWidget & table, int row,
                           const CellWidgetValues & cellWidgetValues)
 {
     typedef CustomActions::Action A;
-    setInt(table, row, 2, cellWidgetValues[0], A::minMinArgN, A::maxMinArgN);
-    setInt(table, row, 3, cellWidgetValues[1], A::minMaxArgN, A::maxMaxArgN);
+    setInt(table, row, Columns::min, cellWidgetValues[CellWidgetId::min],
+           A::minMinArgN, A::maxMinArgN);
+    setInt(table, row, Columns::max, cellWidgetValues[CellWidgetId::max],
+           A::minMaxArgN, A::maxMaxArgN);
     {
         QComboBox * const c = new QComboBox;
         c->addItems( { QObject::tr("File"), QObject::tr("Directory"),
                        QObject::tr("Any item")
                      });
-        c->setCurrentIndex(cellWidgetValues[2]);
-        table.setCellWidget(row, 4, c);
+        c->setCurrentIndex(cellWidgetValues[CellWidgetId::type]);
+        table.setCellWidget(row, Columns::type, c);
     }
 }
 
 void setRow(QTableWidget & table, int row, const CustomActions::Action & action)
 {
-    setText(table, row, 0, action.text);
-    setText(table, row, 1, action.command);
+    setText(table, row, Columns::text, action.text);
+    setText(table, row, Columns::command, action.command);
     setCellWidgetColumns(table, row, {{
             action.minArgN, action.maxArgN,
             static_cast<int>(action.type)
         }
     });
-    setText(table, row, 5, action.comment);
-    setBool(table, row, 6, action.enabled);
+    setText(table, row, Columns::comment, action.comment);
+    /// NOTE: "enabled" column must be set last.
+    setBool(table, row, Columns::enabled, action.enabled);
 }
 
 void addLabel(const QString & text, QWidget * parent, QVBoxLayout * layout)
@@ -158,9 +174,12 @@ TableIndices getSortedSelected(const QTableWidget & table,
 CellWidgetValues getCellWidgetValues(const QTableWidget & table, int row)
 {
     return {{
-            qobject_cast<QSpinBox *>(table.cellWidget(row, 2))->value(),
-            qobject_cast<QSpinBox *>(table.cellWidget(row, 3))->value(),
-            qobject_cast<QComboBox *>(table.cellWidget(row, 4))->currentIndex()
+            qobject_cast<QSpinBox *>(
+                table.cellWidget(row, Columns::min))->value(),
+            qobject_cast<QSpinBox *>(
+                table.cellWidget(row, Columns::max))->value(),
+            qobject_cast<QComboBox *>(
+                table.cellWidget(row, Columns::type))->currentIndex()
         }
     };
 }
@@ -168,8 +187,10 @@ CellWidgetValues getCellWidgetValues(const QTableWidget & table, int row)
 void moveRow(QTableWidget & table, int from, int to)
 {
     setCellWidgetColumns(table, to, getCellWidgetValues(table, from));
-    const int nColumns = table.columnCount();
-    for (int col = 0; col < nColumns; ++col) {
+    /// NOTE: columns traversal order is important, because "enabled" column
+    /// must be set last.
+    assert(Columns::enabled == 0);
+    for (int col = Columns::n - 1; col >= 0; --col) {
         QTableWidgetItem * const item = table.takeItem(from, col);
         if (item != nullptr)
             table.setItem(to, col, item);
@@ -178,12 +199,14 @@ void moveRow(QTableWidget & table, int from, int to)
 
 void selectRows(QTableWidget & table, const TableIndices & indices)
 {
-    const int lastColumn = table.columnCount() - 1;
     const QAbstractItemModel & model = * table.model();
     QItemSelection selection;
     selection.reserve(int(indices.size()));
-    for (int i : indices)
-        selection.push_back( { model.index(i, 0), model.index(i, lastColumn) });
+    for (int i : indices) {
+        selection.push_back( { model.index(i, 0),
+                               model.index(i, Columns::n - 1)
+                             });
+    }
     table.selectionModel()->select(selection, QItemSelectionModel::Select);
 }
 
@@ -196,10 +219,10 @@ CustomActionsPage::CustomActionsPage(
     : PreferencesPage(parent, f)
 {
     table_.setSelectionBehavior(QAbstractItemView::SelectRows);
-    table_.setColumnCount(7);
+    table_.setColumnCount(Columns::n);
     table_.setHorizontalHeaderLabels( {
-        tr("Text"), tr("Command"), tr("Min"), tr("Max"), tr("Type"),
-        tr("Comment"), tr("Enabled")
+        tr("Enabled"), tr("Text"), tr("Command"), tr("Min"), tr("Max"),
+        tr("Type"), tr("Comment")
     });
     connect(& table_, SIGNAL(cellChanged(int, int)),
             SLOT(onCellChanged(int, int)));
@@ -249,16 +272,18 @@ void CustomActionsPage::writeUiPreferencesTo(Preferences & destination) const
     for (std::size_t i = 0; i < actions.size(); ++i) {
         CustomActions::Action & a = actions[i];
         const int row = int(i);
-        a.text = table_.item(row, 0)->text();
-        a.command = table_.item(row, 1)->text();
+        a.enabled = table_.item(row, Columns::enabled)->checkState() ==
+                    Qt::Checked;
+        a.text = table_.item(row, Columns::text)->text();
+        a.command = table_.item(row, Columns::command)->text();
         {
             const CellWidgetValues values = getCellWidgetValues(table_, row);
-            a.minArgN = values[0];
-            a.maxArgN = values[1];
-            a.type = static_cast<CustomActions::Action::Type>(values[2]);
+            a.minArgN = values[CellWidgetId::min];
+            a.maxArgN = values[CellWidgetId::max];
+            a.type = static_cast<CustomActions::Action::Type>(
+                         values[CellWidgetId::type]);
         }
-        a.comment = table_.item(row, 5)->text();
-        a.enabled = table_.item(row, 6)->checkState() == Qt::Checked;
+        a.comment = table_.item(row, Columns::comment)->text();
     }
 }
 
@@ -345,11 +370,12 @@ void CustomActionsPage::onCellChanged(const int row, const int column)
     std::cout << "Custom actions table: cell (" << row << ',' << column
               << ") changed." << std::endl;
 # endif
-    if (column == table_.columnCount() - 1) {
+    if (column == Columns::enabled) {
         const bool blocked = table_.blockSignals(true);
         const bool enabled =
             table_.item(row, column)->checkState() == Qt::Checked;
-        for (int col = 0; col < column; ++col) {
+        assert(Columns::enabled == 0);
+        for (int col = 1; col < Columns::n; ++col) {
             QTableWidgetItem * const item = table_.item(row, col);
             if (item == nullptr)
                 table_.cellWidget(row, col)->setEnabled(enabled);
@@ -375,11 +401,14 @@ void CustomActionsPage::onShowHelpToggled()
                                           helpFrame_.get(), true, 0),
             0, Qt::AlignCenter);
 
+        int number = 0;
         const auto al = [&](const QString & text) {
-            addLabel(text, helpFrame_.get(), layout);
+            addLabel(text.arg(++number), helpFrame_.get(), layout);
         };
-        al(tr("1. <i>Text</i> is displayed in the menu."));
-        al(tr("2. <i>Command</i> is executed if this action is triggered. "
+
+        al(tr("%1. <i>Enabled</i>: disabled actions are not shown in menu."));
+        al(tr("%1. <i>Text</i> is displayed in the menu."));
+        al(tr("%1. <i>Command</i> is executed if this action is triggered. "
               "The following rules apply to <i>Command</i> text:<ul>"
               "<li>most Bash shell rules with respect to double and single "
               "quotes, backslash, whitespaces;</li>"
@@ -387,15 +416,14 @@ void CustomActionsPage::onShowHelpToggled()
               "escaped with '\\' or enclosed in single quotes;</li>"
               "<li>'~' symbol is replaced with current user's HOME directory."
               "</li></ul>"));
-        al(tr("3,4. <i>Min</i>, <i>Max</i> - minimum and maximum number of "
+        al(tr("%1,%2. <i>Min</i>, <i>Max</i> - minimum and maximum number of "
               "selected items respectively. Custom action is available only if "
               "number of selected items is between <i>Min</i> and <i>Max</i>. "
-              "<i>Max</i>=-1 means \"without upper bound\"."));
-        al(tr("5. <i>Type</i> - allowed type of selected items."));
-        al(tr("6. <i>Comment</i> - field that is not used by the program. "
+              "<i>Max</i>=-1 means \"without upper bound\".").arg(++number));
+        al(tr("%1. <i>Type</i> - allowed type of selected items."));
+        al(tr("%1. <i>Comment</i> - field that is not used by the program. "
               "It can be used to provide user with additional information "
               "about custom action."));
-        al(tr("7. <i>Enabled</i>: disabled actions are not shown in menu."));
 
         this->layout()->addWidget(helpFrame_.get());
     }

@@ -50,11 +50,12 @@ struct Action {
 
     static Action getEmpty() {
         return {
-            QString(), QString(), 1, 1, Action::Type::anyItem, QString(), false
+            false, QString(), QString(), 1, 1, Action::Type::anyItem, QString()
         };
     }
 
 
+    bool enabled;
     /// Is displayed in the menu.
     QString text;
     /// Is executed if this action is triggered. '?' symbols are replaced with
@@ -65,7 +66,6 @@ struct Action {
     /// Is not used by CustomActions.
     /// Can be used for detailed action description.
     QString comment;
-    bool enabled;
 };
 
 bool operator == (const Action & lhs, const Action & rhs);
