@@ -30,7 +30,6 @@
 
 
 /// Manages preferences. Saves and loads them in XML format.
-/// Throws QtUtilities::Error or its descendant if error occurs.
 class Preferences
 {
 public:
@@ -80,10 +79,12 @@ public:
     explicit Preferences();
 
     /// @brief Saves preferences to file filename.
+    /// @throw QtUtilities::XmlWriting::WriteError in case of error.
     void save(const QString & filename) const;
 
     /// @brief Loads preferences from file filename.
-    /// NOTE: in case of failure (throwing Error) state of this becomes
+    /// @throw QtUtilities::XmlReading::ReadError in case of error.
+    /// NOTE: in case of failure (throwing ReadError) state of this becomes
     /// undefined.
     void load(const QString & filename);
 

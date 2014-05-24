@@ -40,7 +40,7 @@ int main(int argc, char * argv[])
     QSharedMemory(key).attach();
 
     std::unique_ptr<QSharedMemory> shared(new QSharedMemory(key));
-    if (! shared->create(1, QSharedMemory::ReadWrite)) {
+    if (! shared->create(sizeof(char), QSharedMemory::ReadWrite)) {
         shared->attach(QSharedMemory::ReadWrite);
         shared->lock();
         *(char *)shared->data() = 'W';

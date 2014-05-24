@@ -61,8 +61,8 @@ GeneralPage::GeneralPage(QWidget * const parent, const Qt::WindowFlags f)
     QFormLayout * const layout = new QFormLayout(this);
 
     alwaysUseFallbackIconsCheckBox.setToolTip(tr("If checked, fallback "
-            "(application default) icons will always be used.\n"
-            "Otherwise, icons from system theme will be preferred.\n"
+            "(application default) icons will always be used;\n"
+            "otherwise, icons from system theme will be preferred.\n"
             "Changing this option will take effect after restarting the "
             "application."));
     layout->addRow(tr("Always use fallback icons"),
@@ -88,8 +88,8 @@ GeneralPage::GeneralPage(QWidget * const parent, const Qt::WindowFlags f)
 
     addNotificationAreaSubOption(
         layout, closeToNotificationAreaCheckBox,
-        tr("If checked, %1 window is closed to notification area.\n"
-           "Otherwise, closing is equialent to quitting.").arg(
+        tr("If checked, %1 window is closed to notification area;\n"
+           "otherwise, closing is equialent to quitting.").arg(
             APPLICATION_NAME),
         tr("Close"));
 
@@ -123,8 +123,8 @@ GeneralPage::GeneralPage(QWidget * const parent, const Qt::WindowFlags f)
 
     saveToDiskImmediatelyCheckBox.setToolTip(
         tr("If checked, settings will be saved to disk\n"
-           "immediately after closing preferences window.\n"
-           "Otherwise - before application quit only."));
+           "immediately after closing preferences window;\n"
+           "otherwise - before application quit only."));
     layout->addRow(tr("Save preferences to disk immediately"),
                    & saveToDiskImmediatelyCheckBox);
 

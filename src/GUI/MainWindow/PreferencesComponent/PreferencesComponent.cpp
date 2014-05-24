@@ -40,10 +40,10 @@
 
 
 PreferencesComponent::PreferencesComponent(
-    InputController & inputController,
-    const QString & preferencesDir)
-    : inputController_(inputController),
-      preferencesFilename_(preferencesDir + APPLICATION_NAME ".xml")
+    InputController & inputController, const QString & preferencesDir)
+    : preferences(), inputController_(inputController),
+      preferencesFilename_(preferencesDir + APPLICATION_NAME ".xml"),
+      savedPreferences_(preferences)
 {
 # ifdef DEBUG_VENTUROUS_PREFERENCES_COMPONENT
     std::cout << "preferencesFilename_ = " <<

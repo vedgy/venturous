@@ -74,16 +74,16 @@ PatternListWidget::PatternListWidget(QWidget * const parent) :
 {
     setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-    knownPatterns_.reserve(AddingItems::allMetaDataPatterns.size() +
-                           AddingItems::allAudioPatterns.size());
+    knownPatterns_.reserve(AddingItems::allMetaDataPatterns().size() +
+                           AddingItems::allAudioPatterns().size());
 
     captionRows_[0] = count();
     addCaption(this, tr("Meta data patterns"));
-    addKnownPatterns(AddingItems::allMetaDataPatterns);
+    addKnownPatterns(AddingItems::allMetaDataPatterns());
 
     captionRows_[1] = count();
     addCaption(this, tr("Audio patterns"));
-    addKnownPatterns(AddingItems::allAudioPatterns);
+    addKnownPatterns(AddingItems::allAudioPatterns());
 
     std::sort(knownPatterns_.begin(), knownPatterns_.end());
 

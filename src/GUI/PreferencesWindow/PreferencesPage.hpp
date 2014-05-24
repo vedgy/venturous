@@ -30,7 +30,7 @@ public:
     explicit PreferencesPage(QWidget * parent = nullptr,
                              Qt::WindowFlags f = 0) : QWidget(parent, f) {}
 
-    virtual ~PreferencesPage() {}
+    virtual ~PreferencesPage() = default;
 
     /// @brief Sets UI values from source.
     virtual void setUiPreferences(const Preferences & source) = 0;

@@ -55,7 +55,7 @@ HistoryPreferencesFrame::HistoryPreferencesFrame(
 
     saveToDiskImmediatelyCheckBox.setToolTip(
         tr("If checked, history will be saved to disk each time new item\n"
-           "is added, otherwise - before application quit only."));
+           "is added; otherwise - before application quit only."));
     layout->addRow(tr("Save to disk immediately"),
                    & saveToDiskImmediatelyCheckBox);
 

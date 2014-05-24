@@ -22,9 +22,8 @@
 
 # include <VenturousCore/AddingItems.hpp>
 
-# include <QtXmlUtilities/Shortcuts.hpp>
-
-# include <QtCoreUtilities/Validation.hpp>
+# include <QtXmlUtilities/ReadingShortcuts.hpp>
+# include <QtXmlUtilities/WritingShortcuts.hpp>
 
 # include <QString>
 # include <QStringList>
@@ -37,30 +36,6 @@
 
 namespace
 {
-template <typename Number>
-bool copyUniqueChildsTextToMax(const QDomElement & e, const QString & tagName,
-                               Number & destination, Number maxValue)
-{
-    if (QtUtilities::Xml::copyUniqueChildsTextTo(e, tagName, destination)) {
-        QtUtilities::checkMaxValue(tagName, destination, maxValue);
-        return true;
-    }
-    return false;
-}
-
-template <typename Number>
-bool copyUniqueChildsTextToRange(const QDomElement & e, const QString & tagName,
-                                 Number & destination, Number minValue,
-                                 Number maxValue)
-{
-    if (QtUtilities::Xml::copyUniqueChildsTextTo(e, tagName, destination)) {
-        QtUtilities::checkRange(tagName, destination, minValue, maxValue);
-        return true;
-    }
-    return false;
-}
-
-
 namespace Names
 {
 namespace Playback
@@ -121,130 +96,85 @@ const QString root = APPLICATION_NAME,
 }
 
 
-void appendQStringList(QDomDocument & doc, QDomElement & e,
-                       const QString & localRootTagName,
-                       const QStringList & list,
-                       const QString & itemTagName)
-{
-    QDomElement localRoot = doc.createElement(localRootTagName);
-    for (const QString & s : list) {
-        localRoot.appendChild(
-            QtUtilities::Xml::createElement(doc, itemTagName, s));
-    }
-    e.appendChild(localRoot);
-}
+typedef QtUtilities::XmlWriting::Element XmlElement;
 
-void appendHistory(QDomDocument & doc, QDomElement & root,
+void appendHistory(XmlElement & parent,
                    const Preferences::Playback::History & history)
 {
-    using namespace QtUtilities::Xml;
     using namespace Names::Playback::History;
-    QDomElement e = doc.createElement(localRoot);
+    XmlElement e = parent.appendChild(localRoot);
 
-    e.appendChild(createElement(doc, maxSize, history.maxSize));
-    e.appendChild(createElement(doc, copyPlayedEntryToTop,
-                                history.copyPlayedEntryToTop));
-    e.appendChild(createElement(doc, saveToDiskImmediately,
-                                history.saveToDiskImmediately));
-    e.appendChild(createElement(doc, nHiddenDirs, history.nHiddenDirs));
-    e.appendChild(createElement(doc, currentIndex, history.currentIndex));
-
-    root.appendChild(e);
+    e.appendChild(maxSize, history.maxSize);
+    e.appendChild(copyPlayedEntryToTop, history.copyPlayedEntryToTop);
+    e.appendChild(saveToDiskImmediately, history.saveToDiskImmediately);
+    e.appendChild(nHiddenDirs, history.nHiddenDirs);
+    e.appendChild(currentIndex, history.currentIndex);
 }
 
-void appendPlayback(QDomDocument & doc, QDomElement & root,
-                    const Preferences::Playback & playback)
+void appendPlayback(XmlElement & parent, const Preferences::Playback & playback)
 {
-    using namespace QtUtilities::Xml;
     using namespace Names::Playback;
-    QDomElement e = doc.createElement(localRoot);
+    XmlElement e = parent.appendChild(localRoot);
 
-    e.appendChild(createElement(doc, autoSetExternalPlayerOptions,
-                                playback.autoSetExternalPlayerOptions));
-    e.appendChild(createElement(doc, autoHideExternalPlayerWindow,
-                                playback.autoHideExternalPlayerWindow));
+    e.appendChild(autoSetExternalPlayerOptions,
+                  playback.autoSetExternalPlayerOptions);
+    e.appendChild(autoHideExternalPlayerWindow,
+                  playback.autoHideExternalPlayerWindow);
 
-    e.appendChild(createElement(doc, nextFromHistory,
-                                playback.nextFromHistory));
-    e.appendChild(createElement(doc, desktopNotifications,
-                                playback.desktopNotifications));
-    e.appendChild(
-        createElement(
-            doc, startupPolicy,
-            static_cast<Preferences::Playback::StartupPolicyUnderlyingType>(
-                playback.startupPolicy)));
+    e.appendChild(nextFromHistory, playback.nextFromHistory);
+    e.appendChild(desktopNotifications, playback.desktopNotifications);
+    e.appendChild(startupPolicy,
+                  static_cast <
+                  Preferences::Playback::StartupPolicyUnderlyingType >(
+                      playback.startupPolicy));
 
-    appendHistory(doc, e, playback.history);
-
-    root.appendChild(e);
+    appendHistory(e, playback.history);
 }
 
-void appendAddingItemsPolicy(QDomDocument & doc, QDomElement & root,
+void appendAddingItemsPolicy(XmlElement & parent,
                              const AddingItems::Policy & policy)
 {
-    using namespace QtUtilities::Xml;
     using namespace Names::AddingItemsPolicy;
-    QDomElement e = doc.createElement(localRoot);
+    XmlElement e = parent.appendChild(localRoot);
 
-    appendQStringList(doc, e, filePatterns, policy.filePatterns, pattern);
-    appendQStringList(doc, e, mediaDirFilePatterns,
-                      policy.mediaDirFilePatterns, pattern);
-    e.appendChild(createElement(doc, addFiles, policy.addFiles));
-    e.appendChild(createElement(doc, addMediaDirs, policy.addMediaDirs));
-    e.appendChild(createElement(doc, ifBothAddFiles, policy.ifBothAddFiles));
-    e.appendChild(createElement(doc, ifBothAddMediaDirs,
-                                policy.ifBothAddMediaDirs));
-
-    root.appendChild(e);
+    e.appendQStringList(filePatterns, pattern, policy.filePatterns);
+    e.appendQStringList(mediaDirFilePatterns, pattern,
+                        policy.mediaDirFilePatterns);
+    e.appendChild(addFiles, policy.addFiles);
+    e.appendChild(addMediaDirs, policy.addMediaDirs);
+    e.appendChild(ifBothAddFiles, policy.ifBothAddFiles);
+    e.appendChild(ifBothAddMediaDirs, policy.ifBothAddMediaDirs);
 }
 
-void appendCustomActions(QDomDocument & doc, QDomElement & root,
+void appendCustomActions(XmlElement & parent,
                          const CustomActions::Actions & actions)
 {
-    using namespace QtUtilities::Xml;
     using namespace Names::CustomActions;
-    QDomElement base = doc.createElement(localRoot);
+    XmlElement base = parent.appendChild(localRoot);
 
     for (const CustomActions::Action & a : actions) {
-        QDomElement e = doc.createElement(action);
-        e.appendChild(createElement(doc, text, a.text));
-        e.appendChild(createElement(doc, command, a.command));
-        e.appendChild(createElement(doc, minArgN, a.minArgN));
-        e.appendChild(createElement(doc, maxArgN, a.maxArgN));
-        e.appendChild(
-            createElement(
-                doc, type,
-                static_cast<CustomActions::Action::TypeUnderlyingType>(
-                    a.type)));
-        e.appendChild(createElement(doc, comment, a.comment));
-        e.appendChild(createElement(doc, enabled, a.enabled));
-        base.appendChild(e);
-    }
-    root.appendChild(base);
-}
-
-
-void loadQStringList(const QDomElement & e, const QString & localRootTagName,
-                     QStringList & list,  const QString & itemTagName)
-{
-    using namespace QtUtilities::Xml;
-    const QDomElement localRoot = getUniqueChild(e, localRootTagName);
-    if (! localRoot.isNull()) {
-        list = getChildren<QStringList>(localRoot, itemTagName,
-        [](const QDomElement & de) {
-            return de.text();
-        });
+        XmlElement e = base.appendChild(action);
+        e.appendChild(text, a.text);
+        e.appendChild(command, a.command);
+        e.appendChild(minArgN, a.minArgN);
+        e.appendChild(maxArgN, a.maxArgN);
+        e.appendChild(type,
+                      static_cast<CustomActions::Action::TypeUnderlyingType>(
+                          a.type));
+        e.appendChild(comment, a.comment);
+        e.appendChild(enabled, a.enabled);
     }
 }
 
-void loadHistory(const QDomElement & root,
+
+void loadHistory(const QDomElement & parent,
                  Preferences::Playback::History & history)
 {
-    using namespace QtUtilities::Xml;
+    using namespace QtUtilities::XmlReading;
     using namespace Names::Playback::History;
     typedef Preferences::Playback::History H;
 
-    const QDomElement e = getUniqueChild(root, localRoot);
+    const QDomElement e = getUniqueChild(parent, localRoot);
 
     copyUniqueChildsTextToMax(e, maxSize, history.maxSize, H::maxMaxSize);
     copyUniqueChildsTextTo(e, copyPlayedEntryToTop,
@@ -257,13 +187,13 @@ void loadHistory(const QDomElement & root,
                                 H::multipleItemsIndex, int(H::maxMaxSize));
 }
 
-void loadPlayback(const QDomElement & root, Preferences::Playback & playback)
+void loadPlayback(const QDomElement & parent, Preferences::Playback & playback)
 {
-    using namespace QtUtilities::Xml;
+    using namespace QtUtilities::XmlReading;
     using namespace Names::Playback;
     typedef Preferences::Playback P;
 
-    const QDomElement e = getUniqueChild(root, localRoot);
+    const QDomElement e = getUniqueChild(parent, localRoot);
 
     copyUniqueChildsTextTo(e, autoSetExternalPlayerOptions,
                            playback.autoSetExternalPlayerOptions);
@@ -282,16 +212,16 @@ void loadPlayback(const QDomElement & root, Preferences::Playback & playback)
     loadHistory(e, playback.history);
 }
 
-void loadAddingItemsPolicy(const QDomElement & root,
+void loadAddingItemsPolicy(const QDomElement & parent,
                            AddingItems::Policy & policy)
 {
-    using namespace QtUtilities::Xml;
+    using namespace QtUtilities::XmlReading;
     using namespace Names::AddingItemsPolicy;
-    const QDomElement e = getUniqueChild(root, localRoot);
+    const QDomElement e = getUniqueChild(parent, localRoot);
 
-    loadQStringList(e, filePatterns, policy.filePatterns, pattern);
-    loadQStringList(e, mediaDirFilePatterns, policy.mediaDirFilePatterns,
-                    pattern);
+    copyQStringListTo(e, filePatterns, pattern, policy.filePatterns);
+    copyQStringListTo(e, mediaDirFilePatterns, pattern,
+                      policy.mediaDirFilePatterns);
     copyUniqueChildsTextTo(e, addFiles, policy.addFiles);
     copyUniqueChildsTextTo(e, addMediaDirs, policy.addMediaDirs);
     copyUniqueChildsTextTo(e, ifBothAddFiles, policy.ifBothAddFiles);
@@ -355,14 +285,15 @@ CustomActions::Actions defaultCustomActions()
     return actions;
 }
 
-void loadCustomActions(const QDomElement & root,
+void loadCustomActions(const QDomElement & parent,
                        CustomActions::Actions & actions)
 {
-    using namespace QtUtilities::Xml;
+    using namespace QtUtilities::XmlReading;
     using namespace Names::CustomActions;
-    const QDomElement base = getUniqueChild(root, localRoot);
+    const QDomElement base = getUniqueChild(parent, localRoot);
     if (base.isNull())
         return;
+
     const auto collection = getChildren(base, action);
     typedef CustomActions::Action Action;
     actions.resize(collection.size(), Action::getEmpty());
@@ -430,52 +361,42 @@ Preferences::Preferences()
 
 void Preferences::save(const QString & filename) const
 {
-    using namespace QtUtilities::Xml;
-    QDomDocument doc = createDocument();
-    QDomElement root = createRoot(doc, Names::root);
+    using namespace QtUtilities::XmlWriting;
+    Document doc(Names::root);
+    Element & root = doc.root;
 
-    root.appendChild(createElement(doc, Names::alwaysUseFallbackIcons,
-                                   alwaysUseFallbackIcons));
+    root.appendChild(Names::alwaysUseFallbackIcons, alwaysUseFallbackIcons);
 
-    root.appendChild(createElement(doc, Names::notificationAreaIcon,
-                                   notificationAreaIcon));
-    root.appendChild(createElement(doc, Names::startToNotificationArea,
-                                   startToNotificationArea));
-    root.appendChild(createElement(doc, Names::closeToNotificationArea,
-                                   closeToNotificationArea));
+    root.appendChild(Names::notificationAreaIcon, notificationAreaIcon);
+    root.appendChild(Names::startToNotificationArea, startToNotificationArea);
+    root.appendChild(Names::closeToNotificationArea, closeToNotificationArea);
 
-    root.appendChild(createElement(doc, Names::statusBar, statusBar));
+    root.appendChild(Names::statusBar, statusBar);
 
-    root.appendChild(createElement(doc, Names::treeAutoUnfoldedLevels,
-                                   treeAutoUnfoldedLevels));
-    root.appendChild(createElement(doc, Names::treeAutoCleanup,
-                                   treeAutoCleanup));
+    root.appendChild(Names::treeAutoUnfoldedLevels, treeAutoUnfoldedLevels);
+    root.appendChild(Names::treeAutoCleanup, treeAutoCleanup);
 
-    root.appendChild(createElement(doc, Names::savePreferencesToDiskImmediately,
-                                   savePreferencesToDiskImmediately));
-    root.appendChild(createElement(doc, Names::ventoolCheckInterval,
-                                   ventoolCheckInterval));
+    root.appendChild(Names::savePreferencesToDiskImmediately,
+                     savePreferencesToDiskImmediately);
+    root.appendChild(Names::ventoolCheckInterval, ventoolCheckInterval);
 
-    appendPlayback(doc, root, playback);
-    appendAddingItemsPolicy(doc, root, addingPolicy);
-    appendCustomActions(doc, root, customActions);
+    appendPlayback(root, playback);
+    appendAddingItemsPolicy(root, addingPolicy);
+    appendCustomActions(root, customActions);
 
 
-    root.appendChild(
-        createElementFromByteArray(doc, Names::preferencesWindowGeometry,
-                                   preferencesWindowGeometry));
-    root.appendChild(
-        createElementFromByteArray(doc, Names::windowGeometry, windowGeometry));
-    root.appendChild(
-        createElementFromByteArray(doc, Names::windowState, windowState));
+    root.appendByteArray(Names::preferencesWindowGeometry,
+                         preferencesWindowGeometry);
+    root.appendByteArray(Names::windowGeometry, windowGeometry);
+    root.appendByteArray(Names::windowState, windowState);
 
-    QtUtilities::Xml::save(doc, filename);
+    doc.save(filename);
 }
 
 
 void Preferences::load(const QString & filename)
 {
-    using namespace QtUtilities::Xml;
+    using namespace QtUtilities::XmlReading;
     const QDomElement root = loadRoot(filename, Names::root);
     if (root.isNull())
         return;

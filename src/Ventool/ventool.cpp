@@ -27,6 +27,8 @@
 # include <iostream>
 
 
+namespace
+{
 /// "help" must always be the last command here.
 /// It is not mapped in commands array.
 const std::array<std::string, 12> commandNames = {{
@@ -37,7 +39,7 @@ const std::array<std::string, 12> commandNames = {{
 constexpr std::size_t helpCommand =
     std::tuple_size<decltype(commandNames)>::value - 1;
 
-const std::array<char, helpCommand> commands = {{
+constexpr std::array<char, helpCommand> commands = {{
         'P', 'S', 'V', 'L', 'T', 'R', 'N', 'A', 'Q', 'W', 'H'
     }
 };
@@ -67,6 +69,9 @@ void printErrorAndHelp(const std::string & error)
     printError(error);
     printHelp();
 }
+
+}
+
 
 int main(int argc, char * argv[])
 {

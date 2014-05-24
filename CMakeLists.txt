@@ -7,8 +7,9 @@ set(Tool_Name Ventool)
 set(PATH_TO_MODULES modules)
 set(PATH_TO_VEDG_TOOLS ${PATH_TO_MODULES}/vedgTools)
 
-set(CMAKE_MODULE_PATH
-        "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/${PATH_TO_VEDG_TOOLS}/CMakeModules")
+set(PATH_TO_CMAKE_MODULES
+        ${CMAKE_CURRENT_SOURCE_DIR}/${PATH_TO_VEDG_TOOLS}/CMakeModules)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PATH_TO_CMAKE_MODULES})
 include(vedgTools/CMakeLicense)
 
 include(vedgTools/ExecutableQtStart)
@@ -41,9 +42,7 @@ add_subdirectory(${PATH_TO_MODULES}/VenturousCore)
 executableGetPublicHeadersProperty(VenturousCore)
 executableGetPublicHeadersProperty(TemplateUtilities)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_AUTOMOC ON)
-add_definitions(-DINCLUDE_MOC)
+include(vedgTools/EnableAutomoc)
 
 
 if(DEBUG_VENTUROUS)

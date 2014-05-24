@@ -111,7 +111,7 @@ private:
     std::string entryAt(int index) const;
     /// @brief If there is an entry at specified index, makes it current
     /// (either by copying to top or just changing currentEntryIndex_) and
-    /// returns its path, otherwise returns empty string.
+    /// returns its path; otherwise returns empty string.
     std::string setCurrentEntry(int index);
 
     /// @brief Emphasizes/deemphasizes current entry if it exists.

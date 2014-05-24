@@ -400,6 +400,4 @@ void showMenu(const Actions & actions, QString commonItemPrefix,
 }
 
 
-# ifdef INCLUDE_MOC
 # include "CustomActions.moc"
-# endif
