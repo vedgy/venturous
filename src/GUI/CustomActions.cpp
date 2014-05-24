@@ -76,8 +76,8 @@ public:
     typedef CustomActions::Action Action;
 
     explicit Validator(const QString & commonItemPrefix,
-                       const QStringList & itemNames)
-        : commonItemPrefix_(commonItemPrefix), itemNames_(itemNames) {}
+                   const QStringList & itemNames) noexcept :
+    commonItemPrefix_(commonItemPrefix), itemNames_(itemNames) {}
 
     bool isDisplayable(const Action & action) {
         return action.enabled &&
@@ -186,8 +186,7 @@ bool Validator::isDisplayable(const Action::Type type)
 }
 
 
-bool needsEscapingWithinDoubleQuotes(char c)
-{
+constexpr bool needsEscapingWithinDoubleQuotes(char c) noexcept {
     // See https://www.gnu.org/software/bash/manual/html_node/Double-Quotes.html
     return c == '$' || c == '`' || c == '"' || c == '\\';
 }

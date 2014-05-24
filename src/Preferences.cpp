@@ -38,61 +38,85 @@ namespace
 {
 namespace Names
 {
+# define VENTUROUS_PREFERENCES_STRING_CONSTANT(NAME, VALUE) \
+    inline const QString & NAME() {                         \
+        static const QString value{ VALUE }; return value; }
+
 namespace Playback
 {
 namespace History
 {
-const QString localRoot = "History",
-              maxSize = "MaxSize",
-              copyPlayedEntryToTop = "CopyPlayedEntryToTop",
-              saveToDiskImmediately = "SaveToDiskImmediately",
-              nHiddenDirs = "HiddenDirsNumber",
-              currentIndex = "CurrentIndex";
+VENTUROUS_PREFERENCES_STRING_CONSTANT(localRoot, "History")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(maxSize, "MaxSize")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(copyPlayedEntryToTop,
+                                      "CopyPlayedEntryToTop")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(saveToDiskImmediately,
+                                      "SaveToDiskImmediately")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(nHiddenDirs, "HiddenDirsNumber")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(currentIndex, "CurrentIndex")
 }
 
-const QString localRoot = "Playback",
-              autoSetExternalPlayerOptions = "AutoSetExternalPlayerOptions",
-              autoHideExternalPlayerWindow = "AutoHideExternalPlayerWindow",
-              nextFromHistory = "NextFromHistory",
-              desktopNotifications = "DesktopNotifications",
-              startupPolicy = "StartupPolicy";
+VENTUROUS_PREFERENCES_STRING_CONSTANT(localRoot, "Playback")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(autoSetExternalPlayerOptions,
+                                      "AutoSetExternalPlayerOptions")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(autoHideExternalPlayerWindow,
+                                      "AutoHideExternalPlayerWindow")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(nextFromHistory, "NextFromHistory")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(desktopNotifications,
+                                      "DesktopNotifications")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(startupPolicy, "StartupPolicy")
 }
 
 namespace AddingItemsPolicy
 {
-const QString localRoot = "AddingItemsPolicy",
-              filePatterns = "FilePatterns",
-              mediaDirFilePatterns = "MediaDirFilePatterns",
-              pattern = "pattern",
-              addFiles = "AddFiles",
-              addMediaDirs = "AddMediaDirs",
-              ifBothAddFiles = "IfBothAddFiles",
-              ifBothAddMediaDirs = "IfBothAddMediaDirs";
+VENTUROUS_PREFERENCES_STRING_CONSTANT(localRoot, "AddingItemsPolicy")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(filePatterns, "FilePatterns")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(mediaDirFilePatterns,
+                                      "MediaDirFilePatterns")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(pattern, "pattern")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(addFiles, "AddFiles")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(addMediaDirs, "AddMediaDirs")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(ifBothAddFiles, "IfBothAddFiles")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(ifBothAddMediaDirs, "IfBothAddMediaDirs")
 }
 
 namespace CustomActions
 {
-const QString localRoot = "CustomActions", action = "action",
-              text = "Text", command = "Command",
-              minArgN = "MinArgN", maxArgN = "MaxArgN",
-              type = "Type", comment = "Comment", enabled = "Enabled";
+VENTUROUS_PREFERENCES_STRING_CONSTANT(localRoot, "CustomActions")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(action, "action")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(text, "Text")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(command, "Command")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(minArgN, "MinArgN")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(maxArgN, "MaxArgN")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(type, "Type")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(comment, "Comment")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(enabled, "Enabled")
 }
 
-const QString root = APPLICATION_NAME,
-              alwaysUseFallbackIcons = "AlwaysUseFallbackIcons",
-              notificationAreaIcon = "NotificationAreaIcon",
-              startToNotificationArea = "StartToNotificationArea",
-              closeToNotificationArea = "CloseToNotificationArea",
-              statusBar = "StatusBar",
-              treeAutoUnfoldedLevels = "TreeAutoUnfoldedLevels",
-              treeAutoCleanup = "TreeAutoCleanup",
-              savePreferencesToDiskImmediately =
-                  "SavePreferencesToDiskImmediately",
-                  ventoolCheckInterval = "VentoolCheckInterval",
+VENTUROUS_PREFERENCES_STRING_CONSTANT(root, APPLICATION_NAME)
+VENTUROUS_PREFERENCES_STRING_CONSTANT(alwaysUseFallbackIcons,
+                                      "AlwaysUseFallbackIcons")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(notificationAreaIcon,
+                                      "NotificationAreaIcon")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(startToNotificationArea,
+                                      "StartToNotificationArea")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(closeToNotificationArea,
+                                      "CloseToNotificationArea")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(statusBar, "StatusBar")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(treeAutoUnfoldedLevels,
+                                      "TreeAutoUnfoldedLevels")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(treeAutoCleanup, "TreeAutoCleanup")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(savePreferencesToDiskImmediately,
+                                      "SavePreferencesToDiskImmediately")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(ventoolCheckInterval,
+                                      "VentoolCheckInterval")
 
-                  preferencesWindowGeometry = "PreferencesWindowGeometry",
-                  windowGeometry = "WindowGeometry",
-                  windowState = "WindowState";
+VENTUROUS_PREFERENCES_STRING_CONSTANT(preferencesWindowGeometry,
+                                      "PreferencesWindowGeometry")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(windowGeometry, "WindowGeometry")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(windowState, "WindowState")
+
+# undef VENTUROUS_PREFERENCES_STRING_CONSTANT
 }
 
 
@@ -102,28 +126,28 @@ void appendHistory(XmlElement & parent,
                    const Preferences::Playback::History & history)
 {
     using namespace Names::Playback::History;
-    XmlElement e = parent.appendChild(localRoot);
+    XmlElement e = parent.appendChild(localRoot());
 
-    e.appendChild(maxSize, history.maxSize);
-    e.appendChild(copyPlayedEntryToTop, history.copyPlayedEntryToTop);
-    e.appendChild(saveToDiskImmediately, history.saveToDiskImmediately);
-    e.appendChild(nHiddenDirs, history.nHiddenDirs);
-    e.appendChild(currentIndex, history.currentIndex);
+    e.appendChild(maxSize(), history.maxSize);
+    e.appendChild(copyPlayedEntryToTop(), history.copyPlayedEntryToTop);
+    e.appendChild(saveToDiskImmediately(), history.saveToDiskImmediately);
+    e.appendChild(nHiddenDirs(), history.nHiddenDirs);
+    e.appendChild(currentIndex(), history.currentIndex);
 }
 
 void appendPlayback(XmlElement & parent, const Preferences::Playback & playback)
 {
     using namespace Names::Playback;
-    XmlElement e = parent.appendChild(localRoot);
+    XmlElement e = parent.appendChild(localRoot());
 
-    e.appendChild(autoSetExternalPlayerOptions,
+    e.appendChild(autoSetExternalPlayerOptions(),
                   playback.autoSetExternalPlayerOptions);
-    e.appendChild(autoHideExternalPlayerWindow,
+    e.appendChild(autoHideExternalPlayerWindow(),
                   playback.autoHideExternalPlayerWindow);
 
-    e.appendChild(nextFromHistory, playback.nextFromHistory);
-    e.appendChild(desktopNotifications, playback.desktopNotifications);
-    e.appendChild(startupPolicy,
+    e.appendChild(nextFromHistory(), playback.nextFromHistory);
+    e.appendChild(desktopNotifications(), playback.desktopNotifications);
+    e.appendChild(startupPolicy(),
                   static_cast <
                   Preferences::Playback::StartupPolicyUnderlyingType >(
                       playback.startupPolicy));
@@ -135,34 +159,34 @@ void appendAddingItemsPolicy(XmlElement & parent,
                              const AddingItems::Policy & policy)
 {
     using namespace Names::AddingItemsPolicy;
-    XmlElement e = parent.appendChild(localRoot);
+    XmlElement e = parent.appendChild(localRoot());
 
-    e.appendQStringList(filePatterns, pattern, policy.filePatterns);
-    e.appendQStringList(mediaDirFilePatterns, pattern,
+    e.appendQStringList(filePatterns(), pattern(), policy.filePatterns);
+    e.appendQStringList(mediaDirFilePatterns(), pattern(),
                         policy.mediaDirFilePatterns);
-    e.appendChild(addFiles, policy.addFiles);
-    e.appendChild(addMediaDirs, policy.addMediaDirs);
-    e.appendChild(ifBothAddFiles, policy.ifBothAddFiles);
-    e.appendChild(ifBothAddMediaDirs, policy.ifBothAddMediaDirs);
+    e.appendChild(addFiles(), policy.addFiles);
+    e.appendChild(addMediaDirs(), policy.addMediaDirs);
+    e.appendChild(ifBothAddFiles(), policy.ifBothAddFiles);
+    e.appendChild(ifBothAddMediaDirs(), policy.ifBothAddMediaDirs);
 }
 
 void appendCustomActions(XmlElement & parent,
                          const CustomActions::Actions & actions)
 {
     using namespace Names::CustomActions;
-    XmlElement base = parent.appendChild(localRoot);
+    XmlElement base = parent.appendChild(localRoot());
 
     for (const CustomActions::Action & a : actions) {
-        XmlElement e = base.appendChild(action);
-        e.appendChild(text, a.text);
-        e.appendChild(command, a.command);
-        e.appendChild(minArgN, a.minArgN);
-        e.appendChild(maxArgN, a.maxArgN);
-        e.appendChild(type,
+        XmlElement e = base.appendChild(action());
+        e.appendChild(text(), a.text);
+        e.appendChild(command(), a.command);
+        e.appendChild(minArgN(), a.minArgN);
+        e.appendChild(maxArgN(), a.maxArgN);
+        e.appendChild(type(),
                       static_cast<CustomActions::Action::TypeUnderlyingType>(
                           a.type));
-        e.appendChild(comment, a.comment);
-        e.appendChild(enabled, a.enabled);
+        e.appendChild(comment(), a.comment);
+        e.appendChild(enabled(), a.enabled);
     }
 }
 
@@ -174,16 +198,16 @@ void loadHistory(const QDomElement & parent,
     using namespace Names::Playback::History;
     typedef Preferences::Playback::History H;
 
-    const QDomElement e = getUniqueChild(parent, localRoot);
+    const QDomElement e = getUniqueChild(parent, localRoot());
 
-    copyUniqueChildsTextToMax(e, maxSize, history.maxSize, H::maxMaxSize);
-    copyUniqueChildsTextTo(e, copyPlayedEntryToTop,
+    copyUniqueChildsTextToMax(e, maxSize(), history.maxSize, H::maxMaxSize);
+    copyUniqueChildsTextTo(e, copyPlayedEntryToTop(),
                            history.copyPlayedEntryToTop);
-    copyUniqueChildsTextTo(e, saveToDiskImmediately,
+    copyUniqueChildsTextTo(e, saveToDiskImmediately(),
                            history.saveToDiskImmediately);
-    copyUniqueChildsTextToRange(e, nHiddenDirs, history.nHiddenDirs,
+    copyUniqueChildsTextToRange(e, nHiddenDirs(), history.nHiddenDirs,
                                 H::minNHiddenDirs, H::maxNHiddenDirs);
-    copyUniqueChildsTextToRange(e, currentIndex, history.currentIndex,
+    copyUniqueChildsTextToRange(e, currentIndex(), history.currentIndex,
                                 H::multipleItemsIndex, int(H::maxMaxSize));
 }
 
@@ -193,20 +217,22 @@ void loadPlayback(const QDomElement & parent, Preferences::Playback & playback)
     using namespace Names::Playback;
     typedef Preferences::Playback P;
 
-    const QDomElement e = getUniqueChild(parent, localRoot);
+    const QDomElement e = getUniqueChild(parent, localRoot());
 
-    copyUniqueChildsTextTo(e, autoSetExternalPlayerOptions,
+    copyUniqueChildsTextTo(e, autoSetExternalPlayerOptions(),
                            playback.autoSetExternalPlayerOptions);
-    copyUniqueChildsTextTo(e, autoHideExternalPlayerWindow,
+    copyUniqueChildsTextTo(e, autoHideExternalPlayerWindow(),
                            playback.autoHideExternalPlayerWindow);
 
-    copyUniqueChildsTextTo(e, nextFromHistory, playback.nextFromHistory);
-    copyUniqueChildsTextTo(e, desktopNotifications,
+    copyUniqueChildsTextTo(e, nextFromHistory(), playback.nextFromHistory);
+    copyUniqueChildsTextTo(e, desktopNotifications(),
                            playback.desktopNotifications);
     {
         P::StartupPolicyUnderlyingType p;
-        if (copyUniqueChildsTextToMax(e, startupPolicy, p, P::maxStartupPolicy))
+        if (copyUniqueChildsTextToMax(e, startupPolicy(),
+                                      p, P::maxStartupPolicy)) {
             playback.startupPolicy = static_cast<P::StartupPolicy>(p);
+        }
     }
 
     loadHistory(e, playback.history);
@@ -217,15 +243,15 @@ void loadAddingItemsPolicy(const QDomElement & parent,
 {
     using namespace QtUtilities::XmlReading;
     using namespace Names::AddingItemsPolicy;
-    const QDomElement e = getUniqueChild(parent, localRoot);
+    const QDomElement e = getUniqueChild(parent, localRoot());
 
-    copyQStringListTo(e, filePatterns, pattern, policy.filePatterns);
-    copyQStringListTo(e, mediaDirFilePatterns, pattern,
+    copyQStringListTo(e, filePatterns(), pattern(), policy.filePatterns);
+    copyQStringListTo(e, mediaDirFilePatterns(), pattern(),
                       policy.mediaDirFilePatterns);
-    copyUniqueChildsTextTo(e, addFiles, policy.addFiles);
-    copyUniqueChildsTextTo(e, addMediaDirs, policy.addMediaDirs);
-    copyUniqueChildsTextTo(e, ifBothAddFiles, policy.ifBothAddFiles);
-    copyUniqueChildsTextTo(e, ifBothAddMediaDirs, policy.ifBothAddMediaDirs);
+    copyUniqueChildsTextTo(e, addFiles(), policy.addFiles);
+    copyUniqueChildsTextTo(e, addMediaDirs(), policy.addMediaDirs);
+    copyUniqueChildsTextTo(e, ifBothAddFiles(), policy.ifBothAddFiles);
+    copyUniqueChildsTextTo(e, ifBothAddMediaDirs(), policy.ifBothAddMediaDirs);
 }
 
 CustomActions::Actions defaultCustomActions()
@@ -243,9 +269,9 @@ CustomActions::Actions defaultCustomActions()
             "VLC" + mustBeInstalled, false
         },
         CustomActions::Action {
-            QObject::tr("Edit text file"), "gedit ?", 0, -1,
+            QObject::tr("Edit text file"), "mousepad ?", 0, -1,
             CustomActions::Action::Type::file,
-            "gedit" + mustBeInstalled, false
+            "Mousepad" + mustBeInstalled, false
         },
         CustomActions::Action {
             QObject::tr("Open containing directory"),
@@ -290,30 +316,30 @@ void loadCustomActions(const QDomElement & parent,
 {
     using namespace QtUtilities::XmlReading;
     using namespace Names::CustomActions;
-    const QDomElement base = getUniqueChild(parent, localRoot);
+    const QDomElement base = getUniqueChild(parent, localRoot());
     if (base.isNull())
         return;
 
-    const auto collection = getChildren(base, action);
+    const auto collection = getChildren(base, action());
     typedef CustomActions::Action Action;
     actions.resize(collection.size(), Action::getEmpty());
     for (std::size_t i = 0; i < collection.size(); ++i) {
         const QDomElement & e = collection[i];
         Action & a = actions[i];
 
-        copyUniqueChildsTextTo(e, text, a.text);
-        copyUniqueChildsTextTo(e, command, a.command);
-        copyUniqueChildsTextToRange(e, minArgN, a.minArgN,
+        copyUniqueChildsTextTo(e, text(), a.text);
+        copyUniqueChildsTextTo(e, command(), a.command);
+        copyUniqueChildsTextToRange(e, minArgN(), a.minArgN,
                                     Action::minMinArgN, Action::maxMinArgN);
-        copyUniqueChildsTextToRange(e, maxArgN, a.maxArgN,
+        copyUniqueChildsTextToRange(e, maxArgN(), a.maxArgN,
                                     Action::minMaxArgN, Action::maxMaxArgN);
         {
             Action::TypeUnderlyingType t;
-            if (copyUniqueChildsTextToMax(e, type, t, Action::maxType))
+            if (copyUniqueChildsTextToMax(e, type(), t, Action::maxType))
                 a.type = static_cast<Action::Type>(t);
         }
-        copyUniqueChildsTextTo(e, comment, a.comment);
-        copyUniqueChildsTextTo(e, enabled, a.enabled);
+        copyUniqueChildsTextTo(e, comment(), a.comment);
+        copyUniqueChildsTextTo(e, enabled(), a.enabled);
     }
 }
 
@@ -362,33 +388,33 @@ Preferences::Preferences()
 void Preferences::save(const QString & filename) const
 {
     using namespace QtUtilities::XmlWriting;
-    Document doc(Names::root);
+    Document doc(Names::root());
     Element & root = doc.root;
 
-    root.appendChild(Names::alwaysUseFallbackIcons, alwaysUseFallbackIcons);
+    root.appendChild(Names::alwaysUseFallbackIcons(), alwaysUseFallbackIcons);
 
-    root.appendChild(Names::notificationAreaIcon, notificationAreaIcon);
-    root.appendChild(Names::startToNotificationArea, startToNotificationArea);
-    root.appendChild(Names::closeToNotificationArea, closeToNotificationArea);
+    root.appendChild(Names::notificationAreaIcon(), notificationAreaIcon);
+    root.appendChild(Names::startToNotificationArea(), startToNotificationArea);
+    root.appendChild(Names::closeToNotificationArea(), closeToNotificationArea);
 
-    root.appendChild(Names::statusBar, statusBar);
+    root.appendChild(Names::statusBar(), statusBar);
 
-    root.appendChild(Names::treeAutoUnfoldedLevels, treeAutoUnfoldedLevels);
-    root.appendChild(Names::treeAutoCleanup, treeAutoCleanup);
+    root.appendChild(Names::treeAutoUnfoldedLevels(), treeAutoUnfoldedLevels);
+    root.appendChild(Names::treeAutoCleanup(), treeAutoCleanup);
 
-    root.appendChild(Names::savePreferencesToDiskImmediately,
+    root.appendChild(Names::savePreferencesToDiskImmediately(),
                      savePreferencesToDiskImmediately);
-    root.appendChild(Names::ventoolCheckInterval, ventoolCheckInterval);
+    root.appendChild(Names::ventoolCheckInterval(), ventoolCheckInterval);
 
     appendPlayback(root, playback);
     appendAddingItemsPolicy(root, addingPolicy);
     appendCustomActions(root, customActions);
 
 
-    root.appendByteArray(Names::preferencesWindowGeometry,
+    root.appendByteArray(Names::preferencesWindowGeometry(),
                          preferencesWindowGeometry);
-    root.appendByteArray(Names::windowGeometry, windowGeometry);
-    root.appendByteArray(Names::windowState, windowState);
+    root.appendByteArray(Names::windowGeometry(), windowGeometry);
+    root.appendByteArray(Names::windowState(), windowState);
 
     doc.save(filename);
 }
@@ -397,29 +423,29 @@ void Preferences::save(const QString & filename) const
 void Preferences::load(const QString & filename)
 {
     using namespace QtUtilities::XmlReading;
-    const QDomElement root = loadRoot(filename, Names::root);
+    const QDomElement root = loadRoot(filename, Names::root());
     if (root.isNull())
         return;
 
-    copyUniqueChildsTextTo(root, Names::alwaysUseFallbackIcons,
+    copyUniqueChildsTextTo(root, Names::alwaysUseFallbackIcons(),
                            alwaysUseFallbackIcons);
 
-    copyUniqueChildsTextTo(root, Names::notificationAreaIcon,
+    copyUniqueChildsTextTo(root, Names::notificationAreaIcon(),
                            notificationAreaIcon);
-    copyUniqueChildsTextTo(root, Names::startToNotificationArea,
+    copyUniqueChildsTextTo(root, Names::startToNotificationArea(),
                            startToNotificationArea);
-    copyUniqueChildsTextTo(root, Names::closeToNotificationArea,
+    copyUniqueChildsTextTo(root, Names::closeToNotificationArea(),
                            closeToNotificationArea);
 
-    copyUniqueChildsTextTo(root, Names::statusBar, statusBar);
+    copyUniqueChildsTextTo(root, Names::statusBar(), statusBar);
 
-    copyUniqueChildsTextTo(root, Names::treeAutoUnfoldedLevels,
+    copyUniqueChildsTextTo(root, Names::treeAutoUnfoldedLevels(),
                            treeAutoUnfoldedLevels);
-    copyUniqueChildsTextTo(root, Names::treeAutoCleanup, treeAutoCleanup);
+    copyUniqueChildsTextTo(root, Names::treeAutoCleanup(), treeAutoCleanup);
 
-    copyUniqueChildsTextTo(root, Names::savePreferencesToDiskImmediately,
+    copyUniqueChildsTextTo(root, Names::savePreferencesToDiskImmediately(),
                            savePreferencesToDiskImmediately);
-    copyUniqueChildsTextToMax(root, Names::ventoolCheckInterval,
+    copyUniqueChildsTextToMax(root, Names::ventoolCheckInterval(),
                               ventoolCheckInterval, maxVentoolCheckInterval);
 
     loadPlayback(root, playback);
@@ -428,10 +454,10 @@ void Preferences::load(const QString & filename)
 
 
     copyUniqueChildsTextToByteArray(
-        root, Names::preferencesWindowGeometry, preferencesWindowGeometry);
+        root, Names::preferencesWindowGeometry(), preferencesWindowGeometry);
     copyUniqueChildsTextToByteArray(
-        root, Names::windowGeometry, windowGeometry);
-    copyUniqueChildsTextToByteArray(root, Names::windowState, windowState);
+        root, Names::windowGeometry(), windowGeometry);
+    copyUniqueChildsTextToByteArray(root, Names::windowState(), windowState);
 }
 
 

@@ -30,6 +30,8 @@
 class InputController
 {
 public:
+    InputController() = default;
+
     /// @brief Blocks/unblocks most of non-GUI user input (Ventool commands
     /// for example).
     /// Reacting to QCoreApplication::aboutToQuit - immediate quit - is allowed.
@@ -93,6 +95,9 @@ protected:
     virtual QStringList getFileOrDirNames(const QString & caption,
                                           QFileDialog::AcceptMode acceptMode,
                                           QFileDialog::FileMode fileMode) = 0;
+
+private:
+    Q_DISABLE_COPY(InputController)
 };
 
 # endif // VENTUROUS_INPUT_CONTROLLER_HPP
