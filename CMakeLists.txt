@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
 # Depends on Qt, QtCoreUtilities, QtXmlUtilities, SimpleFugue, VenturousCore.
 set(Target_Name Venturous)
+set(CAP_Target_Name VENTUROUS)
 set(Tool_Name Ventool)
 
 set(PATH_TO_MODULES modules)
@@ -67,12 +68,13 @@ set(Icon_Name ${Executable_Name})
 
 add_definitions(
     -DPREFERENCES_DIR=\"${PREFERENCES_DIR}\"
-    -DERROR_PREFIX=\"**\ ${Target_Name}\ CRITICAL\ **\ \"
     -DAPPLICATION_NAME=\"${Target_Name}\"
     -DTOOL_NAME=\"${Tool_Name}\"
     -DICON_NAME=\"${Icon_Name}\"
     -DSHARED_MEMORY_KEY=\"oS2huoventurousyiOventoolhJkNQqC{\"
 )
+
+include(vedgTools/AddErrorPrefixDefinition)
 
 
 set(Sources_Path src)

@@ -115,8 +115,10 @@ preferences.playback.history)
 PlaybackComponent::~PlaybackComponent()
 {
     if (! isHistorySaved_) {
-        if (! historyWidget_.save(historyFilename_))
-            std::cerr << ERROR_PREFIX "Saving history failed." << std::endl;
+        if (! historyWidget_.save(historyFilename_)) {
+            std::cerr << VENTUROUS_ERROR_PREFIX "Saving history failed."
+            << std::endl;
+        }
     }
 }
 
@@ -128,7 +130,8 @@ void PlaybackComponent::setPreferences(const Preferences & preferences)
 
 void PlaybackComponent::play(std::string item)
 {
-    mediaPlayer_.start(item);
+    if (! mediaPlayer_.start(item))
+        return;
     historyWidget_.push(std::move(item));
     onHistoryChanged();
     resetLastPlayedItem();
@@ -140,7 +143,8 @@ void PlaybackComponent::play(CommonTypes::ItemCollection items)
     if (items.size() == 1)
         play(std::move(items.back()));
     else {
-        mediaPlayer_.start(std::move(items));
+        if (! mediaPlayer_.start(std::move(items)))
+            return;
         historyWidget_.playedMultipleItems();
         resetLastPlayedItem();
         setPlayerState(true);
@@ -239,7 +243,8 @@ bool PlaybackComponent::criticalContinuePlaybackQuestion(
 
 void PlaybackComponent::playFromHistory(const std::string entry)
 {
-    mediaPlayer_.start(entry);
+    if (! mediaPlayer_.start(entry))
+        return;
     resetLastPlayedItem();
     setPlayerState(true);
 }
@@ -328,8 +333,8 @@ void PlaybackComponent::onHistoryChanged()
 
 void PlaybackComponent::playbackPlay()
 {
-    mediaPlayer_.start();
-    setPlayerState(true);
+    if (mediaPlayer_.start())
+        setPlayerState(true);
 }
 
 void PlaybackComponent::playbackStop()

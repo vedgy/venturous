@@ -90,7 +90,7 @@ int WindowInputController::showMessageImplementation(
 
     const auto selectedButton = messageBox->exec();
     if (messageBox == nullptr) {
-        std::cerr << ERROR_PREFIX
+        std::cerr << VENTUROUS_ERROR_PREFIX
                   "Message box was destroyed unexpectedly!" << std::endl;
         return QMessageBox::NoButton; // window_ is already destroyed!!!
     }
@@ -117,7 +117,7 @@ QStringList WindowInputController::getFileOrDirNames(
 
     const auto dialogCode = fileDialog->exec();
     if (fileDialog == nullptr) {
-        std::cerr << ERROR_PREFIX
+        std::cerr << VENTUROUS_ERROR_PREFIX
                   "File dialog was destroyed unexpectedly!" << std::endl;
         return QStringList(); // window_ is already destroyed!!!
     }

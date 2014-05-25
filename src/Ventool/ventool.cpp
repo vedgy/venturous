@@ -19,7 +19,6 @@
 # include <QSharedMemory>
 
 # include <cstddef>
-# include <cassert>
 # include <algorithm>
 # include <array>
 # include <tuple>
@@ -75,12 +74,7 @@ void printErrorAndHelp(const std::string & error)
 
 int main(int argc, char * argv[])
 {
-    std::size_t command = helpCommand;
-    if (argc == 1) {
-        printErrorAndHelp("command was expected");
-        return 2;
-    }
-
+    std::size_t command = commandNames.size();
     for (int i = 1; i < argc; ++i) {
         std::string arg(argv[i]);
         if (arg.size() >= 2 && arg[0] == '-' && arg[1] == '-') {
@@ -105,8 +99,11 @@ int main(int argc, char * argv[])
             return 4;
         }
     }
+    if (command == commandNames.size()) {
+        printErrorAndHelp("command was expected");
+        return 2;
+    }
 
-    assert(command < helpCommand);
     QSharedMemory shared(SHARED_MEMORY_KEY);
     if (shared.attach(QSharedMemory::ReadWrite)) {
         shared.lock();

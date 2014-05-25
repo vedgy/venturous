@@ -127,7 +127,7 @@ PlaylistComponent::~PlaylistComponent()
         return;
     const bool renamed = prepareForApplyingChanges();
     if (! saveTemporaryTree()) {
-        std::cerr << ERROR_PREFIX <<
+        std::cerr << VENTUROUS_ERROR_PREFIX <<
                   QtUtilities::qStringToString(savingFailed()) << std::endl;
         if (renamed)
             restoreBackupFile();
