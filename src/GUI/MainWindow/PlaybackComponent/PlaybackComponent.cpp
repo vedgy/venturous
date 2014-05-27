@@ -194,7 +194,9 @@ void PlaybackComponent::onPlayerFinished(
     const bool crashExit, const int exitCode,
     std::vector<std::string> missingFilesAndDirs)
 {
+    bool normalExit = true;
     if (crashExit || exitCode != 0) {
+        normalExit = false;
         QString message =
             tr("%1 %2 with exit code %3.")
             .arg(QtUtilities::toQString(MediaPlayer::playerName()),
@@ -207,6 +209,7 @@ void PlaybackComponent::onPlayerFinished(
     }
 
     if (! missingFilesAndDirs.empty()) {
+        normalExit = false;
         QString message = tr("No such files or directories (%1):")
                           .arg(missingFilesAndDirs.size());
         for (const std::string & s : missingFilesAndDirs)
@@ -215,6 +218,13 @@ void PlaybackComponent::onPlayerFinished(
 
         if (! criticalContinuePlaybackQuestion(
         tr("Missing files or directories"), std::move(message))) {
+            return;
+        }
+    }
+
+    if (normalExit && ! isPlayerRunning_) {
+        if (! criticalContinuePlaybackQuestion(
+        tr("Error has occured"), QString())) {
             return;
         }
     }
@@ -231,13 +241,16 @@ void PlaybackComponent::onPlayerError(std::string errorMessage)
 }
 
 bool PlaybackComponent::criticalContinuePlaybackQuestion(
-    const QString & title, const QString & errorMessage)
+    const QString & title, QString errorMessage)
 {
+    if (! errorMessage.isEmpty())
+        errorMessage += "\n\t";
+    errorMessage += tr("Continue playback?");
     setPlayerState(false);
     const auto selectedButton =
-        inputController_.showMessage(
-            title, errorMessage + tr("\n\tContinue playback?"),
-            QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+        inputController_.showMessage(title, errorMessage,
+                                     QMessageBox::Yes | QMessageBox::No,
+                                     QMessageBox::No);
     return selectedButton == QMessageBox::Yes;
 }
 

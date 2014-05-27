@@ -93,8 +93,8 @@ private:
     /// @param title Title of the message box.
     /// @param errorMessage Message to be displayed before question.
     /// @return true if playback should be continued.
-    bool criticalContinuePlaybackQuestion(
-        const QString & title, const QString & errorMessage);
+    bool criticalContinuePlaybackQuestion(const QString & title,
+                                          QString errorMessage);
 
     /// @brief Starts playing entry. Does not call historyWidget_.push().
     /// NOTE: does not block execution.
