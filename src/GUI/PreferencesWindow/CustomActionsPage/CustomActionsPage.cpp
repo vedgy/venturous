@@ -53,7 +53,6 @@
 # include <utility>
 # include <functional>
 # include <algorithm>
-# include <array>
 # include <vector>
 
 
@@ -84,31 +83,28 @@ void setInt(QTableWidget & table, int row, int column,
 namespace Columns
 {
 constexpr int enabled = 0, text = enabled + 1, command = text + 1,
-              min = 3, max = min + 1, type = max + 1, comment = type + 1,
-              n = 7;
+              minArgN = 3, maxArgN = minArgN + 1, type = maxArgN + 1,
+              comment = type + 1, n = 7;
 }
 
-namespace CellWidgetId
-{
-constexpr int min = 0, max = 1, type = 2;
-}
+struct CellWidgetValues {
+    int minArgN, maxArgN, type;
+};
 
-/// CustomActions::Action:: minArgN, maxArgN, type.
-typedef std::array<int, 3> CellWidgetValues;
 void setCellWidgetColumns(QTableWidget & table, int row,
                           const CellWidgetValues & cellWidgetValues)
 {
     typedef CustomActions::Action A;
-    setInt(table, row, Columns::min, cellWidgetValues[CellWidgetId::min],
+    setInt(table, row, Columns::minArgN, cellWidgetValues.minArgN,
            A::minMinArgN, A::maxMinArgN);
-    setInt(table, row, Columns::max, cellWidgetValues[CellWidgetId::max],
+    setInt(table, row, Columns::maxArgN, cellWidgetValues.maxArgN,
            A::minMaxArgN, A::maxMaxArgN);
     {
         QComboBox * const c = new QComboBox;
         c->addItems( { QObject::tr("File"), QObject::tr("Directory"),
                        QObject::tr("Any item")
                      });
-        c->setCurrentIndex(cellWidgetValues[CellWidgetId::type]);
+        c->setCurrentIndex(cellWidgetValues.type);
         table.setCellWidget(row, Columns::type, c);
     }
 }
@@ -117,11 +113,9 @@ void setRow(QTableWidget & table, int row, const CustomActions::Action & action)
 {
     setText(table, row, Columns::text, action.text);
     setText(table, row, Columns::command, action.command);
-    setCellWidgetColumns(table, row, {{
-            action.minArgN, action.maxArgN,
-            static_cast<int>(action.type)
-        }
-    });
+    setCellWidgetColumns(table, row, { action.minArgN, action.maxArgN,
+                                       static_cast<int>(action.type)
+                                     });
     setText(table, row, Columns::comment, action.comment);
     /// NOTE: "enabled" column must be set last.
     setBool(table, row, Columns::enabled, action.enabled);
@@ -173,14 +167,13 @@ TableIndices getSortedSelected(const QTableWidget & table,
 
 CellWidgetValues getCellWidgetValues(const QTableWidget & table, int row)
 {
-    return {{
-            qobject_cast<QSpinBox *>(
-                table.cellWidget(row, Columns::min))->value(),
-            qobject_cast<QSpinBox *>(
-                table.cellWidget(row, Columns::max))->value(),
-            qobject_cast<QComboBox *>(
-                table.cellWidget(row, Columns::type))->currentIndex()
-        }
+    return {
+        qobject_cast<QSpinBox *>(
+            table.cellWidget(row, Columns::minArgN))->value(),
+        qobject_cast<QSpinBox *>(
+            table.cellWidget(row, Columns::maxArgN))->value(),
+        qobject_cast<QComboBox *>(
+            table.cellWidget(row, Columns::type))->currentIndex()
     };
 }
 
@@ -278,10 +271,9 @@ void CustomActionsPage::writeUiPreferencesTo(Preferences & destination) const
         a.command = table_.item(row, Columns::command)->text();
         {
             const CellWidgetValues values = getCellWidgetValues(table_, row);
-            a.minArgN = values[CellWidgetId::min];
-            a.maxArgN = values[CellWidgetId::max];
-            a.type = static_cast<CustomActions::Action::Type>(
-                         values[CellWidgetId::type]);
+            a.minArgN = values.minArgN;
+            a.maxArgN = values.maxArgN;
+            a.type = static_cast<CustomActions::Action::Type>(values.type);
         }
         a.comment = table_.item(row, Columns::comment)->text();
     }
