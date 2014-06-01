@@ -19,12 +19,18 @@
 # include "MainWindow.hpp"
 # include "Application.hpp"
 
+# include <QtCoreUtilities/String.hpp>
+
 # include <QString>
+# include <QObject>
 # include <QSharedMemory>
 
 # include <utility>
 # include <memory>
 # include <iostream>
+
+
+inline QString quittingMessage() { return QObject::tr("\nQuitting ..."); }
 
 
 int main(int argc, char * argv[])
@@ -41,15 +47,25 @@ int main(int argc, char * argv[])
 
     std::unique_ptr<QSharedMemory> shared(new QSharedMemory(key));
     if (! shared->create(sizeof(char), QSharedMemory::ReadWrite)) {
-        shared->attach(QSharedMemory::ReadWrite);
-        shared->lock();
-        *(char *)shared->data() = 'W';
-        shared->unlock();
+        if (shared->error() == QSharedMemory::AlreadyExists) {
+            shared->attach(QSharedMemory::ReadWrite);
+            shared->lock();
+            *(char *)shared->data() = 'W';
+            shared->unlock();
 
-        std::cout << "Another instance of " APPLICATION_NAME " is running.\n"
-                  "Issued a command to show other instance's window.\n"
-                  "Quitting ..." << std::endl;
-        return 1;
+            std::cout << QtUtilities::qStringToString(
+                          QObject::tr("Another instance of %1 is running.\n"
+                                      "Issued a command to show other "
+                                      "instance's window.").
+                          arg(APPLICATION_NAME) + quittingMessage())
+                      << std::endl;
+            return 1;
+        }
+        else {
+            std::cerr << QtUtilities::qStringToString(shared->errorString())
+                      << '.' << std::endl;
+            return 2;
+        }
     }
     {
         shared->lock();
@@ -57,9 +73,18 @@ int main(int argc, char * argv[])
         shared->unlock();
     }
 
-    MainWindow mainWindow(std::move(shared));
+    bool cancelled;
+    MainWindow mainWindow(std::move(shared), cancelled);
 # ifdef DEBUG_VENTUROUS_MAIN
     std::cout << "MainWindow constructed." << std::endl;
 # endif
+    if (cancelled) {
+        std::cout << QtUtilities::qStringToString(
+                      QObject::tr("Launching %1 was cancelled.").
+                      arg(APPLICATION_NAME) + quittingMessage())
+                  << std::endl;
+        return 3;
+    }
+
     return app.exec();
 }

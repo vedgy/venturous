@@ -41,10 +41,14 @@ class PreferencesComponent : public QObject
 {
     Q_OBJECT
 public:
+    /// @param cancelled Is set to true if user has cancelled launching
+    /// application (because of error); is not changed otherwise, so make sure
+    /// that (cancelled == false) before calling this constructor.
     /// NOTE: inputController must remain valid throughout this
     /// PreferencesComponent's lifetime.
     explicit PreferencesComponent(InputController & inputController,
-                                  const QString & preferencesDir);
+                                  const QString & preferencesDir,
+                                  bool & cancelled);
     /// NOTE: does not block execution.
     ~PreferencesComponent();
 
@@ -80,10 +84,16 @@ private:
     /// @param silentMode Makes a difference only in case of error.
     /// If true, error message is printed to stderr and method returns false.
     /// Otherwise, execution is blocked and user is allowed to retry operation.
+    /// @param cancelled Makes a difference only in case of error and
+    /// (silentMode == false).
+    /// If not nullptr, Cancel button is present in error dialog;
+    /// *cancelled is not changed if function returns true; is set to true if
+    /// user cancels the operation; is set to false otherwise (Ignore button).
     /// @return true on success, false on failure (error).
     template <typename F>
     bool handlePreferencesErrors(F f, const QString & errorPrefix,
-                                 bool silentMode = false);
+                                 bool silentMode = false,
+                                 bool * cancelled = nullptr);
 
     /// @brief Saves preferences to disk if (preferences != savedPreferences_).
     /// @param silentMode If true, aboutToSave() is not emitted and execution

@@ -40,7 +40,8 @@
 
 
 PreferencesComponent::PreferencesComponent(
-    InputController & inputController, const QString & preferencesDir)
+    InputController & inputController, const QString & preferencesDir,
+    bool & cancelled)
     : preferences(), inputController_(inputController),
       preferencesFilename_(preferencesDir + APPLICATION_NAME ".xml"),
       savedPreferences_(preferences)
@@ -53,7 +54,7 @@ PreferencesComponent::PreferencesComponent(
     if (QFileInfo(preferencesFilename_).isFile()) {
         if (handlePreferencesErrors([this] {
         savedPreferences_.load(preferencesFilename_);
-        }, tr("Loading preferences failed"))) {
+        }, tr("Loading preferences failed"), false, & cancelled)) {
             preferences = savedPreferences_;
         }
         else
@@ -104,7 +105,8 @@ void PreferencesComponent::quit()
 
 template <typename F>
 bool PreferencesComponent::handlePreferencesErrors(
-    F f, const QString & errorPrefix, const bool silentMode)
+    F f, const QString & errorPrefix, const bool silentMode,
+    bool * const cancelled)
 {
     while (true) {
         try {
@@ -119,14 +121,20 @@ bool PreferencesComponent::handlePreferencesErrors(
                           QtUtilities::qStringToString(message) << std::endl;
                 return false;
             }
-            const auto selectedButton =
-                inputController_.showMessage(
-                    tr("Preferences error"), message,
-                    QMessageBox::Retry | QMessageBox::Ignore,
-                    QMessageBox::Ignore);
 
-            if (selectedButton != QMessageBox::Retry)
+            QMessageBox::StandardButtons buttons =
+                QMessageBox::Retry | QMessageBox::Ignore;
+            if (cancelled != nullptr)
+                buttons |= QMessageBox::Cancel;
+            const auto selectedButton =
+                inputController_.showMessage(tr("Preferences error"), message,
+                                             buttons, QMessageBox::Retry);
+
+            if (selectedButton != QMessageBox::Retry) {
+                if (cancelled != nullptr)
+                    * cancelled = selectedButton == QMessageBox::Cancel;
                 return false;
+            }
         }
     }
 }

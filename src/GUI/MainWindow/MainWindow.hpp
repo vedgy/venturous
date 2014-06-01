@@ -42,8 +42,11 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 public:
     /// @param sharedMemory Must be valid and attached to.
-    explicit MainWindow(std::unique_ptr<QSharedMemory> sharedMemory,
-                        QWidget * parent = nullptr, Qt::WindowFlags flags = 0);
+    /// @param cancelled Is set to true if user has cancelled launching
+    /// application (because of error); is set to false otherwise.
+    explicit MainWindow(
+        std::unique_ptr<QSharedMemory> sharedMemory, bool & cancelled,
+        QWidget * parent = nullptr, Qt::WindowFlags flags = 0);
     /// NOTE: does not block execution.
     ~MainWindow();
 

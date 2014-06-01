@@ -155,8 +155,9 @@ void initToolBar(QToolBar & toolBar, const Actions & actions)
 }
 
 
-MainWindow::MainWindow(std::unique_ptr<QSharedMemory> sharedMemory,
-                       QWidget * const parent, const Qt::WindowFlags flags)
+MainWindow::MainWindow(
+    std::unique_ptr<QSharedMemory> sharedMemory, bool & cancelled,
+    QWidget * const parent, const Qt::WindowFlags flags)
     : QMainWindow(parent, flags), sharedMemory_(std::move(sharedMemory)),
       toolBar_(tr("Toolbar")), inputController_(* this)
 {
@@ -169,9 +170,11 @@ MainWindow::MainWindow(std::unique_ptr<QSharedMemory> sharedMemory,
             SLOT(onAboutToQuit()));
 
     const QString preferencesDir = getPreferencesDirName();
-
+    cancelled = false;
     preferencesComponent_.reset(
-        new PreferencesComponent(inputController_, preferencesDir));
+        new PreferencesComponent(inputController_, preferencesDir, cancelled));
+    if (cancelled)
+        return;
 
     const Preferences & preferences = preferencesComponent_->preferences;
     {
