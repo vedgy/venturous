@@ -54,17 +54,17 @@
 
 namespace
 {
-bool isChecked(const QTreeWidgetItem * item)
+inline bool isChecked(const QTreeWidgetItem * item)
 {
     return item->checkState(0) == Qt::Checked;
 }
 
-void setChecked(QTreeWidgetItem * item, bool checked)
+inline void setChecked(QTreeWidgetItem * item, bool checked)
 {
     item->setCheckState(0, checked ? Qt::Checked : Qt::Unchecked);
 }
 
-QString itemText(const QTreeWidgetItem * item)
+inline QString itemText(const QTreeWidgetItem * item)
 {
     return item->text(0);
 }

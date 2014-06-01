@@ -56,12 +56,12 @@ QListWidgetItem * addUnknownPattern(QListWidget * listWidget,
     return item;
 }
 
-bool isNonCaptionItem(const QListWidgetItem * item)
+inline bool isNonCaptionItem(const QListWidgetItem * item)
 {
     return item->flags() != captionItemFlags;
 }
 
-bool isUnknownItem(const QListWidgetItem * item)
+inline bool isUnknownItem(const QListWidgetItem * item)
 {
     return item->flags() == unknownItemFlags;
 }
@@ -74,12 +74,12 @@ PatternListWidget::PatternListWidget(QWidget * const parent) :
 {
     setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-    knownPatterns_.reserve(AddingItems::allMetaDataPatterns().size() +
+    knownPatterns_.reserve(AddingItems::allMetadataPatterns().size() +
                            AddingItems::allAudioPatterns().size());
 
     captionRows_[0] = count();
-    addCaption(this, tr("Meta data patterns"));
-    addKnownPatterns(AddingItems::allMetaDataPatterns());
+    addCaption(this, tr("Metadata patterns"));
+    addKnownPatterns(AddingItems::allMetadataPatterns());
 
     captionRows_[1] = count();
     addCaption(this, tr("Audio patterns"));

@@ -46,7 +46,7 @@ int main(int argc, char * argv[])
         *(char *)shared->data() = 'W';
         shared->unlock();
 
-        std::cout << "Another instance of Venturous is running.\n"
+        std::cout << "Another instance of " APPLICATION_NAME " is running.\n"
                   "Issued a command to show other instance's window.\n"
                   "Quitting ..." << std::endl;
         return 1;

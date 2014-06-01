@@ -33,7 +33,7 @@
 
 namespace
 {
-void addSpacing(QLayout * layout, int height = 10)
+inline void addSpacing(QLayout * layout, int height = 10)
 {
     layout->addItem(new QSpacerItem(1, height));
 }

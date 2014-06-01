@@ -28,6 +28,7 @@
 
 class PlaybackPage : public PreferencesPage
 {
+    Q_OBJECT
 public:
     explicit PlaybackPage(QWidget * parent = nullptr, Qt::WindowFlags f = 0);
 
@@ -35,12 +36,17 @@ public:
     void writeUiPreferencesTo(Preferences & destination) const override;
 
 private:
+    QComboBox playerIdComboBox;
     QCheckBox autoSetOptionsCheckBox;
     QCheckBox autoHideWindowCheckBox;
+    QCheckBox exitPlayerOnQuitCheckBox;
     QCheckBox nextFromHistoryCheckBox;
     QCheckBox desktopNotificationsCheckBox;
     QComboBox startupPolicyComboBox;
     HistoryPreferencesFrame historyFrame_;
+
+private slots:
+    void onPlayerIdChanged(int id);
 };
 
 # endif // VENTUROUS_PLAYBACK_PAGE_HPP

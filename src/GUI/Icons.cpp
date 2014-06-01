@@ -50,7 +50,7 @@ namespace
 constexpr std::size_t playbackStartIndex = 3, playlistStartIndex = 13,
                       helpStartIndex = 25, addingPolicyStartIndex = 27;
 
-bool isEmpty(const QIcon & icon)
+inline bool isEmpty(const QIcon & icon)
 {
     return icon.availableSizes().empty();
 }

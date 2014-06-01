@@ -52,10 +52,14 @@
 
 namespace
 {
-QString ioError() { return QObject::tr("I/O error"); }
-QString savingFailed() { return QObject::tr("Saving playlist failed."); }
+inline QString ioError() { return QObject::tr("I/O error"); }
+inline QString savingFailed() { return QObject::tr("Saving playlist failed."); }
 
-QString editModeTitle() { return QObject::tr("Edit mode"); }
+inline const QString & editModeTitle()
+{
+    static const QString s = QObject::tr("Edit mode");
+    return s;
+}
 
 }
 

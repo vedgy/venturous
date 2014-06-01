@@ -45,14 +45,19 @@
 
 namespace
 {
-QString getStatus(bool isPlayerRunning)
+inline const QString & getStatus(bool isPlayerRunning)
 {
-    return isPlayerRunning ? QObject::tr("playing") : QObject::tr("stopped");
+    static const QString playing = QObject::tr("playing"),
+                         stopped = QObject::tr("stopped");
+    return isPlayerRunning ? playing : stopped;
 }
 
-QString getIconTooltip(bool isPlayerRunning)
+inline const QString & getIconTooltip(bool isPlayerRunning)
 {
-    return APPLICATION_NAME " - " + getStatus(isPlayerRunning);
+    static const QString running = APPLICATION_NAME " - " + getStatus(true),
+                         notRunning =  APPLICATION_NAME " - " +
+                                       getStatus(false);
+    return isPlayerRunning ? running : notRunning;
 }
 
 }
@@ -359,3 +364,4 @@ void MainWindow::onAboutToQuit()
     std::cout << "About to quit..." << std::endl;
 # endif
 }
+

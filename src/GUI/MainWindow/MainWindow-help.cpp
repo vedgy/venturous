@@ -26,10 +26,6 @@
 # include "InputController.hpp"
 # include "Icons.hpp"
 
-# include <VenturousCore/MediaPlayer.hpp>
-
-# include <QtCoreUtilities/String.hpp>
-
 # include <QString>
 # include <QDir>
 # include <QFile>
@@ -92,8 +88,7 @@ void MainWindow::onHelpAbout()
         this, tr("About ") + APPLICATION_NAME,
         "<b>" APPLICATION_NAME "</b> " + tr("version") + " <b>" +
         QCoreApplication::applicationVersion() + "</b>" +
-        tr(" - random playback manager for %1.").arg(
-            QtUtilities::toQString(MediaPlayer::playerName())) +
+        tr(" - random playback manager.") +
         QString::fromUtf8(
             "<br><br>© 2014 Igor Kushnir &lt;igorkuo AT Google mail&gt;.<br>") +
         "License: <a href='http://www.gnu.org/copyleft/gpl.html'>GNU GPL v3</a>"

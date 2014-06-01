@@ -191,7 +191,7 @@ constexpr bool needsEscapingWithinDoubleQuotes(char c) noexcept {
     return c == '$' || c == '`' || c == '"' || c == '\\';
 }
 
-char toChar(const QChar & qc)
+inline char toChar(const QChar & qc)
 {
     return qc.toLatin1();
 }

@@ -23,19 +23,18 @@
 # include "HistoryWidget.hpp"
 # include "Actions.hpp"
 
-# include <VenturousCore/MediaPlayer.hpp>
-
 # include <QtGlobal>
 # include <QObject>
 
-# include <vector>
 # include <string>
 # include <memory>
 
 
 class InputController;
 class Preferences;
+class MediaPlayer;
 QT_FORWARD_DECLARE_CLASS(QString)
+QT_FORWARD_DECLARE_CLASS(QStringList)
 QT_FORWARD_DECLARE_CLASS(QLabel)
 QT_FORWARD_DECLARE_CLASS(QMainWindow)
 
@@ -45,8 +44,7 @@ class PlaybackComponent : public QObject
     Q_OBJECT
 public:
     /// NOTE: mainWindow, actions, inputController and preferences must remain
-    /// throughout this PlaybackComponent's lifetime.
-    /// NOTE: does not block execution.
+    /// valid throughout this PlaybackComponent's lifetime.
     explicit PlaybackComponent(QMainWindow & mainWindow,
                                const Actions::Playback & actions,
                                InputController & inputController,
@@ -83,18 +81,6 @@ signals:
 
 private:
     void setPreferencesExceptHistory(const Preferences &);
-
-    void onPlayerFinished(bool crashExit, int exitCode,
-                          std::vector<std::string> missingFilesAndDirs);
-    void onPlayerError(std::string errorMessage);
-
-    /// @brief Shows error message and asks user if playback should be
-    /// continued.
-    /// @param title Title of the message box.
-    /// @param errorMessage Message to be displayed before question.
-    /// @return true if playback should be continued.
-    bool criticalContinuePlaybackQuestion(const QString & title,
-                                          QString errorMessage);
 
     /// @brief Starts playing entry. Does not call historyWidget_.push().
     /// NOTE: does not block execution.
@@ -135,12 +121,17 @@ private:
     bool isPlayerRunning_ = false;
     bool isHistorySaved_ = true;
 
-    MediaPlayer mediaPlayer_;
+    unsigned playerId_;
+    std::unique_ptr<MediaPlayer> mediaPlayer_;
 
     std::unique_ptr<QLabel> lastPlayedItemLabel_;
     HistoryWidget historyWidget_;
 
 private slots:
+    void onPlayerFinished(bool crashExit, int exitCode, QStringList errors,
+                          QStringList missingFilesAndDirs);
+    void onPlayerError(QString errorMessage);
+
     /// @brief Sets isHistorySaved_ to false, handles
     /// saveHistoryToDiskImmediately_.
     void onHistoryChanged();

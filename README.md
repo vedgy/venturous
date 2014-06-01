@@ -69,7 +69,7 @@ to use it for icon generation, pass "generate-png" argument to
 
 ## Runtime requirements
 * qt4 OR qt5 shared libraries (Core, XML and GUI/Widgets modules)
-* Audacious version 3.4 or later.
+* Audacious
 * audacious and audtool executables must be present in PATH.
     There are two problems with this requirement in MS Windows:
     * Audacious bin directory is not added in PATH environment

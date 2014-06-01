@@ -81,7 +81,7 @@ QString getShortenedPath(const QString & absolutePath, int nHiddenDirs)
     return absolutePath.mid(index);
 }
 
-void setShortenedTooltipToText(QListWidgetItem * item, int nHiddenDirs)
+inline void setShortenedTooltipToText(QListWidgetItem * item, int nHiddenDirs)
 {
     assert(item != nullptr);
     item->setText(getShortenedPath(item->toolTip(), nHiddenDirs));

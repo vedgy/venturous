@@ -64,8 +64,10 @@ public:
         explicit Playback();
 
 
+        unsigned playerId;
         bool autoSetExternalPlayerOptions;
         bool autoHideExternalPlayerWindow;
+        bool exitExternalPlayerOnQuit;
         bool nextFromHistory;
         bool desktopNotifications;
         StartupPolicy startupPolicy;
@@ -79,11 +81,11 @@ public:
     explicit Preferences();
 
     /// @brief Saves preferences to file filename.
-    /// @throw QtUtilities::XmlWriting::WriteError in case of error.
+    /// @throw QtUtilities::XmlWriting::WriteError In case of error.
     void save(const QString & filename) const;
 
     /// @brief Loads preferences from file filename.
-    /// @throw QtUtilities::XmlReading::ReadError in case of error.
+    /// @throw QtUtilities::XmlReading::ReadError In case of error.
     /// NOTE: in case of failure (throwing ReadError) state of this becomes
     /// undefined.
     void load(const QString & filename);

@@ -51,14 +51,13 @@
 
 namespace
 {
-QString constructPreferencesDirName()
+inline QString getPreferencesDirName()
 {
     QString result(PREFERENCES_DIR);
     if (! result.isEmpty() && result[0] == '~')
         result.replace(0, 1, QDir::homePath());
     return result;
 }
-const QString preferencesDir = constructPreferencesDirName();
 
 
 void initMenuBar(QMenuBar & menuBar, const Actions & actions)
@@ -169,6 +168,8 @@ MainWindow::MainWindow(std::unique_ptr<QSharedMemory> sharedMemory,
     connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()),
             SLOT(onAboutToQuit()));
 
+    const QString preferencesDir = getPreferencesDirName();
+
     preferencesComponent_.reset(
         new PreferencesComponent(inputController_, preferencesDir));
 
@@ -192,6 +193,7 @@ MainWindow::MainWindow(std::unique_ptr<QSharedMemory> sharedMemory,
     const std::string preferencesDirString =
         QtUtilities::qStringToString(preferencesDir);
 
+    /// WARNING: repeated execution blocking is possible here!
     playbackComponent_.reset(
         new PlaybackComponent(* this, actions_->playback, inputController_,
                               preferences, preferencesDirString));

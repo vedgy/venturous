@@ -43,7 +43,7 @@ add_subdirectory(${PATH_TO_MODULES}/VenturousCore)
 executableGetPublicHeadersProperty(VenturousCore)
 executableGetPublicHeadersProperty(TemplateUtilities)
 
-include(vedgTools/EnableAutomoc)
+include(vedgTools/EnableAutomocInSources)
 
 
 if(DEBUG_VENTUROUS)

@@ -20,16 +20,42 @@
 
 # include "Preferences.hpp"
 
+# include <VenturousCore/MediaPlayer.hpp>
+
+# include <QString>
 # include <QStringList>
 # include <QSpacerItem>
 # include <QFormLayout>
 # include <QFrame>
+# include <QComboBox>
+
+
+namespace
+{
+inline void configure(QComboBox & combobox)
+{
+    combobox.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+}
+
+}
 
 
 PlaybackPage::PlaybackPage(QWidget * const parent, const Qt::WindowFlags f)
     : PreferencesPage(parent, f)
 {
     QFormLayout * const layout = new QFormLayout(this);
+
+    playerIdComboBox.addItems(GetMediaPlayer::playerList());
+    playerIdComboBox.setToolTip(
+        tr("Selected player will be used for playing items.\n"
+           "It must be installed. Some of the player's settings\n"
+           "will be adjusted for integration with %1.").arg(APPLICATION_NAME));
+    configure(playerIdComboBox);
+    layout->addRow(tr("External player"), & playerIdComboBox);
+    onPlayerIdChanged(0);
+    connect(& playerIdComboBox, SIGNAL(currentIndexChanged(int)),
+            SLOT(onPlayerIdChanged(int)));
+
 
     autoSetOptionsCheckBox.setToolTip(
         tr("If checked, essential external player options\n"
@@ -44,6 +70,10 @@ PlaybackPage::PlaybackPage(QWidget * const parent, const Qt::WindowFlags f)
            "each time player is launched."));
     layout->addRow(tr("Always hide external player window"),
                    & autoHideWindowCheckBox);
+
+    layout->addRow(tr("Exit external player on quit"),
+                   & exitPlayerOnQuitCheckBox);
+
 
     nextFromHistoryCheckBox.setToolTip(
         tr("If checked, \"Next\" action first tries to get next item\n"
@@ -64,7 +94,7 @@ PlaybackPage::PlaybackPage(QWidget * const parent, const Qt::WindowFlags f)
     startupPolicyComboBox.setToolTip(
         tr("Selected action will be executed on each %1 start.").arg(
             APPLICATION_NAME));
-    startupPolicyComboBox.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    configure(startupPolicyComboBox);
     layout->addRow(tr("Startup action"), & startupPolicyComboBox);
 
     layout->addItem(new QSpacerItem(1, 10));
@@ -78,8 +108,10 @@ void PlaybackPage::setUiPreferences(const Preferences & source)
 {
     const Preferences::Playback & playback = source.playback;
 
+    playerIdComboBox.setCurrentIndex(int(playback.playerId));
     autoSetOptionsCheckBox.setChecked(playback.autoSetExternalPlayerOptions);
     autoHideWindowCheckBox.setChecked(playback.autoHideExternalPlayerWindow);
+    exitPlayerOnQuitCheckBox.setChecked(playback.exitExternalPlayerOnQuit);
     nextFromHistoryCheckBox.setChecked(playback.nextFromHistory);
     desktopNotificationsCheckBox.setChecked(playback.desktopNotifications);
     startupPolicyComboBox.setCurrentIndex(static_cast<int>(
@@ -92,12 +124,29 @@ void PlaybackPage::writeUiPreferencesTo(Preferences & destination) const
 {
     Preferences::Playback & playback = destination.playback;
 
+    playback.playerId = unsigned(playerIdComboBox.currentIndex());
     playback.autoSetExternalPlayerOptions = autoSetOptionsCheckBox.isChecked();
     playback.autoHideExternalPlayerWindow = autoHideWindowCheckBox.isChecked();
+    playback.exitExternalPlayerOnQuit = exitPlayerOnQuitCheckBox.isChecked();
     playback.nextFromHistory = nextFromHistoryCheckBox.isChecked();
     playback.desktopNotifications = desktopNotificationsCheckBox.isChecked();
     playback.startupPolicy = static_cast<Preferences::Playback::StartupPolicy>(
                                  startupPolicyComboBox.currentIndex());
 
     historyFrame_.writeUiPreferencesTo(playback.history);
+}
+
+
+void PlaybackPage::onPlayerIdChanged(const int id)
+{
+    const bool enabled = GetMediaPlayer::isExternalPlayerProcessDetached(id);
+    exitPlayerOnQuitCheckBox.setEnabled(enabled);
+    exitPlayerOnQuitCheckBox.setToolTip(
+        (enabled ?
+         tr("If checked, external player is finished when\n"
+            "%1 quits; otherwise it remains running.") :
+         tr("Current external player must be finished when\n"
+            "%1 quits. So this option has no effect.")
+        ).arg(APPLICATION_NAME));
+
 }

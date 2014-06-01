@@ -21,6 +21,7 @@
 # include "CustomActions.hpp"
 
 # include <VenturousCore/AddingItems.hpp>
+# include <VenturousCore/MediaPlayer.hpp>
 
 # include <QtXmlUtilities/ReadingShortcuts.hpp>
 # include <QtXmlUtilities/WritingShortcuts.hpp>
@@ -57,10 +58,13 @@ VENTUROUS_PREFERENCES_STRING_CONSTANT(currentIndex, "CurrentIndex")
 }
 
 VENTUROUS_PREFERENCES_STRING_CONSTANT(localRoot, "Playback")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(playerId, "PlayerID")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(autoSetExternalPlayerOptions,
                                       "AutoSetExternalPlayerOptions")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(autoHideExternalPlayerWindow,
                                       "AutoHideExternalPlayerWindow")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(exitExternalPlayerOnQuit,
+                                      "ExitExternalPlayerOnQuit")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(nextFromHistory, "NextFromHistory")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(desktopNotifications,
                                       "DesktopNotifications")
@@ -140,10 +144,14 @@ void appendPlayback(XmlElement & parent, const Preferences::Playback & playback)
     using namespace Names::Playback;
     XmlElement e = parent.appendChild(localRoot());
 
+    e.appendChild(playerId(), playback.playerId);
+
     e.appendChild(autoSetExternalPlayerOptions(),
                   playback.autoSetExternalPlayerOptions);
     e.appendChild(autoHideExternalPlayerWindow(),
                   playback.autoHideExternalPlayerWindow);
+    e.appendChild(exitExternalPlayerOnQuit(),
+                  playback.exitExternalPlayerOnQuit);
 
     e.appendChild(nextFromHistory(), playback.nextFromHistory);
     e.appendChild(desktopNotifications(), playback.desktopNotifications);
@@ -219,10 +227,16 @@ void loadPlayback(const QDomElement & parent, Preferences::Playback & playback)
 
     const QDomElement e = getUniqueChild(parent, localRoot());
 
+    copyUniqueChildsTextToMax(
+        e, playerId(), playback.playerId,
+        unsigned(GetMediaPlayer::playerList().size() - 1));
+
     copyUniqueChildsTextTo(e, autoSetExternalPlayerOptions(),
                            playback.autoSetExternalPlayerOptions);
     copyUniqueChildsTextTo(e, autoHideExternalPlayerWindow(),
                            playback.autoHideExternalPlayerWindow);
+    copyUniqueChildsTextTo(e, exitExternalPlayerOnQuit(),
+                           playback.exitExternalPlayerOnQuit);
 
     copyUniqueChildsTextTo(e, nextFromHistory(), playback.nextFromHistory);
     copyUniqueChildsTextTo(e, desktopNotifications(),
@@ -361,7 +375,8 @@ constexpr Preferences::Playback::StartupPolicyUnderlyingType
 Preferences::Playback::maxStartupPolicy;
 
 Preferences::Playback::Playback()
-    : autoSetExternalPlayerOptions(true), autoHideExternalPlayerWindow(false),
+    : playerId(0), autoSetExternalPlayerOptions(true),
+      autoHideExternalPlayerWindow(false), exitExternalPlayerOnQuit(true),
       nextFromHistory(false), desktopNotifications(true),
       startupPolicy(StartupPolicy::doNothing)
 {
@@ -474,10 +489,12 @@ bool operator == (const Preferences::Playback & lhs,
                   const Preferences::Playback & rhs)
 {
     return lhs.history == rhs.history &&
+           lhs.playerId == rhs.playerId &&
            lhs.autoSetExternalPlayerOptions == rhs.autoSetExternalPlayerOptions
            &&
            lhs.autoHideExternalPlayerWindow == rhs.autoHideExternalPlayerWindow
-           && lhs.nextFromHistory == rhs.nextFromHistory &&
+           && lhs.exitExternalPlayerOnQuit == rhs.exitExternalPlayerOnQuit &&
+           lhs.nextFromHistory == rhs.nextFromHistory &&
            lhs.desktopNotifications == rhs.desktopNotifications &&
            lhs.startupPolicy == rhs.startupPolicy;
 }
