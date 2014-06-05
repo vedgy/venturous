@@ -25,13 +25,15 @@
 # include <vector>
 
 
-namespace GuiUtilities
+namespace QtUtilities
+{
+namespace Widgets
 {
 class TooltipShower;
 }
+}
 QT_FORWARD_DECLARE_CLASS(QPoint)
 QT_FORWARD_DECLARE_CLASS(QStringList)
-QT_FORWARD_DECLARE_CLASS(QWidget)
 
 namespace CustomActions
 {
@@ -89,12 +91,11 @@ typedef std::vector<Action> Actions;
 bool showMenu(const Actions & actions, QString commonItemPrefix,
               QStringList itemNames, const QPoint & position);
 /// @brief Calls showMenu(actions, commonItemPrefix, itemNames, position).
-/// If it returns false, shows appropriate tooltip using tooltipShower
-/// and widget at position.
+/// If it returns false, uses tooltipShower to show appropriate tooltip at
+/// the same position.
 void showMenu(const Actions & actions, QString commonItemPrefix,
               QStringList itemNames, const QPoint & position,
-              GuiUtilities::TooltipShower & tooltipShower,
-              QWidget * widget = nullptr);
+              QtUtilities::Widgets::TooltipShower & tooltipShower);
 
 }
 

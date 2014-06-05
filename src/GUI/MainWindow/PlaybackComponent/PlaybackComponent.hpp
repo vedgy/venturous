@@ -19,8 +19,8 @@
 # ifndef VENTUROUS_PLAYBACK_COMPONENT_HPP
 # define VENTUROUS_PLAYBACK_COMPONENT_HPP
 
-# include "CommonTypes.hpp"
 # include "HistoryWidget.hpp"
+# include "CommonTypes.hpp"
 # include "Actions.hpp"
 
 # include <QtGlobal>
@@ -30,9 +30,15 @@
 # include <memory>
 
 
-class InputController;
 class Preferences;
 class MediaPlayer;
+namespace QtUtilities
+{
+namespace Widgets
+{
+class InputController;
+}
+}
 QT_FORWARD_DECLARE_CLASS(QString)
 QT_FORWARD_DECLARE_CLASS(QStringList)
 QT_FORWARD_DECLARE_CLASS(QLabel)
@@ -43,13 +49,15 @@ class PlaybackComponent : public QObject
 {
     Q_OBJECT
 public:
+    /// @param cancelled Is set to true if user has cancelled launching
+    /// application (because of error); is set to false otherwise.
     /// NOTE: mainWindow, actions, inputController and preferences must remain
     /// valid throughout this PlaybackComponent's lifetime.
-    explicit PlaybackComponent(QMainWindow & mainWindow,
-                               const Actions::Playback & actions,
-                               InputController & inputController,
-                               const Preferences & preferences,
-                               const std::string & preferencesDir);
+    explicit PlaybackComponent(
+        QMainWindow & mainWindow, const Actions::Playback & actions,
+        QtUtilities::Widgets::InputController & inputController,
+        const Preferences & preferences, const std::string & preferencesDir,
+        bool & cancelled);
     /// NOTE: does not block execution.
     ~PlaybackComponent();
 
@@ -80,7 +88,13 @@ signals:
     void playerStateChanged(bool isPlayerRunning);
 
 private:
-    void setPreferencesExceptHistory(const Preferences &);
+    /// @brief Applies everything except history settings from preferences.
+    /// @param cancelled Makes a difference only in case of error.
+    /// If not nullptr, cancelling operation is allowed.
+    /// *cancelled is set to true if user cancels the operation; is set to false
+    /// otherwise (success or ignoring error).
+    void setPreferencesExceptHistory(const Preferences & preferences,
+                                     bool * cancelled = nullptr);
 
     /// @brief Starts playing entry. Does not call historyWidget_.push().
     /// NOTE: does not block execution.
@@ -108,12 +122,14 @@ private:
     void checkHistoryWidgetChanges();
 
     /// @brief Saves history if (! isHistorySaved_).
-    void saveHistory();
+    /// @param noBlocking If true, function does not block execution; otherwise
+    /// it blocks in case of error.
+    void saveHistory(bool noBlocking = false);
 
 
     QMainWindow & mainWindow_;
     const Actions::Playback & actions_;
-    InputController & inputController_;
+    QtUtilities::Widgets::InputController & inputController_;
     const std::string historyFilename_;
 
     bool saveHistoryToDiskImmediately_;

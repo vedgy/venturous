@@ -19,17 +19,20 @@
 # include "PlaybackComponent.hpp"
 
 # include "CommonTypes.hpp"
-# include "InputController.hpp"
 # include "Actions.hpp"
 # include "Preferences.hpp"
 
 # include <VenturousCore/MediaPlayer.hpp>
+
+# include <QtWidgetsUtilities/InputController.hpp>
+# include <QtWidgetsUtilities/HandleErrors.hpp>
 
 # include <QtCoreUtilities/String.hpp>
 
 # include <QString>
 # include <QStringList>
 # include <QObject>
+# include <QFileInfo>
 # include <QProcess>
 # include <QAction>
 # include <QLabel>
@@ -43,14 +46,13 @@
 # include <functional>
 # include <tuple>
 # include <string>
-# include <iostream>
 
 
 namespace
 {
 inline QString historyWindowName() { return QObject::tr("History"); }
 
-inline QString externalPlayerError(bool plural = true)
+inline QString externalPlayerErrors(bool plural = true)
 {
     return QObject::tr("External player ") +
            (plural ? QObject::tr("errors") : QObject::tr("error"));
@@ -62,8 +64,9 @@ inline QString externalPlayerError(bool plural = true)
 
 PlaybackComponent::PlaybackComponent(
     QMainWindow & mainWindow, const Actions::Playback & actions,
-    InputController & inputController, const Preferences & preferences,
-    const std::string & preferencesDir)
+    QtUtilities::Widgets::InputController & inputController,
+    const Preferences & preferences, const std::string & preferencesDir,
+    bool & cancelled)
     : mainWindow_(mainWindow), actions_(actions),
       inputController_(inputController),
       historyFilename_(preferencesDir + "history"),
@@ -74,11 +77,22 @@ PlaybackComponent::PlaybackComponent(
     [this](CommonTypes::ItemCollection items) { play(std::move(items)); },
 preferences.playback.history)
 {
-    setPreferencesExceptHistory(preferences);
+    setPreferencesExceptHistory(preferences, & cancelled);
+    if (cancelled)
+        return;
 
-    // Do nothing in case of failure because history is not very important
-    // and file may not exist.
-    historyWidget_.load(historyFilename_);
+    if (QFileInfo(QtUtilities::toQString(historyFilename_)).isFile()) {
+        /// WARNING: repeated execution blocking is possible here!
+        QtUtilities::Widgets::HandleErrors {
+            [&] {
+                return historyWidget_.load(historyFilename_) ?
+                QString() : tr("Loading history failed.");
+            }
+        } .blocking(inputController_, historyWindowName(), & cancelled);
+        if (cancelled)
+            return;
+    }
+
     {
         QDockWidget * const dockWidget =
             new QDockWidget(historyWindowName(), & mainWindow);
@@ -115,12 +129,7 @@ preferences.playback.history)
 
 PlaybackComponent::~PlaybackComponent()
 {
-    if (! isHistorySaved_) {
-        if (! historyWidget_.save(historyFilename_)) {
-            std::cerr << VENTUROUS_ERROR_PREFIX "Saving history failed."
-            << std::endl;
-        }
-    }
+    saveHistory(true);
 }
 
 void PlaybackComponent::setPreferences(const Preferences & preferences)
@@ -165,8 +174,42 @@ void PlaybackComponent::quit()
 
 
 void PlaybackComponent::setPreferencesExceptHistory(
-    const Preferences & preferences)
+    const Preferences & preferences, bool * const cancelled)
 {
+    const Preferences::Playback & pb = preferences.playback;
+
+    if (mediaPlayer_ != nullptr)
+        mediaPlayer_->setExitExternalPlayerOnQuit(pb.exitExternalPlayerOnQuit);
+    if (pb.playerId != playerId_) {
+        playerId_ = pb.playerId;
+        setPlayerState(false);
+
+        QtUtilities::Widgets::HandleErrors {
+            [&] {
+                QStringList errors;
+                std::tie(mediaPlayer_, errors) =
+                GetMediaPlayer::instance(int(playerId_));
+                return errors.empty() ? QString() : errors.join("\n");
+            }
+        } .blocking(inputController_, externalPlayerErrors(), cancelled);
+        if (cancelled != nullptr && * cancelled)
+            return;
+
+        connect(mediaPlayer_.get(),
+                SIGNAL(finished(bool, int, QStringList, QStringList)),
+                SLOT(onPlayerFinished(bool, int, QStringList, QStringList)));
+        connect(mediaPlayer_.get(), SIGNAL(error(QString)),
+                SLOT(onPlayerError(QString)));
+        mediaPlayer_->setExitExternalPlayerOnQuit(pb.exitExternalPlayerOnQuit);
+    }
+    else if (cancelled != nullptr)
+        * cancelled = false;
+
+    mediaPlayer_->setAutoSetOptions(pb.autoSetExternalPlayerOptions);
+    mediaPlayer_->setAutoHideWindow(pb.autoHideExternalPlayerWindow);
+    desktopNotifications_ = pb.desktopNotifications;
+    saveHistoryToDiskImmediately_ = pb.history.saveToDiskImmediately;
+
     if (preferences.statusBar) {
         if (lastPlayedItemLabel_ == nullptr) {
             lastPlayedItemLabel_.reset(new QLabel);
@@ -181,30 +224,6 @@ void PlaybackComponent::setPreferencesExceptHistory(
         }
     }
 
-    const Preferences::Playback & pb = preferences.playback;
-    if (mediaPlayer_ != nullptr)
-        mediaPlayer_->setExitExternalPlayerOnQuit(pb.exitExternalPlayerOnQuit);
-    if (pb.playerId != playerId_) {
-        setPlayerState(false);
-        playerId_ = pb.playerId;
-        QStringList errors;
-        std::tie(mediaPlayer_, errors) =
-            GetMediaPlayer::instance(int(playerId_));
-        if (! errors.empty()) {
-            inputController_.showMessage(externalPlayerError(),
-                                         errors.join("\n"));
-        }
-        connect(mediaPlayer_.get(),
-                SIGNAL(finished(bool, int, QStringList, QStringList)),
-                SLOT(onPlayerFinished(bool, int, QStringList, QStringList)));
-        connect(mediaPlayer_.get(), SIGNAL(error(QString)),
-                SLOT(onPlayerError(QString)));
-        mediaPlayer_->setExitExternalPlayerOnQuit(pb.exitExternalPlayerOnQuit);
-    }
-    mediaPlayer_->setAutoSetOptions(pb.autoSetExternalPlayerOptions);
-    mediaPlayer_->setAutoHideWindow(pb.autoHideExternalPlayerWindow);
-    desktopNotifications_ = pb.desktopNotifications;
-    saveHistoryToDiskImmediately_ = pb.history.saveToDiskImmediately;
     if (saveHistoryToDiskImmediately_) {
         /// WARNING: repeated execution blocking is possible here!
         saveHistory();
@@ -276,20 +295,19 @@ void PlaybackComponent::checkHistoryWidgetChanges()
         onHistoryChanged();
 }
 
-void PlaybackComponent::saveHistory()
+void PlaybackComponent::saveHistory(const bool noBlocking)
 {
-    if (! isHistorySaved_) {
-        while (! historyWidget_.save(historyFilename_)) {
-            const auto selectedButton =
-                inputController_.showMessage(
-                    historyWindowName(), tr("Saving history failed."),
-                    QMessageBox::Retry | QMessageBox::Ignore,
-                    QMessageBox::Ignore);
-            if (selectedButton != QMessageBox::Retry)
-                return;
+    if (isHistorySaved_)
+        return;
+    QtUtilities::Widgets::HandleErrors handleErrors {
+        [&] {
+            return historyWidget_.save(historyFilename_) ?
+            QString() : tr("Saving history failed.");
         }
-        isHistorySaved_ = true;
-    }
+    };
+    isHistorySaved_ = noBlocking ? handleErrors.nonBlocking() :
+                      handleErrors.blocking(inputController_,
+                                            historyWindowName());
 }
 
 
@@ -319,7 +337,7 @@ void PlaybackComponent::onPlayerFinished(
         errorMessage += '\t' + tr("Continue playback?");
         setPlayerState(false);
         const auto selectedButton =
-            inputController_.showMessage(externalPlayerError(), errorMessage,
+            inputController_.showMessage(externalPlayerErrors(), errorMessage,
                                          QMessageBox::Yes | QMessageBox::No,
                                          QMessageBox::No);
         if (selectedButton == QMessageBox::No)
@@ -331,7 +349,7 @@ void PlaybackComponent::onPlayerFinished(
 void PlaybackComponent::onPlayerError(QString errorMessage)
 {
     inputController_.showMessage(
-        externalPlayerError(false),
+        externalPlayerErrors(false),
         mediaPlayer_->playerName() + ": " + std::move(errorMessage));
     if (! mediaPlayer_->isRunning())
         setPlayerState(false);

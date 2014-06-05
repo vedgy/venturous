@@ -4,6 +4,9 @@
 [submodule "modules/vedgTools/QtCoreUtilities"]
 	path = modules/vedgTools/QtCoreUtilities
 	url = https://github.com/vedgy/QtCoreUtilities.git
+[submodule "modules/vedgTools/QtWidgetsUtilities"]
+	path = modules/vedgTools/QtWidgetsUtilities
+	url = https://github.com/vedgy/QtWidgetsUtilities
 [submodule "modules/vedgTools/QtXmlUtilities"]
 	path = modules/vedgTools/QtXmlUtilities
 	url = https://github.com/vedgy/QtXmlUtilities.git

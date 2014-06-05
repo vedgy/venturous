@@ -24,12 +24,14 @@
 # include "PlaylistComponent.hpp"
 
 # include "CommonTypes.hpp"
-# include "InputController.hpp"
 # include "Actions.hpp"
 # include "Preferences.hpp"
 
 # include <VenturousCore/ItemTree-inl.hpp>
 # include <VenturousCore/AddingItems.hpp>
+
+# include <QtWidgetsUtilities/InputController.hpp>
+# include <QtWidgetsUtilities/HandleErrors.hpp>
 
 # include <QtCoreUtilities/String.hpp>
 
@@ -47,12 +49,19 @@
 # include <utility>
 # include <algorithm>
 # include <string>
-# include <iostream>
 
 
 namespace
 {
 inline QString ioError() { return QObject::tr("I/O error"); }
+inline QString loadingFailed()
+{
+    return QObject::tr("Loading playlist failed");
+}
+inline QString loadingErrorFullMessage(QString errorMessage)
+{
+    return QObject::tr("Error: ") + std::move(errorMessage);
+}
 inline QString savingFailed() { return QObject::tr("Saving playlist failed."); }
 
 inline const QString & editModeTitle()
@@ -66,8 +75,9 @@ inline const QString & editModeTitle()
 
 PlaylistComponent::PlaylistComponent(
     QMainWindow & mainWindow, const Actions & actions,
-    InputController & inputController, const Preferences & preferences,
-    CommonTypes::PlayItems playItems, const std::string & preferencesDir)
+    QtUtilities::Widgets::InputController & inputController,
+    const Preferences & preferences, CommonTypes::PlayItems playItems,
+    const std::string & preferencesDir, bool & cancelled)
     : actions_(actions), inputController_(inputController),
       addingPolicy_(preferences.addingPolicy), playItems_(std::move(playItems)),
       itemsFilename_(preferencesDir + "items"),
@@ -83,17 +93,25 @@ PlaylistComponent::PlaylistComponent(
     treeWidget_.setAutoUnfoldedLevels(preferences.treeAutoUnfoldedLevels);
 
     if (QFileInfo(qItemsFilename_).isFile()) {
-        const std::string errorMessage = itemTree_.load(itemsFilename_);
-        if (errorMessage.empty()) {
+        if (QtUtilities::Widgets::HandleErrors {
+        [&] {
+                const std::string errorMessage = itemTree_.load(itemsFilename_);
+                return errorMessage.empty() ? QString() :
+                loadingErrorFullMessage(QtUtilities::toQString(errorMessage));
+            }
+        } .blocking(inputController_, loadingFailed(), & cancelled)) {
             itemTree_.nodesChanged();
             treeWidget_.updateTree();
         }
+        else if (cancelled)
+            return;
         else {
             itemTree_.topLevelNodes().clear();
             itemTree_.nodesChanged();
-            showLoadingPlaylistErrorMessage(errorMessage);
         }
     }
+    else
+        cancelled = false;
 
     mainWindow.setCentralWidget(& treeWidget_);
 
@@ -127,15 +145,8 @@ PlaylistComponent::PlaylistComponent(
 
 PlaylistComponent::~PlaylistComponent()
 {
-    if (! treeWidget_.editMode() || noChanges())
-        return;
-    const bool renamed = prepareForApplyingChanges();
-    if (! saveTemporaryTree()) {
-        std::cerr << VENTUROUS_ERROR_PREFIX <<
-                  QtUtilities::qStringToString(savingFailed()) << std::endl;
-        if (renamed)
-            restoreBackupFile();
-    }
+    if (treeWidget_.editMode() && ! noChanges())
+        saveTemporaryTree();
 }
 
 void PlaylistComponent::setPreferences(const Preferences & preferences)
@@ -159,19 +170,6 @@ bool PlaylistComponent::quit()
 }
 
 
-void PlaylistComponent::showLoadingPlaylistErrorMessage(
-    const QString & errorMessage)
-{
-    inputController_.showMessage(tr("Loading playlist failed"),
-                                 tr("Error: ") + errorMessage);
-}
-
-void PlaylistComponent::showLoadingPlaylistErrorMessage(
-    const std::string & errorMessage)
-{
-    showLoadingPlaylistErrorMessage(QtUtilities::toQString(errorMessage));
-}
-
 void PlaylistComponent::updateActionsState()
 {
     const Actions::Playlist & p = actions_.playlist;
@@ -194,40 +192,12 @@ void PlaylistComponent::enterEditMode()
     emit editModeChanged();
 }
 
-bool PlaylistComponent::prepareForApplyingChanges()
-{
-    treeWidget_.assertValidTemporaryTree();
-    temporaryTree_->nodesChanged();
-    if (treeAutoCleanup_)
-        temporaryTree_->cleanUp();
-
-    QFile::remove(qBackupItemsFilename_);
-    return QFile::rename(qItemsFilename_, qBackupItemsFilename_);
-}
-
-void PlaylistComponent::restoreBackupFile()
-{
-    QFile::remove(qItemsFilename_);
-    QFile::copy(qBackupItemsFilename_, qItemsFilename_);
-}
-
 bool PlaylistComponent::applyChangesChanged()
 {
-    const bool renamed = prepareForApplyingChanges();
-    while (! saveTemporaryTree()) {
-        if (renamed)
-            restoreBackupFile();
-        const auto selectedButton =
-            inputController_.showMessage(
-                ioError(), savingFailed(),
-                QMessageBox::Retry | QMessageBox::Cancel | QMessageBox::Ignore,
-                QMessageBox::Cancel);
-        if (selectedButton == QMessageBox::Retry)
-            continue;
-        if (selectedButton == QMessageBox::Ignore)
-            break;
+    bool cancelled;
+    saveTemporaryTree(& cancelled);
+    if (cancelled)
         return false;
-    }
     itemTree_ = std::move(* temporaryTree_);
     cancelChanges(false);
     return true;
@@ -306,18 +276,48 @@ bool PlaylistComponent::ensureAskOutOfEditMode()
     return treeWidget_.editMode() ? leaveAskEditMode() : true;
 }
 
-bool PlaylistComponent::saveTemporaryTree() const
+bool PlaylistComponent::makeBackup() const
 {
-    {
-        const QString absolutePath = QFileInfo(qItemsFilename_).absolutePath();
+    QFile::remove(qBackupItemsFilename_);
+    return QFile::rename(qItemsFilename_, qBackupItemsFilename_);
+}
+
+void PlaylistComponent::restoreBackup() const
+{
+    QFile::remove(qItemsFilename_);
+    QFile::copy(qBackupItemsFilename_, qItemsFilename_);
+}
+
+void PlaylistComponent::saveTemporaryTree(bool * const cancelled)
+{
+    treeWidget_.assertValidTemporaryTree();
+    temporaryTree_->nodesChanged();
+    if (treeAutoCleanup_)
+        temporaryTree_->cleanUp();
+    const bool backedUp = makeBackup();
+
+    const QString absolutePath = QFileInfo(qItemsFilename_).absolutePath();
 # ifdef DEBUG_VENTUROUS_PLAYLIST_COMPONENT
-        std::cout << "Location of itemsFilename: " <<
-                  QtUtilities::qStringToString(absolutePath) << std::endl;
+    std::cout << "Location of itemsFilename: " <<
+              QtUtilities::qStringToString(absolutePath) << std::endl;
 # endif
-        QDir dir;
-        dir.mkpath(absolutePath);
-    }
-    return temporaryTree_->save(itemsFilename_);
+    QtUtilities::Widgets::HandleErrors handleErrors {
+        [&] {
+            {
+                QDir dir;
+                dir.mkpath(absolutePath);
+            }
+            if (temporaryTree_->save(itemsFilename_))
+                return QString();
+            if (backedUp)
+                restoreBackup();
+            return savingFailed();
+        }
+    };
+    if (cancelled == nullptr)
+        handleErrors.nonBlocking();
+    else
+        handleErrors.blocking(inputController_, ioError(), cancelled);
 }
 
 template <typename FilenameGetter>
@@ -332,13 +332,18 @@ void PlaylistComponent::loadTemporaryPlaylist(FilenameGetter filenameGetter)
                 temporaryTree_->load(QtUtilities::qStringToString(file));
             if (! errorMessage.empty()) {
                 temporaryTree_->topLevelNodes().clear();
-                showLoadingPlaylistErrorMessage(errorMessage);
+                inputController_.showMessage(
+                    loadingFailed(),
+                    loadingErrorFullMessage(
+                        QtUtilities::toQString(errorMessage)));
             }
             treeWidget_.updateTree();
         }
         else {
-            showLoadingPlaylistErrorMessage(
-                tr("\"%1\" - no such file.").arg(file));
+            inputController_.showMessage(
+                loadingFailed(),
+                loadingErrorFullMessage(
+                    tr("\"%1\" - no such file.").arg(file)));
         }
     }
 }

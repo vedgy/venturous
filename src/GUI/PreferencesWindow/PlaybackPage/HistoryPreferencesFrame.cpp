@@ -18,8 +18,9 @@
 
 # include "HistoryPreferencesFrame.hpp"
 
-# include "GuiUtilities.hpp"
 # include "Preferences.hpp"
+
+# include <QtWidgetsUtilities/Miscellaneous.hpp>
 
 # include <QVBoxLayout>
 # include <QFormLayout>
@@ -30,7 +31,7 @@ HistoryPreferencesFrame::HistoryPreferencesFrame(
     QWidget * const parent, const Qt::WindowFlags f) : QFrame(parent, f)
 {
     QVBoxLayout * const mainLayout = new QVBoxLayout(this);
-    mainLayout->addWidget(GuiUtilities::getCaptionLabel(tr("History"), this),
+    mainLayout->addWidget(QtUtilities::Widgets::getCaption(tr("History"), this),
                           0, Qt::AlignCenter);
 
     QFormLayout * const layout = new QFormLayout();

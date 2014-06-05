@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
-# Depends on Qt, QtCoreUtilities, QtXmlUtilities, SimpleFugue, VenturousCore.
+# Depends on Qt, QtCoreUtilities, QtWidgetsUtilities, QtXmlUtilities,
+# SimpleFugue, VenturousCore.
 set(Target_Name Venturous)
 set(CAP_Target_Name VENTUROUS)
 set(Tool_Name Ventool)
@@ -34,9 +35,17 @@ include(vedgTools/SetCxxFlags)
 include(vedgTools/ExecutableFindQt)
 executableFindQt(Qt5Core Qt5Xml Qt5Widgets . QTCORE QTXML QTGUI)
 
+include(vedgTools/AddErrorPrefixDefinition)
+
+if(DEBUG_VENTUROUS)
+    set(DEBUG_QT_WIDGETS_UTILITIES TRUE)
+endif()
+
 include(vedgTools/ExecutableGetPublicHeadersProperty)
 add_subdirectory(${PATH_TO_VEDG_TOOLS}/QtCoreUtilities)
 executableGetPublicHeadersProperty(QtCoreUtilities)
+add_subdirectory(${PATH_TO_VEDG_TOOLS}/QtWidgetsUtilities)
+executableGetPublicHeadersProperty(QtWidgetsUtilities)
 add_subdirectory(${PATH_TO_VEDG_TOOLS}/QtXmlUtilities)
 executableGetPublicHeadersProperty(QtXmlUtilities)
 add_subdirectory(${PATH_TO_MODULES}/VenturousCore)
@@ -74,8 +83,6 @@ add_definitions(
     -DSHARED_MEMORY_KEY=\"oS2huoventurousyiOventoolhJkNQqC{\"
 )
 
-include(vedgTools/AddErrorPrefixDefinition)
-
 
 set(Sources_Path src)
 set(GUI_Path ${Sources_Path}/GUI)
@@ -88,25 +95,29 @@ set(MainWindow_Path ${GUI_Path}/MainWindow)
 set(PreferencesComponent_Path ${MainWindow_Path}/PreferencesComponent)
 set(PlaybackComponent_Path ${MainWindow_Path}/PlaybackComponent)
 set(PlaylistComponent_Path ${MainWindow_Path}/PlaylistComponent)
+set(MainWindowWindow_Path ${MainWindow_Path}/Window)
 set(Resources_Path resources)
 
 include_directories(
-    ${QtCoreUtilities_PublicHeaders_Path} ${QtXmlUtilities_PublicHeaders_Path}
+    ${QtCoreUtilities_PublicHeaders_Path}
+    ${QtWidgetsUtilities_PublicHeaders_Path}
+    ${QtXmlUtilities_PublicHeaders_Path}
     ${TemplateUtilities_PublicHeaders_Path} ${VenturousCore_PublicHeaders_Path}
     ${Sources_Path} ${GUI_Path}
     ${PreferencesWindow_Path} ${GeneralPage_Path} ${PlaybackPage_Path}
     ${AddingDirectoryPage_Path} ${CustomActionsPage_Path}
     ${MainWindow_Path} ${PreferencesComponent_Path} ${PlaybackComponent_Path}
-    ${PlaylistComponent_Path}
+    ${PlaylistComponent_Path} ${MainWindowWindow_Path}
 )
 
 set(Sources
     ${Sources_Path}/Application.cpp ${Sources_Path}/Preferences.cpp
     ${Sources_Path}/main.cpp
 
-    ${GUI_Path}/GuiUtilities.cpp
     ${GUI_Path}/Icons.cpp ${GUI_Path}/Actions.cpp ${GUI_Path}/CustomActions.cpp
 
+    ${PreferencesWindow_Path}/RevertAndRestoreDefaultsTab.cpp
+    ${PreferencesWindow_Path}/PreferencesWindow.cpp
     ${GeneralPage_Path}/GeneralPage.cpp
     ${PlaybackPage_Path}/HistoryPreferencesFrame.cpp
     ${PlaybackPage_Path}/PlaybackPage.cpp
@@ -114,17 +125,15 @@ set(Sources
     ${AddingDirectoryPage_Path}/PatternListWidget.cpp
     ${AddingDirectoryPage_Path}/AddingDirectoryPage.cpp
     ${CustomActionsPage_Path}/CustomActionsPage.cpp
-    ${PreferencesWindow_Path}/RevertAndRestoreDefaultsTab.cpp
-    ${PreferencesWindow_Path}/PreferencesWindow.cpp
 
     ${PreferencesComponent_Path}/PreferencesComponent.cpp
     ${PlaybackComponent_Path}/HistoryWidget.cpp
     ${PlaybackComponent_Path}/PlaybackComponent.cpp
     ${PlaylistComponent_Path}/TreeWidget.cpp
     ${PlaylistComponent_Path}/PlaylistComponent.cpp
-    ${MainWindow_Path}/WindowUtilities.cpp
-    ${MainWindow_Path}/MainWindow.cpp ${MainWindow_Path}/MainWindow-init.cpp
-    ${MainWindow_Path}/MainWindow-help.cpp
+    ${MainWindowWindow_Path}/MainWindow.cpp
+    ${MainWindowWindow_Path}/MainWindow-init.cpp
+    ${MainWindowWindow_Path}/MainWindow-help.cpp
 )
 
 include(vedgTools/QtAddResources)
@@ -152,7 +161,7 @@ linkQt(${Executable_Name}
 )
 
 target_link_libraries(${Executable_Name}
-    QtCoreUtilities QtXmlUtilities VenturousCore
+    QtCoreUtilities QtWidgetsUtilities QtXmlUtilities VenturousCore
 )
 
 set(Targets ${Executable_Name})

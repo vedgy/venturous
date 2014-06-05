@@ -23,13 +23,13 @@
 
 # include "MainWindow.hpp"
 
-# include "InputController.hpp"
-# include "WindowUtilities.hpp"
 # include "PlaylistComponent.hpp"
 # include "PlaybackComponent.hpp"
 # include "PreferencesComponent.hpp"
 # include "Actions.hpp"
 # include "Preferences.hpp"
+
+# include <QtWidgetsUtilities/Miscellaneous.hpp>
 
 # include <QString>
 # include <QObject>
@@ -100,7 +100,7 @@ void MainWindow::setPreferencesNoComponents()
 
 void MainWindow::showWindowProperly()
 {
-    WindowUtilities::showAndActivateWindow(* this);
+    QtUtilities::Widgets::showAndActivateWindow(this);
 }
 
 void MainWindow::hideWindowProperly()
@@ -364,4 +364,3 @@ void MainWindow::onAboutToQuit()
     std::cout << "About to quit..." << std::endl;
 # endif
 }
-

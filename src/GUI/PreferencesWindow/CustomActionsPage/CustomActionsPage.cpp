@@ -23,9 +23,10 @@
 
 # include "CustomActionsPage.hpp"
 
-# include "GuiUtilities.hpp"
 # include "CustomActions.hpp"
 # include "Preferences.hpp"
+
+# include <QtWidgetsUtilities/Miscellaneous.hpp>
 
 # include <QString>
 # include <QStringList>
@@ -389,8 +390,8 @@ void CustomActionsPage::onShowHelpToggled()
         QVBoxLayout * const layout = new QVBoxLayout(helpFrame_.get());
 
         layout->addWidget(
-            GuiUtilities::getCaptionLabel(tr("Columns description"),
-                                          helpFrame_.get(), true, 0),
+            QtUtilities::Widgets::getCaption(tr("Columns description"),
+                                             helpFrame_.get(), true, 0),
             0, Qt::AlignCenter);
 
         int number = 0;

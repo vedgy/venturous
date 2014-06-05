@@ -23,7 +23,6 @@
 
 # include "MainWindow.hpp"
 
-# include "InputController.hpp"
 # include "Icons.hpp"
 
 # include <QString>

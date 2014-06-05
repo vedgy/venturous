@@ -19,9 +19,9 @@
 # ifndef VENTUROUS_ADDING_DIRECTORY_PAGE_HPP
 # define VENTUROUS_ADDING_DIRECTORY_PAGE_HPP
 
-# include "PreferencesPage.hpp"
 # include "AddingPolicyFrame.hpp"
 # include "PatternListWidget.hpp"
+# include "PreferencesPage.hpp"
 
 # include <QtGlobal>
 

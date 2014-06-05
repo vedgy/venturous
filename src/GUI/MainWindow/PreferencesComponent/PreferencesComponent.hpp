@@ -29,10 +29,16 @@
 # include <memory>
 
 
-class InputController;
 namespace Icons
 {
 class Theme;
+}
+namespace QtUtilities
+{
+namespace Widgets
+{
+class InputController;
+}
 }
 QT_FORWARD_DECLARE_CLASS(QWidget)
 
@@ -42,13 +48,12 @@ class PreferencesComponent : public QObject
     Q_OBJECT
 public:
     /// @param cancelled Is set to true if user has cancelled launching
-    /// application (because of error); is not changed otherwise, so make sure
-    /// that (cancelled == false) before calling this constructor.
+    /// application (because of error); is set to false otherwise.
     /// NOTE: inputController must remain valid throughout this
     /// PreferencesComponent's lifetime.
-    explicit PreferencesComponent(InputController & inputController,
-                                  const QString & preferencesDir,
-                                  bool & cancelled);
+    explicit PreferencesComponent(
+        QtUtilities::Widgets::InputController & inputController,
+        const QString & preferencesDir, bool & cancelled);
     /// NOTE: does not block execution.
     ~PreferencesComponent();
 
@@ -85,10 +90,9 @@ private:
     /// If true, error message is printed to stderr and method returns false.
     /// Otherwise, execution is blocked and user is allowed to retry operation.
     /// @param cancelled Makes a difference only in case of error and
-    /// (silentMode == false).
-    /// If not nullptr, Cancel button is present in error dialog;
-    /// *cancelled is not changed if function returns true; is set to true if
-    /// user cancels the operation; is set to false otherwise (Ignore button).
+    /// (silentMode == false). If not nullptr, cancelling operation is allowed.
+    /// *cancelled is set to true if user cancels the operation; is set to false
+    /// otherwise (success or ignoring error).
     /// @return true on success, false on failure (error).
     template <typename F>
     bool handlePreferencesErrors(F f, const QString & errorPrefix,
@@ -101,7 +105,7 @@ private:
     void savePreferences(bool silentMode = false);
 
 
-    InputController & inputController_;
+    QtUtilities::Widgets::InputController & inputController_;
     const QString preferencesFilename_;
     PreferencesWindow::Icons icons_;
 

@@ -100,7 +100,7 @@ HistoryWidget::HistoryWidget(const CustomActions::Actions & customActions,
       playItems_(std::move(playItems)),
       copyPlayedEntryToTop_(preferences.copyPlayedEntryToTop),
       nHiddenDirs_(preferences.nHiddenDirs),
-      currentEntryIndex_(preferences.currentIndex)
+      currentEntryIndex_(preferences.currentIndex), tooltipShower_(this)
 {
     history_.setMaxSize(preferences.maxSize);
     setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -357,8 +357,7 @@ void HistoryWidget::contextMenuEvent(QContextMenuEvent * const event)
                         position,
                         tr("Custom actions are enabled only if all "
                            "selected items are siblings (are located in the "
-                           "same directory)."),
-                        this);
+                           "same directory)."));
                     return;
                 }
             }
@@ -366,12 +365,13 @@ void HistoryWidget::contextMenuEvent(QContextMenuEvent * const event)
     }
     CustomActions::showMenu(
         customActions_, std::move(commonPrefix), std::move(itemNames),
-        position, tooltipShower_, this);
+        position, tooltipShower_);
 }
 
 
 void HistoryWidget::onUiItemActivated(QListWidgetItem * const item)
 {
+    assert(item != nullptr);
     playExistingEntry_(setCurrentEntry(row(item)));
     if (isHistoryChangedBySettingCurrentEntry())
         emit historyChanged();

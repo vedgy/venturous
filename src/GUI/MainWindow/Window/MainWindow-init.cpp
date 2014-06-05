@@ -159,7 +159,7 @@ MainWindow::MainWindow(
     std::unique_ptr<QSharedMemory> sharedMemory, bool & cancelled,
     QWidget * const parent, const Qt::WindowFlags flags)
     : QMainWindow(parent, flags), sharedMemory_(std::move(sharedMemory)),
-      toolBar_(tr("Toolbar")), inputController_(* this)
+      toolBar_(tr("Toolbar")), inputController_(this)
 {
 # ifdef DEBUG_VENTUROUS_MAIN_WINDOW
     std::cout << "PREFERENCES_DIR = " << PREFERENCES_DIR << std::endl;
@@ -170,7 +170,6 @@ MainWindow::MainWindow(
             SLOT(onAboutToQuit()));
 
     const QString preferencesDir = getPreferencesDirName();
-    cancelled = false;
     preferencesComponent_.reset(
         new PreferencesComponent(inputController_, preferencesDir, cancelled));
     if (cancelled)
@@ -199,7 +198,9 @@ MainWindow::MainWindow(
     /// WARNING: repeated execution blocking is possible here!
     playbackComponent_.reset(
         new PlaybackComponent(* this, actions_->playback, inputController_,
-                              preferences, preferencesDirString));
+                              preferences, preferencesDirString, cancelled));
+    if (cancelled)
+        return;
     /// WARNING: repeated execution blocking is possible here!
     playlistComponent_.reset(
         new PlaylistComponent(* this, * actions_, inputController_,
@@ -207,7 +208,9 @@ MainWindow::MainWindow(
     [this](CommonTypes::ItemCollection items) {
         playbackComponent_->play(std::move(items));
     },
-    preferencesDirString));
+    preferencesDirString, cancelled));
+    if (cancelled)
+        return;
 
 
     connect(preferencesComponent_.get(), SIGNAL(aboutToSave()),

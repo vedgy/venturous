@@ -20,11 +20,12 @@
 # define VENTUROUS_HISTORY_WIDGET_HPP
 
 # include "CommonTypes.hpp"
-# include "GuiUtilities.hpp"
 # include "CustomActions.hpp"
 # include "Preferences.hpp"
 
 # include <VenturousCore/History.hpp>
+
+# include <QtWidgetsUtilities/TooltipShower.hpp>
 
 # include <QListWidget>
 
@@ -150,9 +151,10 @@ private:
     /// currentIndex_ == history_.items().size().
     int currentEntryIndex_;
 
-    GuiUtilities::TooltipShower tooltipShower_;
+    QtUtilities::Widgets::TooltipShower tooltipShower_;
 
 private slots:
+    /// @param item Must be a valid pointer.
     /// WARNING: can block execution.
     void onUiItemActivated(QListWidgetItem * item);
 };

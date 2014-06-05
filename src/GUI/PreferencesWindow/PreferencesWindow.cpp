@@ -18,17 +18,17 @@
 
 # include "PreferencesWindow.hpp"
 
-# include "GeneralPage.hpp"
-# include "PlaybackPage.hpp"
-# include "AddingDirectoryPage.hpp"
 # include "CustomActionsPage.hpp"
+# include "AddingDirectoryPage.hpp"
+# include "PlaybackPage.hpp"
+# include "GeneralPage.hpp"
 # include "RevertAndRestoreDefaultsTab.hpp"
 # include "Preferences.hpp"
 
+# include <QtWidgetsUtilities/Miscellaneous.hpp>
+
 # include <QString>
 # include <QStringList>
-# include <QWidget>
-# include <QScrollArea>
 # include <QTabWidget>
 # include <QKeyEvent>
 
@@ -36,20 +36,6 @@
 # include <cassert>
 # include <functional>
 # include <algorithm>
-
-
-namespace
-{
-void addScrollableTab(QTabWidget * parent,
-                      QWidget * widget, const QString & name)
-{
-    QScrollArea * const scrollArea = new QScrollArea(parent);
-    scrollArea->setWidget(widget);
-    scrollArea->setWidgetResizable(true);
-    parent->addTab(scrollArea, name);
-}
-
-}
 
 
 PreferencesWindow::PreferencesWindow(
@@ -69,8 +55,10 @@ PreferencesWindow::PreferencesWindow(
               tr("Adding directory"), tr("Custom actions")
     };
     assert(int(tabs_.size()) == tabNames.size());
-    for (std::size_t i = 0; i < tabs_.size(); ++i)
-        addScrollableTab(this, tabs_[i], '&' + tabNames[int(i)]);
+    for (std::size_t i = 0; i < tabs_.size(); ++i) {
+        QtUtilities::Widgets::addScrollableTab(this, tabs_[i],
+                                               '&' + tabNames[int(i)]);
+    }
 
     RevertAndRestoreDefaultsTab * const revertTab =
         new RevertAndRestoreDefaultsTab(tabNames, icons.undo, icons.revert,
@@ -79,7 +67,8 @@ PreferencesWindow::PreferencesWindow(
             SLOT(revertPreferences(int)));
     connect(revertTab, SIGNAL(restoreDefaultPreferences(int)),
             SLOT(restoreDefaultPreferences(int)));
-    addScrollableTab(this, revertTab, tr("&Revert/restore"));
+    QtUtilities::Widgets::addScrollableTab(this, revertTab,
+                                           tr("&Revert/restore"));
 }
 
 void PreferencesWindow::setUiPreferences()

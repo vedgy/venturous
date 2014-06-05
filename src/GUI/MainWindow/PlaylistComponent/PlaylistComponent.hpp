@@ -19,8 +19,8 @@
 # ifndef VENTUROUS_PLAYLIST_COMPONENT_HPP
 # define VENTUROUS_PLAYLIST_COMPONENT_HPP
 
-# include "CommonTypes.hpp"
 # include "TreeWidget.hpp"
+# include "CommonTypes.hpp"
 
 # include <VenturousCore/ItemTree.hpp>
 
@@ -31,12 +31,18 @@
 # include <string>
 
 
-class InputController;
 struct Actions;
 class Preferences;
 namespace AddingItems
 {
 struct Policy;
+}
+namespace QtUtilities
+{
+namespace Widgets
+{
+class InputController;
+}
 }
 QT_FORWARD_DECLARE_CLASS(QMainWindow)
 
@@ -45,14 +51,15 @@ class PlaylistComponent : public QObject
 {
     Q_OBJECT
 public:
+    /// @param cancelled Is set to true if user has cancelled launching
+    /// application (because of error); is set to false otherwise.
     /// NOTE: mainWindow, actions, inputController and preferences must remain
     /// valid throughout this PlaylistComponent's lifetime.
-    explicit PlaylistComponent(QMainWindow & mainWindow,
-                               const Actions & actions,
-                               InputController & inputController,
-                               const Preferences & preferences,
-                               CommonTypes::PlayItems playItems,
-                               const std::string & preferencesDir);
+    explicit PlaylistComponent(
+        QMainWindow & mainWindow, const Actions & actions,
+        QtUtilities::Widgets::InputController & inputController,
+        const Preferences & preferences, CommonTypes::PlayItems playItems,
+        const std::string & preferencesDir, bool & cancelled);
     /// NOTE: does not block execution.
     ~PlaylistComponent();
     /// NOTE: does not block execution.
@@ -79,12 +86,6 @@ signals:
     void editModeChanged();
 
 private:
-    /// @brief Shows QMessageBox with an appropriate title and errorMessage.
-    void showLoadingPlaylistErrorMessage(const QString & errorMessage);
-    /// @brief Calls
-    /// showLoadingPlaylistErrorMessage(QtUtilities::toQString(errorMessage));
-    void showLoadingPlaylistErrorMessage(const std::string & errorMessage);
-
     /// Must be called after switching edit mode.
     /// NOTE: does not block execution.
     void updateActionsState();
@@ -94,16 +95,6 @@ private:
     bool noChanges() const;
     /// NOTE: does not block execution.
     void enterEditMode();
-
-    /// @brief Makes temporaryTree_'s state valid;
-    /// performs playlist file backup.
-    /// @return true if backup was successful, false otherwise.
-    /// WARNING: call this method only in edit mode.
-    /// NOTE: does not block execution.
-    bool prepareForApplyingChanges();
-    /// @brief Copies backup playlist file to primary playlist file.
-    /// NOTE: does not block execution.
-    void restoreBackupFile();
 
     /// Use this method if noChanges() was just checked and equal to false.
     /// @return true if changes were saved successfully.
@@ -119,10 +110,20 @@ private:
     bool ensureAskInEditMode();
     bool ensureAskOutOfEditMode();
 
-    /// @brief Saves temporaryTree_ to itemsFilename.
-    /// @return true on success, false on failure (error).
+    /// @brief Backs up current playlist file.
+    /// @return true if backup was successful, false otherwise.
     /// NOTE: does not block execution.
-    bool saveTemporaryTree() const;
+    bool makeBackup() const;
+    /// @brief Replaces current playlist file with backup copy.
+    /// NOTE: does not block execution.
+    void restoreBackup() const;
+
+    /// @brief Saves temporaryTree_ to itemsFilename. Handles backing up.
+    /// @param cancelled If equal to nullptr, function does not block.
+    /// Otherwise, function blocks in case of error, *cancelled is set to true
+    /// if operation was cancelled by user, to false otherwise.
+    /// WARNING: call this method only in edit mode.
+    void saveTemporaryTree(bool * cancelled = nullptr);
 
     /// @brief Calls ensureAskInEditMode(). If edit mode is set, calls
     /// filenameGetter() and if acquired filename is not empty, tries to load
@@ -134,7 +135,7 @@ private:
 
 
     const Actions & actions_;
-    InputController & inputController_;
+    QtUtilities::Widgets::InputController & inputController_;
     const AddingItems::Policy & addingPolicy_;
     const CommonTypes::PlayItems playItems_;
     const std::string itemsFilename_;

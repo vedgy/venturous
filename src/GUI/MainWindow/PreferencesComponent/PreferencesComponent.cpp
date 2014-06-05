@@ -23,25 +23,23 @@
 
 # include "PreferencesComponent.hpp"
 
-# include "InputController.hpp"
-# include "WindowUtilities.hpp"
 # include "PreferencesWindow.hpp"
 # include "Icons.hpp"
 
+# include <QtWidgetsUtilities/Miscellaneous.hpp>
+# include <QtWidgetsUtilities/HandleErrors.hpp>
+
 # include <QtCoreUtilities/Error.hpp>
-# include <QtCoreUtilities/String.hpp>
 
 # include <QString>
 # include <QFileInfo>
-# include <QMessageBox>
 
 # include <cassert>
-# include <iostream>
 
 
 PreferencesComponent::PreferencesComponent(
-    InputController & inputController, const QString & preferencesDir,
-    bool & cancelled)
+    QtUtilities::Widgets::InputController & inputController,
+    const QString & preferencesDir, bool & cancelled)
     : preferences(), inputController_(inputController),
       preferencesFilename_(preferencesDir + APPLICATION_NAME ".xml"),
       savedPreferences_(preferences)
@@ -60,6 +58,8 @@ PreferencesComponent::PreferencesComponent(
         else
             savedPreferences_ = preferences;
     }
+    else
+        cancelled = false;
 }
 
 PreferencesComponent::~PreferencesComponent()
@@ -86,7 +86,7 @@ void PreferencesComponent::showPreferencesWindow(QWidget * const parent)
         preferencesWindow_->show();
     }
     else
-        WindowUtilities::showAndActivateWindow(* preferencesWindow_);
+        QtUtilities::Widgets::showAndActivateWindow(preferencesWindow_.get());
 }
 
 void PreferencesComponent::closePreferencesWindow()
@@ -108,35 +108,20 @@ bool PreferencesComponent::handlePreferencesErrors(
     F f, const QString & errorPrefix, const bool silentMode,
     bool * const cancelled)
 {
-    while (true) {
-        try {
-            f();
-            return true;
-        }
-        catch (const QtUtilities::Error & error) {
-            const QString message = errorPrefix + ": " +
-                                    QString::fromUtf8(error.what());
-            if (silentMode) {
-                std::cerr << VENTUROUS_ERROR_PREFIX <<
-                          QtUtilities::qStringToString(message) << std::endl;
-                return false;
+    QtUtilities::Widgets::HandleErrors handleErrors {
+        [&]() -> QString {
+            try {
+                f();
+                return QString();
             }
-
-            QMessageBox::StandardButtons buttons =
-                QMessageBox::Retry | QMessageBox::Ignore;
-            if (cancelled != nullptr)
-                buttons |= QMessageBox::Cancel;
-            const auto selectedButton =
-                inputController_.showMessage(tr("Preferences error"), message,
-                                             buttons, QMessageBox::Retry);
-
-            if (selectedButton != QMessageBox::Retry) {
-                if (cancelled != nullptr)
-                    * cancelled = selectedButton == QMessageBox::Cancel;
-                return false;
+            catch (const QtUtilities::Error & error) {
+                return errorPrefix + ": " + QString::fromUtf8(error.what());
             }
         }
-    }
+    };
+    return silentMode ? handleErrors.nonBlocking()
+           : handleErrors.blocking(inputController_, tr("Preferences error"),
+                                   cancelled);
 }
 
 void PreferencesComponent::savePreferences(const bool silentMode)

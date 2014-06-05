@@ -19,8 +19,8 @@
 # ifndef VENTUROUS_PLAYBACK_PAGE_HPP
 # define VENTUROUS_PLAYBACK_PAGE_HPP
 
-# include "PreferencesPage.hpp"
 # include "HistoryPreferencesFrame.hpp"
+# include "PreferencesPage.hpp"
 
 # include <QCheckBox>
 # include <QComboBox>

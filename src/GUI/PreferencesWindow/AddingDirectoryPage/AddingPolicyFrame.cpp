@@ -18,9 +18,9 @@
 
 # include "AddingPolicyFrame.hpp"
 
-# include "GuiUtilities.hpp"
-
 # include <VenturousCore/AddingItems.hpp>
+
+# include <QtWidgetsUtilities/Miscellaneous.hpp>
 
 # include <QString>
 # include <QObject>
@@ -65,7 +65,7 @@ AddingPolicyFrame::AddingPolicyFrame(
       addMediaDirsCheckBox(tr("Add media dirs"))
 {
     QVBoxLayout * const mainLayout = new QVBoxLayout(this);
-    mainLayout->addWidget(GuiUtilities::getCaptionLabel(tr("Policy"), this),
+    mainLayout->addWidget(QtUtilities::Widgets::getCaption(tr("Policy"), this),
                           0, Qt::AlignCenter);
     {
         const QString tooltip =
@@ -88,7 +88,7 @@ AddingPolicyFrame::AddingPolicyFrame(
         }
     }
     {
-        QHBoxLayout * secondaryLayout = new QHBoxLayout;
+        QHBoxLayout * const secondaryLayout = new QHBoxLayout;
         secondaryLayout->addSpacing(30);
         mainLayout->addLayout(secondaryLayout);
 

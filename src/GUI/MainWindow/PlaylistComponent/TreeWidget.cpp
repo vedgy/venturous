@@ -164,7 +164,8 @@ TreeWidget::TreeWidget(const ItemTree::Tree & itemTree,
                        CommonTypes::PlayItems playItems,
                        QWidget * const parent)
     : QTreeWidget(parent), itemTree_(itemTree), temporaryTree_(temporaryTree),
-      customActions_(customActions), playItems_(std::move(playItems))
+      customActions_(customActions), playItems_(std::move(playItems)),
+      tooltipShower_(this)
 {
     setColumnCount(1);
     header()->close();
@@ -363,8 +364,7 @@ void TreeWidget::contextMenuEvent(QContextMenuEvent * const event)
                         position,
                         tr("Custom actions are enabled only if all "
                            "selected items are siblings (share the same "
-                           "parent tree node)."),
-                        this);
+                           "parent tree node)."));
                     return;
                 }
             }
@@ -376,7 +376,7 @@ void TreeWidget::contextMenuEvent(QContextMenuEvent * const event)
     }
     CustomActions::showMenu(
         customActions_, std::move(commonPrefix), std::move(itemNames),
-        position, tooltipShower_, this);
+        position, tooltipShower_);
 }
 
 template <typename ItemUser>
@@ -390,7 +390,7 @@ void TreeWidget::applyToSelectedItems(ItemUser f)
 }
 
 
-void TreeWidget::onUiItemActivated(QTreeWidgetItem * item)
+void TreeWidget::onUiItemActivated(QTreeWidgetItem * const item)
 {
     if (editMode_ || ! isChecked(item))
         return;

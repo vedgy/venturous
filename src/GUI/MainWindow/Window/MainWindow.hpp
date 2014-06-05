@@ -19,7 +19,7 @@
 # ifndef VENTUROUS_MAIN_WINDOW_HPP
 # define VENTUROUS_MAIN_WINDOW_HPP
 
-# include "WindowUtilities.hpp"
+# include <QtWidgetsUtilities/WindowInputController.hpp>
 
 # include <QtGlobal>
 # include <QMenuBar>
@@ -81,7 +81,12 @@ private:
     QMenuBar menuBar_;
     QToolBar toolBar_;
 
-    WindowInputController inputController_;
+    /// Blocks/unblocks most of non-GUI user input (Ventool commands for
+    /// example).
+    /// Reacting to QCoreApplication::aboutToQuit - immediate quit - is allowed.
+    /// Reacting to MediaPayer::FinishedSlot is also allowed.
+    QtUtilities::Widgets::WindowInputController inputController_;
+
     std::unique_ptr<PreferencesComponent> preferencesComponent_;
     std::unique_ptr<PlaybackComponent> playbackComponent_;
     std::unique_ptr<PlaylistComponent> playlistComponent_;
