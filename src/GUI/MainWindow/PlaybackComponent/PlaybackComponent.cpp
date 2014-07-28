@@ -181,8 +181,11 @@ void PlaybackComponent::setPreferencesExceptHistory(
     if (mediaPlayer_ != nullptr)
         mediaPlayer_->setExitExternalPlayerOnQuit(pb.exitExternalPlayerOnQuit);
     if (pb.playerId != playerId_) {
+        if (mediaPlayer_ == nullptr)
+            setPlayerState(false);
+        else
+            playbackStop();
         playerId_ = pb.playerId;
-        setPlayerState(false);
 
         QtUtilities::Widgets::HandleErrors {
             [&] {

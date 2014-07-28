@@ -148,5 +148,4 @@ void PlaybackPage::onPlayerIdChanged(const int id)
          tr("Current external player must be finished when\n"
             "%1 quits. So this option has no effect.")
         ).arg(APPLICATION_NAME));
-
 }

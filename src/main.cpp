@@ -30,7 +30,10 @@
 # include <iostream>
 
 
+namespace
+{
 inline QString quittingMessage() { return QObject::tr("\nQuitting ..."); }
+}
 
 
 int main(int argc, char * argv[])

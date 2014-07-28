@@ -55,8 +55,8 @@ inline const QString & getStatus(bool isPlayerRunning)
 inline const QString & getIconTooltip(bool isPlayerRunning)
 {
     static const QString running = APPLICATION_NAME " - " + getStatus(true),
-                         notRunning =  APPLICATION_NAME " - " +
-                                       getStatus(false);
+                         notRunning = APPLICATION_NAME " - " +
+                                      getStatus(false);
     return isPlayerRunning ? running : notRunning;
 }
 

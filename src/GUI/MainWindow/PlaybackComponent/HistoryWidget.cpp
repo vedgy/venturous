@@ -23,13 +23,12 @@
 # include "Preferences.hpp"
 
 # include <QtCoreUtilities/String.hpp>
+# include <QtCoreUtilities/Miscellaneous.hpp>
 
 # include <QPoint>
 # include <QList>
 # include <QString>
 # include <QStringList>
-# include <QDir>
-# include <QFileInfo>
 # include <QFont>
 # include <QListWidgetItem>
 # include <QKeyEvent>
@@ -143,8 +142,7 @@ bool HistoryWidget::load(const std::string & filename)
 
 bool HistoryWidget::save(const std::string & filename) const
 {
-    QDir dir;
-    dir.mkpath(QFileInfo(QtUtilities::toQString(filename)).absolutePath());
+    QtUtilities::makePathTo(filename);
     return history_.save(filename);
 }
 
@@ -221,7 +219,7 @@ std::string HistoryWidget::entryAt(const int index) const
 
 std::string HistoryWidget::setCurrentEntry(const int index)
 {
-    const std::string entry = entryAt(index);
+    std::string entry = entryAt(index);
     if (! entry.empty()) {
         if (copyPlayedEntryToTop_)
             push(entry);

@@ -17,7 +17,6 @@
 */
 
 # ifdef DEBUG_VENTUROUS_PLAYLIST_COMPONENT
-# include <QtCoreUtilities/String.hpp>
 # include <iostream>
 # endif
 
@@ -34,11 +33,11 @@
 # include <QtWidgetsUtilities/HandleErrors.hpp>
 
 # include <QtCoreUtilities/String.hpp>
+# include <QtCoreUtilities/Miscellaneous.hpp>
 
 # include <QString>
 # include <QStringList>
 # include <QObject>
-# include <QDir>
 # include <QFile>
 # include <QFileInfo>
 # include <QAction>
@@ -296,17 +295,9 @@ void PlaylistComponent::saveTemporaryTree(bool * const cancelled)
         temporaryTree_->cleanUp();
     const bool backedUp = makeBackup();
 
-    const QString absolutePath = QFileInfo(qItemsFilename_).absolutePath();
-# ifdef DEBUG_VENTUROUS_PLAYLIST_COMPONENT
-    std::cout << "Location of itemsFilename: " <<
-              QtUtilities::qStringToString(absolutePath) << std::endl;
-# endif
     QtUtilities::Widgets::HandleErrors handleErrors {
         [&] {
-            {
-                QDir dir;
-                dir.mkpath(absolutePath);
-            }
+            QtUtilities::makePathTo(qItemsFilename_);
             if (temporaryTree_->save(itemsFilename_))
                 return QString();
             if (backedUp)
@@ -460,6 +451,7 @@ void PlaylistComponent::onSaveAs()
                              tr("Save playlist as"), QFileDialog::AcceptSave,
                              QFileDialog::AnyFile);
     if (! file.isEmpty()) {
+        QtUtilities::makePathTo(file);
         if (! itemTree_.save(QtUtilities::qStringToString(file)))
             inputController_.showMessage(ioError(), savingFailed());
     }

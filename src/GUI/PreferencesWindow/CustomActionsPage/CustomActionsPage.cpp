@@ -156,13 +156,13 @@ typedef std::vector<int> TableIndices;
 
 template <typename Compare = std::less<int>>
 TableIndices getSortedSelected(const QTableWidget & table,
-                               Compare comp = Compare())
+                               Compare compare = Compare())
 {
     const auto indices = table.selectionModel()->selectedRows();
     TableIndices sortedIndices(indices.size());
     std::transform(indices.begin(), indices.end(), sortedIndices.begin(),
                    std::bind(& QModelIndex::row, std::placeholders::_1));
-    std::sort(sortedIndices.begin(), sortedIndices.end(), comp);
+    std::sort(sortedIndices.begin(), sortedIndices.end(), compare);
     return sortedIndices;
 }
 

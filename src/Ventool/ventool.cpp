@@ -46,16 +46,15 @@ constexpr std::array<char, helpCommand> commands = {{
 void printHelp()
 {
     std::cout << TOOL_EXECUTABLE " - sends commands to running "
-              APPLICATION_NAME " instance." << std::endl;
+              APPLICATION_NAME " instance.\n";
     std::cout << "Usage: " TOOL_EXECUTABLE " ";
     for (std::size_t i = 0; i < commandNames.size(); ++i) {
         if (i != 0)
             std::cout << "|";
         std::cout << commandNames[i];
     }
-    std::cout << std::endl << "Commands may be prefixed with \"--\" "
-              "(GNU-style long-options) or not, your choice." << std::endl;
-    std::cout << std::endl;
+    std::cout << "\nCommands may be prefixed with \"--\" "
+              "(GNU-style long-options) or not, your choice.\n\n";
 }
 
 void printError(const std::string & error)
