@@ -65,6 +65,8 @@ VENTUROUS_PREFERENCES_STRING_CONSTANT(autoHideExternalPlayerWindow,
                                       "AutoHideExternalPlayerWindow")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(exitExternalPlayerOnQuit,
                                       "ExitExternalPlayerOnQuit")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(statusUpdateInterval,
+                                      "StatusUpdateInterval")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(nextFromHistory, "NextFromHistory")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(desktopNotifications,
                                       "DesktopNotifications")
@@ -153,6 +155,7 @@ void appendPlayback(XmlElement & parent, const Preferences::Playback & playback)
     e.appendChild(exitExternalPlayerOnQuit(),
                   playback.exitExternalPlayerOnQuit);
 
+    e.appendChild(statusUpdateInterval(), playback.statusUpdateInterval);
     e.appendChild(nextFromHistory(), playback.nextFromHistory);
     e.appendChild(desktopNotifications(), playback.desktopNotifications);
     e.appendChild(startupPolicy(),
@@ -238,6 +241,10 @@ void loadPlayback(const QDomElement & parent, Preferences::Playback & playback)
     copyUniqueChildsTextTo(e, exitExternalPlayerOnQuit(),
                            playback.exitExternalPlayerOnQuit);
 
+    copyUniqueChildsTextToRange0Allowed(e, statusUpdateInterval(),
+                                        playback.statusUpdateInterval,
+                                        P::minStatusUpdateInterval,
+                                        P::maxStatusUpdateInterval);
     copyUniqueChildsTextTo(e, nextFromHistory(), playback.nextFromHistory);
     copyUniqueChildsTextTo(e, desktopNotifications(),
                            playback.desktopNotifications);
@@ -371,18 +378,23 @@ Preferences::Playback::History::History()
 }
 
 
+constexpr unsigned Preferences::Playback::minStatusUpdateInterval;
+constexpr unsigned Preferences::Playback::defaultStatusUpdateInterval;
+constexpr unsigned Preferences::Playback::maxStatusUpdateInterval;
 constexpr Preferences::Playback::StartupPolicyUnderlyingType
 Preferences::Playback::maxStartupPolicy;
 
 Preferences::Playback::Playback()
     : playerId(0), autoSetExternalPlayerOptions(true),
       autoHideExternalPlayerWindow(false), exitExternalPlayerOnQuit(true),
-      nextFromHistory(false), desktopNotifications(true),
-      startupPolicy(StartupPolicy::doNothing)
+      statusUpdateInterval(0), nextFromHistory(false),
+      desktopNotifications(true), startupPolicy(StartupPolicy::doNothing)
 {
 }
 
 
+constexpr unsigned Preferences::minVentoolCheckInterval;
+constexpr unsigned Preferences::defaultVentoolCheckInterval;
 constexpr unsigned Preferences::maxVentoolCheckInterval;
 
 Preferences::Preferences()
@@ -394,7 +406,7 @@ Preferences::Preferences()
       treeAutoUnfoldedLevels(5),
       treeAutoCleanup(false),
       savePreferencesToDiskImmediately(false),
-      ventoolCheckInterval(1000),
+      ventoolCheckInterval(defaultVentoolCheckInterval),
       customActions(defaultCustomActions())
 {
 }
@@ -459,8 +471,10 @@ void Preferences::load(const QString & filename)
 
     copyUniqueChildsTextTo(root, Names::savePreferencesToDiskImmediately(),
                            savePreferencesToDiskImmediately);
-    copyUniqueChildsTextToMax(root, Names::ventoolCheckInterval(),
-                              ventoolCheckInterval, maxVentoolCheckInterval);
+    copyUniqueChildsTextToRange0Allowed(root, Names::ventoolCheckInterval(),
+                                        ventoolCheckInterval,
+                                        minVentoolCheckInterval,
+                                        maxVentoolCheckInterval);
 
     loadPlayback(root, playback);
     loadAddingItemsPolicy(root, addingPolicy);
@@ -494,6 +508,7 @@ bool operator == (const Preferences::Playback & lhs,
            &&
            lhs.autoHideExternalPlayerWindow == rhs.autoHideExternalPlayerWindow
            && lhs.exitExternalPlayerOnQuit == rhs.exitExternalPlayerOnQuit &&
+           lhs.statusUpdateInterval == rhs.statusUpdateInterval &&
            lhs.nextFromHistory == rhs.nextFromHistory &&
            lhs.desktopNotifications == rhs.desktopNotifications &&
            lhs.startupPolicy == rhs.startupPolicy;

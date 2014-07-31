@@ -23,6 +23,8 @@
 # include "CommonTypes.hpp"
 # include "Actions.hpp"
 
+# include <VenturousCore/MediaPlayer.hpp>
+
 # include <QtGlobal>
 # include <QObject>
 
@@ -31,7 +33,6 @@
 
 
 class Preferences;
-class MediaPlayer;
 namespace QtUtilities
 {
 namespace Widgets
@@ -64,7 +65,7 @@ public:
     void setPreferences(const Preferences &);
 
     /// NOTE: does not block execution.
-    bool isPlayerRunning() const { return isPlayerRunning_; }
+    MediaPlayer::Status status() const noexcept { return status_; }
     /// NOTE: does not block execution.
     int currentHistoryEntryIndex() const {
         return historyWidget_.currentEntryIndex();
@@ -83,11 +84,13 @@ public:
     void quit();
 
 signals:
-    /// isPlayerRunning is always equal to isPlayerRunning().
+    /// status is always equal to status().
     /// WARNING: signal receiver must not block execution.
-    void playerStateChanged(bool isPlayerRunning);
+    void statusChanged(MediaPlayer::Status status);
 
 private:
+    using Status = MediaPlayer::Status;
+
     /// @brief Applies everything except history settings from preferences.
     /// @param cancelled Makes a difference only in case of error.
     /// If not nullptr, cancelling operation is allowed.
@@ -111,10 +114,10 @@ private:
     /// NOTE: does not block execution.
     void resetLastPlayedItem(bool playbackStarted = true);
 
-    /// @brief If isPlayerRunning_ != isRunning, sets isPlayerRunning_ to
-    /// isRunning and performs other accompanying actions.
+    /// @brief If status_ != status, sets status_ to status and performs other
+    /// accompanying actions.
     /// NOTE: does not block execution.
-    void setPlayerState(bool isRunning);
+    void setStatus(Status status);
 
     /// @brief Should be called after successful setting HistoryWidget current
     /// entry via previous(), current() or next(), when ready to block
@@ -126,15 +129,19 @@ private:
     /// it blocks in case of error.
     void saveHistory(bool noBlocking = false);
 
+    void timerEvent(QTimerEvent *) override;
+
 
     QMainWindow & mainWindow_;
     const Actions::Playback & actions_;
     QtUtilities::Widgets::InputController & inputController_;
     const std::string historyFilename_;
 
+    int statusUpdateInterval_ = 0;
     bool saveHistoryToDiskImmediately_;
     bool desktopNotifications_;
-    bool isPlayerRunning_ = false;
+    Status status_ = Status::stopped;
+    int timerIdentifier_ = 0;
     bool isHistorySaved_ = true;
 
     unsigned playerId_;
@@ -147,6 +154,9 @@ private slots:
     void onPlayerFinished(bool crashExit, int exitCode, QStringList errors,
                           QStringList missingFilesAndDirs);
     void onPlayerError(QString errorMessage);
+
+    /// @brief Checks external player playback status and calls setStatus().
+    void updateStatus();
 
     /// @brief Sets isHistorySaved_ to false, handles
     /// saveHistoryToDiskImmediately_.

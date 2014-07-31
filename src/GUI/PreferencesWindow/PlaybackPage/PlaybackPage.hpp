@@ -22,6 +22,8 @@
 # include "HistoryPreferencesFrame.hpp"
 # include "PreferencesPage.hpp"
 
+# include <QLabel>
+# include <QDoubleSpinBox>
 # include <QCheckBox>
 # include <QComboBox>
 
@@ -40,13 +42,17 @@ private:
     QCheckBox autoSetOptionsCheckBox;
     QCheckBox autoHideWindowCheckBox;
     QCheckBox exitPlayerOnQuitCheckBox;
+    QCheckBox statusUpdateCheckBox;
+    QLabel statusUpdateWarningLabel;
+    QDoubleSpinBox statusUpdateSpinBox;
     QCheckBox nextFromHistoryCheckBox;
     QCheckBox desktopNotificationsCheckBox;
     QComboBox startupPolicyComboBox;
     HistoryPreferencesFrame historyFrame_;
 
 private slots:
-    void onPlayerIdChanged(int id);
+    void onPlayerIdChanged(int newId);
+    void onStatusUpdateToggled(bool checked);
 };
 
 # endif // VENTUROUS_PLAYBACK_PAGE_HPP

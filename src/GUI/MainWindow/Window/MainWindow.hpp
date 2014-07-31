@@ -19,6 +19,8 @@
 # ifndef VENTUROUS_MAIN_WINDOW_HPP
 # define VENTUROUS_MAIN_WINDOW_HPP
 
+# include <VenturousCore/MediaPlayer.hpp>
+
 # include <QtWidgetsUtilities/WindowInputController.hpp>
 
 # include <QtGlobal>
@@ -73,6 +75,7 @@ private:
     void keyPressEvent(QKeyEvent *) override;
     void closeEvent(QCloseEvent *) override;
 
+
     /// Is used to receive Ventool commands and ensure single Venturous
     /// instance.
     std::unique_ptr<QSharedMemory> sharedMemory_;
@@ -102,13 +105,13 @@ private slots:
     void copyInternalOptionsToPreferences();
     void onPreferencesChanged();
     /// @brief Sets appropriate window title.\n
-    /// Must be called after playbackComponent_->isPlayerRunning() or
+    /// Must be called after playbackComponent_->status() or
     /// playlistComponent_->itemCount()
     /// or playlistComponent_->editMode() change.
     /// NOTE: does not block execution.
     void setWindowTitle();
     /// NOTE: does not block execution.
-    void onPlayerStateChanged(bool isPlayerRunning);
+    void onPlayerStatusChanged(MediaPlayer::Status newStatus);
     /// NOTE: does not block execution.
     void onNotificationAreaIconActivated(QSystemTrayIcon::ActivationReason);
 

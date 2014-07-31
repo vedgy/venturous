@@ -203,7 +203,8 @@ QString & inPlaceReplaceSlashesWithBackslashes(QString & source)
 }
 QString replaceSlashesWithBackslashes(QString source)
 {
-    return source.replace('/', '\\');
+    source.replace('/', '\\');
+    return source;
 }
 
 # include <algorithm>

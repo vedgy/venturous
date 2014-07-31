@@ -22,6 +22,7 @@
 # include "PreferencesPage.hpp"
 
 # include <QSpinBox>
+# include <QDoubleSpinBox>
 # include <QCheckBox>
 
 
@@ -43,10 +44,12 @@ private:
     QSpinBox treeAutoUnfoldedLevelsSpinBox;
     QCheckBox treeAutoCleanupCheckBox;
     QCheckBox saveToDiskImmediatelyCheckBox;
-    QSpinBox checkIntervalSpinBox;
+    QCheckBox checkIntervalCheckBox;
+    QDoubleSpinBox checkIntervalSpinBox;
 
 private slots:
-    void onNotificationAreaIconCheckBoxToggled(bool checked);
+    void onNotificationAreaIconToggled(bool checked);
+    void onCheckIntervalToggled(bool checked);
 };
 
 # endif // VENTUROUS_GENERAL_PAGE_HPP

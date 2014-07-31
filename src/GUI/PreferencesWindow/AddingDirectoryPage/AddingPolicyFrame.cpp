@@ -52,7 +52,8 @@ void addIfBothSubOption(
     subOption.setToolTip(
         QObject::tr("This option is considered if files that match file "
                     "patterns\nare found in media directory.\n"
-                    "If checked, %1 will be added to playlist.").arg(itemType));
+                    "If checked, %1 would be added to playlist.").arg(
+            itemType));
     layout->addWidget(& subOption);
 }
 

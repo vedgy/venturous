@@ -135,7 +135,7 @@ void addButton(const QIcon & icon, const QString & text,
 {
     QPushButton * const button = new QPushButton(icon, text, parent);
     button->setToolTip(tooltip);
-    button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    QtUtilities::Widgets::setFixedSizePolicy(button);
     parent->connect(button, SIGNAL(clicked(bool)), slot);
     layout->addWidget(button);
 }
@@ -401,7 +401,7 @@ void CustomActionsPage::onShowHelpToggled()
 
         al(tr("%1. <i>Enabled</i>: disabled actions are not shown in menu."));
         al(tr("%1. <i>Text</i> is displayed in the menu."));
-        al(tr("%1. <i>Command</i> is executed if this action is triggered. "
+        al(tr("%1. <i>Command</i> is executed when this action is triggered. "
               "The following rules apply to <i>Command</i> text:<ul>"
               "<li>most Bash shell rules with respect to double and single "
               "quotes, backslash, whitespaces;</li>"
@@ -411,8 +411,9 @@ void CustomActionsPage::onShowHelpToggled()
               "</li></ul>"));
         al(tr("%1,%2. <i>Min</i>, <i>Max</i> - minimum and maximum number of "
               "selected items respectively. Custom action is available only if "
-              "number of selected items is between <i>Min</i> and <i>Max</i>. "
-              "<i>Max</i>=-1 means \"without upper bound\".").arg(++number));
+              "the number of selected items is between <i>Min</i> and "
+              "<i>Max</i>. <i>Max</i>=-1 means \"without upper bound\".").arg(
+               ++number));
         al(tr("%1. <i>Type</i> - allowed type of selected items."));
         al(tr("%1. <i>Comment</i> - field that is not used by the program. "
               "It can be used to provide user with additional information "

@@ -53,8 +53,8 @@ RevertAndRestoreDefaultsTab::RevertAndRestoreDefaultsTab(
 
     tabComboBox.addItems(tabNames);
     tabComboBox.addItem("<all>");
-    tabComboBox.setToolTip(
-        tr("Clicking one of the buttons will apply action to specified tab."));
+    tabComboBox.setToolTip(tr("Clicking one of the buttons will apply\n"
+                              "selected action to the specified tab."));
     layout->addWidget(& tabComboBox, 2, 0);
 
     addButton(revertIcon, tr("Revert"),

@@ -218,8 +218,9 @@ MainWindow::MainWindow(
     connect(preferencesComponent_.get(), SIGNAL(preferencesChanged()),
             SLOT(onPreferencesChanged()));
 
-    connect(playbackComponent_.get(), SIGNAL(playerStateChanged(bool)),
-            SLOT(onPlayerStateChanged(bool)));
+    connect(playbackComponent_.get(),
+            SIGNAL(statusChanged(MediaPlayer::Status)),
+            SLOT(onPlayerStatusChanged(MediaPlayer::Status)));
 
     connect(playlistComponent_.get(), SIGNAL(editModeChanged()),
             SLOT(setWindowTitle()));
@@ -244,7 +245,7 @@ MainWindow::MainWindow(
     }
 
     setPreferencesNoComponents();
-    onPlayerStateChanged(playbackComponent_->isPlayerRunning());
+    onPlayerStatusChanged(playbackComponent_->status());
 
     restoreGeometry(preferences.windowGeometry);
     restoreState(preferences.windowState);

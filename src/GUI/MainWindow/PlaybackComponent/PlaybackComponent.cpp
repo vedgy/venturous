@@ -145,7 +145,7 @@ void PlaybackComponent::play(std::string item)
     historyWidget_.push(std::move(item));
     onHistoryChanged();
     resetLastPlayedItem();
-    setPlayerState(true);
+    setStatus(Status::playing);
 }
 
 void PlaybackComponent::play(CommonTypes::ItemCollection items)
@@ -157,7 +157,7 @@ void PlaybackComponent::play(CommonTypes::ItemCollection items)
             return;
         historyWidget_.playedMultipleItems();
         resetLastPlayedItem();
-        setPlayerState(true);
+        setStatus(Status::playing);
     }
 }
 
@@ -182,7 +182,7 @@ void PlaybackComponent::setPreferencesExceptHistory(
         mediaPlayer_->setExitExternalPlayerOnQuit(pb.exitExternalPlayerOnQuit);
     if (pb.playerId != playerId_) {
         if (mediaPlayer_ == nullptr)
-            setPlayerState(false);
+            setStatus(Status::stopped);
         else
             playbackStop();
         playerId_ = pb.playerId;
@@ -210,6 +210,12 @@ void PlaybackComponent::setPreferencesExceptHistory(
 
     mediaPlayer_->setAutoSetOptions(pb.autoSetExternalPlayerOptions);
     mediaPlayer_->setAutoHideWindow(pb.autoHideExternalPlayerWindow);
+    if (int(pb.statusUpdateInterval) != statusUpdateInterval_) {
+        statusUpdateInterval_ = int(pb.statusUpdateInterval);
+        killTimer(timerIdentifier_);
+        if (statusUpdateInterval_ != 0)
+            timerIdentifier_ = startTimer(statusUpdateInterval_);
+    }
     desktopNotifications_ = pb.desktopNotifications;
     saveHistoryToDiskImmediately_ = pb.history.saveToDiskImmediately;
 
@@ -238,7 +244,7 @@ void PlaybackComponent::playFromHistory(const std::string entry)
     if (! mediaPlayer_->start(entry))
         return;
     resetLastPlayedItem();
-    setPlayerState(true);
+    setStatus(Status::playing);
 }
 
 bool PlaybackComponent::playFromHistoryIfNotEmpty(std::string entry)
@@ -284,11 +290,11 @@ void PlaybackComponent::resetLastPlayedItem(const bool playbackStarted)
     }
 }
 
-void PlaybackComponent::setPlayerState(const bool isRunning)
+void PlaybackComponent::setStatus(const Status status)
 {
-    if (isPlayerRunning_ != isRunning) {
-        isPlayerRunning_ = isRunning;
-        emit playerStateChanged(isRunning);
+    if (status_ != status) {
+        status_ = status;
+        emit statusChanged(status_);
     }
 }
 
@@ -311,6 +317,11 @@ void PlaybackComponent::saveHistory(const bool noBlocking)
     isHistorySaved_ = noBlocking ? handleErrors.nonBlocking() :
                       handleErrors.blocking(inputController_,
                                             historyWindowName());
+}
+
+void PlaybackComponent::timerEvent(QTimerEvent *)
+{
+    updateStatus();
 }
 
 
@@ -338,7 +349,7 @@ void PlaybackComponent::onPlayerFinished(
 
     if (! errorMessage.isEmpty()) {
         errorMessage += '\t' + tr("Continue playback?");
-        setPlayerState(false);
+        setStatus(Status::stopped);
         const auto selectedButton =
             inputController_.showMessage(externalPlayerErrors(), errorMessage,
                                          QMessageBox::Yes | QMessageBox::No,
@@ -354,8 +365,12 @@ void PlaybackComponent::onPlayerError(QString errorMessage)
     inputController_.showMessage(
         externalPlayerErrors(false),
         mediaPlayer_->playerName() + ": " + std::move(errorMessage));
-    if (! mediaPlayer_->isRunning())
-        setPlayerState(false);
+    updateStatus();
+}
+
+void PlaybackComponent::updateStatus()
+{
+    setStatus(mediaPlayer_->status());
 }
 
 void PlaybackComponent::onHistoryChanged()
@@ -368,13 +383,13 @@ void PlaybackComponent::onHistoryChanged()
 void PlaybackComponent::playbackPlay()
 {
     if (mediaPlayer_->start())
-        setPlayerState(true);
+        setStatus(Status::playing);
 }
 
 void PlaybackComponent::playbackStop()
 {
     mediaPlayer_->exit();
-    setPlayerState(false);
+    setStatus(Status::stopped);
 }
 
 void PlaybackComponent::playbackPrevious()

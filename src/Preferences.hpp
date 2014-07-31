@@ -59,6 +59,9 @@ public:
             playbackNextRandom, playbackNext
         };
 
+        static constexpr unsigned minStatusUpdateInterval = 300,
+                                  defaultStatusUpdateInterval = 2000,
+                                  maxStatusUpdateInterval = 30 * 1000;
         static constexpr StartupPolicyUnderlyingType maxStartupPolicy = 4;
 
         explicit Playback();
@@ -68,6 +71,8 @@ public:
         bool autoSetExternalPlayerOptions;
         bool autoHideExternalPlayerWindow;
         bool exitExternalPlayerOnQuit;
+        /// 0 is also allowed - it disables updating playback status.
+        unsigned statusUpdateInterval;
         bool nextFromHistory;
         bool desktopNotifications;
         StartupPolicy startupPolicy;
@@ -75,7 +80,9 @@ public:
     playback;
 
 
-    static constexpr unsigned maxVentoolCheckInterval = 9999;
+    static constexpr unsigned minVentoolCheckInterval = 100,
+                              defaultVentoolCheckInterval = 1000,
+                              maxVentoolCheckInterval = 9999;
 
 
     explicit Preferences();
@@ -98,6 +105,7 @@ public:
     unsigned char treeAutoUnfoldedLevels;
     bool treeAutoCleanup;
     bool savePreferencesToDiskImmediately;
+    /// 0 is also allowed - it disables checking for ventool commands.
     unsigned ventoolCheckInterval;
 
     CustomActions::Actions customActions;

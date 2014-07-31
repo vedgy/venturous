@@ -22,20 +22,18 @@
 
 # include <VenturousCore/MediaPlayer.hpp>
 
+# include <QtWidgetsUtilities/Miscellaneous.hpp>
+
 # include <QString>
 # include <QStringList>
-# include <QSpacerItem>
 # include <QFormLayout>
 # include <QFrame>
-# include <QComboBox>
 
 
 namespace
 {
-inline void configure(QComboBox & combobox)
-{
-    combobox.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-}
+constexpr double msInS = 1E3;
+constexpr int lgMsInS = 3;
 
 }
 
@@ -48,31 +46,68 @@ PlaybackPage::PlaybackPage(QWidget * const parent, const Qt::WindowFlags f)
     playerIdComboBox.addItems(GetMediaPlayer::playerList());
     playerIdComboBox.setToolTip(
         tr("Selected player will be used for playing items.\n"
-           "It must be installed. Some of the player's settings\n"
-           "will be adjusted for integration with %1.").arg(APPLICATION_NAME));
-    configure(playerIdComboBox);
-    layout->addRow(tr("External player"), & playerIdComboBox);
+           "It must be installed.\n"
+           "Some of the player's settings may be adjusted\n"
+           "automatically for integration with %1.").arg(APPLICATION_NAME));
+    QtUtilities::Widgets::setFixedSizePolicy(& playerIdComboBox);
     onPlayerIdChanged(0);
     connect(& playerIdComboBox, SIGNAL(currentIndexChanged(int)),
             SLOT(onPlayerIdChanged(int)));
-
+    layout->addRow(tr("External player"), & playerIdComboBox);
 
     autoSetOptionsCheckBox.setToolTip(
         tr("If checked, essential external player options\n"
-           "are set each time player is launched.\n"
+           "would be set each time player is launched.\n"
            "Otherwise, it is user's responsibility to ensure\n"
            "that external player options are correct."));
     layout->addRow(tr("Always set external player options"),
                    & autoSetOptionsCheckBox);
 
     autoHideWindowCheckBox.setToolTip(
-        tr("If checked, external player window is hidden\n"
+        tr("If checked, external player window would be hidden\n"
            "each time player is launched."));
     layout->addRow(tr("Always hide external player window"),
                    & autoHideWindowCheckBox);
 
     layout->addRow(tr("Exit external player on quit"),
                    & exitPlayerOnQuitCheckBox);
+
+    QtUtilities::Widgets::addSpacing(layout);
+
+
+    statusUpdateCheckBox.setToolTip(
+        tr("If checked, playback status would be updated\n"
+           "at the specified interval."));
+    onStatusUpdateToggled(statusUpdateCheckBox.isChecked());
+    connect(& statusUpdateCheckBox, SIGNAL(toggled(bool)),
+            SLOT(onStatusUpdateToggled(bool)));
+    layout->addRow(tr("Update status regularly"), & statusUpdateCheckBox);
+
+    statusUpdateWarningLabel.setWordWrap(true);
+    statusUpdateWarningLabel.setIndent(QtUtilities::Widgets::subWidgetIndent());
+    statusUpdateWarningLabel.setText(
+        "<font color='red'>"
+        + tr("WARNING: regular updating playback status increases\n"
+             "%1 CPU usage in idle state significantly.").
+        arg(APPLICATION_NAME) + "</font>");
+    layout->addRow(& statusUpdateWarningLabel);
+
+    {
+        using P = Preferences::Playback;
+        statusUpdateSpinBox.setDecimals(lgMsInS);
+        statusUpdateSpinBox.setRange(P::minStatusUpdateInterval / msInS,
+                                     P::maxStatusUpdateInterval / msInS);
+        statusUpdateSpinBox.setValue(P::defaultStatusUpdateInterval / msInS);
+    }
+    statusUpdateSpinBox.setSingleStep(0.1);
+    statusUpdateSpinBox.setToolTip(tr("Time interval at which status of the\n"
+                                      "external player will be checked."));
+    statusUpdateSpinBox.setSuffix("s");
+    QtUtilities::Widgets::setFixedSizePolicy(& statusUpdateSpinBox);
+    QtUtilities::Widgets::addSubWidget(layout, tr("Status update interval"),
+                                       & statusUpdateSpinBox);
+
+    QtUtilities::Widgets::addSpacing(layout);
 
 
     nextFromHistoryCheckBox.setToolTip(
@@ -81,23 +116,28 @@ PlaybackPage::PlaybackPage(QWidget * const parent, const Qt::WindowFlags f)
            "Otherwise, \"Next\" action always plays random item."));
     layout->addRow(tr("Next from history"), & nextFromHistoryCheckBox);
 
+    QtUtilities::Widgets::addSpacing(layout);
+
+
     desktopNotificationsCheckBox.setToolTip(tr(
-            "If checked, desktop notifications will be shown when\n"
-            "played item is changed (requires notify-send executable\n"
-            "(from libnotify) in PATH)."));
+            "If checked, desktop notifications would be shown after\n"
+            "changing played item\n"
+            "(requires notify-send executable (from libnotify) in PATH)."));
     layout->addRow(tr("Desktop notifications"), & desktopNotificationsCheckBox);
+
+    QtUtilities::Widgets::addSpacing(layout);
 
     startupPolicyComboBox.addItems( {
         tr("<no action>"), tr("Start playback"), tr("Replay last item"),
         tr("Play next random item"), tr("Play next item")
     });
     startupPolicyComboBox.setToolTip(
-        tr("Selected action will be executed on each %1 start.").arg(
+        tr("Selected action would be executed on each %1 start.").arg(
             APPLICATION_NAME));
-    configure(startupPolicyComboBox);
+    QtUtilities::Widgets::setFixedSizePolicy(& startupPolicyComboBox);
     layout->addRow(tr("Startup action"), & startupPolicyComboBox);
 
-    layout->addItem(new QSpacerItem(1, 10));
+    QtUtilities::Widgets::addSpacing(layout);
 
     historyFrame_.setFrameStyle(QFrame::Panel | QFrame::Raised);
     historyFrame_.setLineWidth(2);
@@ -112,6 +152,14 @@ void PlaybackPage::setUiPreferences(const Preferences & source)
     autoSetOptionsCheckBox.setChecked(playback.autoSetExternalPlayerOptions);
     autoHideWindowCheckBox.setChecked(playback.autoHideExternalPlayerWindow);
     exitPlayerOnQuitCheckBox.setChecked(playback.exitExternalPlayerOnQuit);
+
+    {
+        const int interval = int(playback.statusUpdateInterval);
+        statusUpdateCheckBox.setChecked(interval != 0);
+        if (interval != 0)
+            statusUpdateSpinBox.setValue(interval / msInS);
+    }
+
     nextFromHistoryCheckBox.setChecked(playback.nextFromHistory);
     desktopNotificationsCheckBox.setChecked(playback.desktopNotifications);
     startupPolicyComboBox.setCurrentIndex(static_cast<int>(
@@ -128,6 +176,11 @@ void PlaybackPage::writeUiPreferencesTo(Preferences & destination) const
     playback.autoSetExternalPlayerOptions = autoSetOptionsCheckBox.isChecked();
     playback.autoHideExternalPlayerWindow = autoHideWindowCheckBox.isChecked();
     playback.exitExternalPlayerOnQuit = exitPlayerOnQuitCheckBox.isChecked();
+
+    playback.statusUpdateInterval =
+        statusUpdateCheckBox.isChecked() ?
+        unsigned(statusUpdateSpinBox.value() * msInS + 0.5) : 0u;
+
     playback.nextFromHistory = nextFromHistoryCheckBox.isChecked();
     playback.desktopNotifications = desktopNotificationsCheckBox.isChecked();
     playback.startupPolicy = static_cast<Preferences::Playback::StartupPolicy>(
@@ -137,15 +190,21 @@ void PlaybackPage::writeUiPreferencesTo(Preferences & destination) const
 }
 
 
-void PlaybackPage::onPlayerIdChanged(const int id)
+void PlaybackPage::onPlayerIdChanged(const int newId)
 {
-    const bool enabled = GetMediaPlayer::isExternalPlayerProcessDetached(id);
+    const bool enabled = GetMediaPlayer::isExternalPlayerProcessDetached(newId);
     exitPlayerOnQuitCheckBox.setEnabled(enabled);
     exitPlayerOnQuitCheckBox.setToolTip(
         (enabled ?
-         tr("If checked, external player is finished when\n"
-            "%1 quits; otherwise it remains running.") :
-         tr("Current external player must be finished when\n"
-            "%1 quits. So this option has no effect.")
+         tr("If checked, external player would be finished when %1 quits;\n"
+            "otherwise it would remain running.") :
+         tr("Current external player must be finished when %1 quits.\n"
+            "So this option has no effect.")
         ).arg(APPLICATION_NAME));
+}
+
+void PlaybackPage::onStatusUpdateToggled(const bool checked)
+{
+    statusUpdateWarningLabel.setVisible(checked);
+    statusUpdateSpinBox.setEnabled(checked);
 }

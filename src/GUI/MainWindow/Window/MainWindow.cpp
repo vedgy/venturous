@@ -29,10 +29,11 @@
 # include "Actions.hpp"
 # include "Preferences.hpp"
 
+# include <VenturousCore/MediaPlayer.hpp>
+
 # include <QtWidgetsUtilities/Miscellaneous.hpp>
 
 # include <QString>
-# include <QObject>
 # include <QSharedMemory>
 # include <QCoreApplication>
 # include <QIcon>
@@ -45,19 +46,9 @@
 
 namespace
 {
-inline const QString & getStatus(bool isPlayerRunning)
+inline QString getIconTooltip(MediaPlayer::Status status)
 {
-    static const QString playing = QObject::tr("playing"),
-                         stopped = QObject::tr("stopped");
-    return isPlayerRunning ? playing : stopped;
-}
-
-inline const QString & getIconTooltip(bool isPlayerRunning)
-{
-    static const QString running = APPLICATION_NAME " - " + getStatus(true),
-                         notRunning = APPLICATION_NAME " - " +
-                                      getStatus(false);
-    return isPlayerRunning ? running : notRunning;
+    return APPLICATION_NAME " - " + MediaPlayer::toString(status);
 }
 
 }
@@ -141,7 +132,7 @@ void MainWindow::showNotificationAreaIcon()
                      QSystemTrayIcon::ActivationReason)));
 
     notificationAreaIcon_->setToolTip(
-        getIconTooltip(playbackComponent_->isPlayerRunning()));
+        getIconTooltip(playbackComponent_->status()));
 
     notificationAreaIcon_->show();
 }
@@ -282,16 +273,16 @@ void MainWindow::setWindowTitle()
     QMainWindow::setWindowTitle(
         APPLICATION_NAME + tr(" - %1 playable %2 - %3%4").
         arg(nItems).arg(nItems == 1 ? tr("item") : tr("items")).
-        arg(getStatus(playbackComponent_->isPlayerRunning()),
+        arg(MediaPlayer::toString(playbackComponent_->status()),
             playlistComponent_->editMode() ?
             tr(" (apply changes to use updated playlist)") : ""));
 }
 
-void MainWindow::onPlayerStateChanged(const bool isPlayerRunning)
+void MainWindow::onPlayerStatusChanged(const MediaPlayer::Status newStatus)
 {
     setWindowTitle();
     if (notificationAreaIcon_ != nullptr)
-        notificationAreaIcon_->setToolTip(getIconTooltip(isPlayerRunning));
+        notificationAreaIcon_->setToolTip(getIconTooltip(newStatus));
 }
 
 void MainWindow::onNotificationAreaIconActivated(

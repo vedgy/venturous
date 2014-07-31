@@ -20,11 +20,10 @@
 
 # include "Preferences.hpp"
 
+# include <QtWidgetsUtilities/Miscellaneous.hpp>
+
 # include <QString>
 # include <QObject>
-# include <QSpacerItem>
-# include <QLayout>
-# include <QHBoxLayout>
 # include <QFormLayout>
 # include <QCheckBox>
 
@@ -33,25 +32,19 @@
 
 namespace
 {
-inline void addSpacing(QLayout * layout, int height = 10)
-{
-    layout->addItem(new QSpacerItem(1, height));
-}
-
 void addNotificationAreaSubOption(
     QFormLayout * layout, QCheckBox & subOption,
     const QString & tooltip, const QString & labelPrefix)
 {
     subOption.setToolTip(tooltip);
-
-    QHBoxLayout * rowLayout = new QHBoxLayout;
-    rowLayout->addSpacing(30);
-    rowLayout->addWidget(& subOption);
-    layout->addRow(
-        "    " + labelPrefix +
-        QObject::tr(" %1 to notification area").arg(APPLICATION_NAME),
-        rowLayout);
+    QtUtilities::Widgets::addSubWidget(
+        layout, labelPrefix + QObject::tr(" %1 to notification area").arg(
+            APPLICATION_NAME),
+        & subOption);
 }
+
+constexpr double msInS = 1E3;
+constexpr int lgMsInS = 3;
 
 }
 
@@ -61,25 +54,23 @@ GeneralPage::GeneralPage(QWidget * const parent, const Qt::WindowFlags f)
     QFormLayout * const layout = new QFormLayout(this);
 
     alwaysUseFallbackIconsCheckBox.setToolTip(tr("If checked, fallback "
-            "(application default) icons will always be used;\n"
-            "otherwise, icons from system theme will be preferred.\n"
+            "(application default) icons would always be used;\n"
+            "otherwise, icons from system theme would be preferred.\n"
             "Changing this option will take effect after restarting the "
             "application."));
     layout->addRow(tr("Always use fallback icons"),
                    & alwaysUseFallbackIconsCheckBox);
 
-    addSpacing(layout);
+    QtUtilities::Widgets::addSpacing(layout);
 
 
     notificationAreaIconCheckBox.setToolTip(
         tr("Show %1 icon in notification area.").arg(APPLICATION_NAME));
+    onNotificationAreaIconToggled(notificationAreaIconCheckBox.isChecked());
+    connect(& notificationAreaIconCheckBox, SIGNAL(toggled(bool)),
+            SLOT(onNotificationAreaIconToggled(bool)));
     layout->addRow(tr("Notification area icon"),
                    & notificationAreaIconCheckBox);
-
-    onNotificationAreaIconCheckBoxToggled(
-        notificationAreaIconCheckBox.isChecked());
-    connect(& notificationAreaIconCheckBox, SIGNAL(toggled(bool)),
-            SLOT(onNotificationAreaIconCheckBoxToggled(bool)));
 
     addNotificationAreaSubOption(
         layout, startToNotificationAreaCheckBox,
@@ -93,52 +84,74 @@ GeneralPage::GeneralPage(QWidget * const parent, const Qt::WindowFlags f)
             APPLICATION_NAME),
         tr("Close"));
 
-    addSpacing(layout);
+    QtUtilities::Widgets::addSpacing(layout);
+
 
     statusBarCheckBox.setToolTip(
-        tr("Display status bar with last played item.\n"
-           "Note: this information is available in history window."));
+        tr("Display status bar with the last played item.\n"
+           "Note: this information is usually available in history window."));
     layout->addRow(tr("Status bar"), & statusBarCheckBox);
-    addSpacing(layout);
+
+    QtUtilities::Widgets::addSpacing(layout);
+
 
     treeAutoUnfoldedLevelsSpinBox.setRange(
         0, std::numeric_limits < decltype(
             Preferences::treeAutoUnfoldedLevels) >::max());
     treeAutoUnfoldedLevelsSpinBox.setToolTip(tr("Number of items in playlist "
-            "tree that will be unfolded by default."));
-    treeAutoUnfoldedLevelsSpinBox.setSizePolicy(
-        QSizePolicy::Fixed, QSizePolicy::QSizePolicy::Fixed);
-    layout->addRow(tr("Auto unfolded levels in the tree"),
+            "tree that would be unfolded by default."));
+    QtUtilities::Widgets::setFixedSizePolicy(& treeAutoUnfoldedLevelsSpinBox);
+    layout->addRow(tr("Auto unfolded levels in playlist tree"),
                    & treeAutoUnfoldedLevelsSpinBox);
 
     treeAutoCleanupCheckBox.setToolTip(
-        tr("If checked, non-playable nodes with no playable descendants "
-           "will be\n"
-           "removed from playlist tree automatically after applying changes."));
-    layout->addRow(tr("Automatically clean up tree"),
+        tr("If checked, non-playable nodes with no playable descendants would\n"
+           "be removed from playlist tree automatically after applying "
+           "changes."));
+    layout->addRow(tr("Automatically clean up playlist tree"),
                    & treeAutoCleanupCheckBox);
 
-    addSpacing(layout);
+    QtUtilities::Widgets::addSpacing(layout);
 
 
     saveToDiskImmediatelyCheckBox.setToolTip(
-        tr("If checked, settings will be saved to disk\n"
+        tr("If checked, settings would be saved to disk\n"
            "immediately after closing preferences window;\n"
            "otherwise - before application quit only."));
     layout->addRow(tr("Save preferences to disk immediately"),
                    & saveToDiskImmediatelyCheckBox);
 
-    checkIntervalSpinBox.setRange(0, Preferences::maxVentoolCheckInterval);
-    checkIntervalSpinBox.setSingleStep(10);
+    QtUtilities::Widgets::addSpacing(layout);
+
+
+    checkIntervalCheckBox.setToolTip(
+        tr("If checked, %1 commands are enabled.\n"
+           "Switching this option off is not recommended\n"
+           "because %1 provides a command line interface,\n"
+           "can be used for creating global shortcuts,\n"
+           "is REQUIRED for detached players.").arg(TOOL_NAME));
+    onCheckIntervalToggled(checkIntervalCheckBox.isChecked());
+    connect(& checkIntervalCheckBox, SIGNAL(toggled(bool)),
+            SLOT(onCheckIntervalToggled(bool)));
+    layout->addRow(tr("Enable %1").arg(TOOL_NAME), & checkIntervalCheckBox);
+
+    {
+        using P = Preferences;
+        checkIntervalSpinBox.setDecimals(lgMsInS);
+        checkIntervalSpinBox.setRange(P::minVentoolCheckInterval / msInS,
+                                      P::maxVentoolCheckInterval / msInS);
+        checkIntervalSpinBox.setValue(P::defaultVentoolCheckInterval / msInS);
+    }
+    checkIntervalSpinBox.setSingleStep(0.1);
     checkIntervalSpinBox.setToolTip(
         tr("Time interval between subsequent checks for %1 commands.\n"
            "Shorter interval makes reactions to %1 commands more prompt.\n"
-           "Longer interval may slightly improve performance.\n"
-           "If set to 0, %1 commands will have no effect.").arg(TOOL_NAME));
-    checkIntervalSpinBox.setSuffix(tr("ms"));
-    checkIntervalSpinBox.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    layout->addRow(TOOL_NAME + tr(" check interval"),
-                   & checkIntervalSpinBox);
+           "Longer interval may slightly improve performance.").arg(TOOL_NAME));
+    checkIntervalSpinBox.setSuffix("s");
+    QtUtilities::Widgets::setFixedSizePolicy(& checkIntervalSpinBox);
+    QtUtilities::Widgets::addSubWidget(layout,
+                                       TOOL_NAME + tr(" check interval"),
+                                       & checkIntervalSpinBox);
 }
 
 void GeneralPage::setUiPreferences(const Preferences & source)
@@ -156,7 +169,13 @@ void GeneralPage::setUiPreferences(const Preferences & source)
 
     saveToDiskImmediatelyCheckBox.setChecked(
         source.savePreferencesToDiskImmediately);
-    checkIntervalSpinBox.setValue(source.ventoolCheckInterval);
+
+    {
+        const int interval = int(source.ventoolCheckInterval);
+        checkIntervalCheckBox.setChecked(interval != 0);
+        if (interval != 0)
+            checkIntervalSpinBox.setValue(interval / msInS);
+    }
 }
 
 void GeneralPage::writeUiPreferencesTo(Preferences & destination) const
@@ -177,13 +196,20 @@ void GeneralPage::writeUiPreferencesTo(Preferences & destination) const
 
     destination.savePreferencesToDiskImmediately =
         saveToDiskImmediatelyCheckBox.isChecked();
-    destination.ventoolCheckInterval = checkIntervalSpinBox.value();
+
+    destination.ventoolCheckInterval =
+        checkIntervalCheckBox.isChecked() ?
+        unsigned(checkIntervalSpinBox.value() * msInS + 0.5) : 0u;
 }
 
 
-void GeneralPage::onNotificationAreaIconCheckBoxToggled(
-    const bool checked)
+void GeneralPage::onNotificationAreaIconToggled(const bool checked)
 {
     startToNotificationAreaCheckBox.setEnabled(checked);
     closeToNotificationAreaCheckBox.setEnabled(checked);
+}
+
+void GeneralPage::onCheckIntervalToggled(const bool checked)
+{
+    checkIntervalSpinBox.setEnabled(checked);
 }
