@@ -34,6 +34,7 @@
 # include <QString>
 # include <QStringList>
 # include <QObject>
+# include <QTimer>
 # include <QFileInfo>
 # include <QProcess>
 # include <QAction>
@@ -104,6 +105,7 @@ preferences.playback.history)
     }
 
     connect(actions.play, SIGNAL(triggered(bool)), SLOT(playbackPlay()));
+    connect(actions.pause, SIGNAL(triggered(bool)), SLOT(playbackPause()));
     connect(actions.stop, SIGNAL(triggered(bool)), SLOT(playbackStop()));
     connect(actions.previous, SIGNAL(triggered(bool)),
             SLOT(playbackPrevious()));
@@ -116,6 +118,8 @@ preferences.playback.history)
             SLOT(showExternalPlayerWindow()));
     connect(actions.hideExternalPlayerWindow, SIGNAL(triggered(bool)),
             SLOT(hideExternalPlayerWindow()));
+    connect(actions.updateStatus, SIGNAL(triggered(bool)),
+            SLOT(updateStatus()));
 
     connect(actions.importHistory, SIGNAL(triggered(bool)),
             SLOT(importHistory()));
@@ -388,6 +392,12 @@ void PlaybackComponent::playbackPlay()
 {
     if (mediaPlayer_->start())
         setStatus(Status::playing);
+}
+
+void PlaybackComponent::playbackPause()
+{
+    mediaPlayer_->togglePause();
+    QTimer::singleShot(1000, this, SLOT(updateStatus()));
 }
 
 void PlaybackComponent::playbackStop()

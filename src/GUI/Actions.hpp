@@ -45,9 +45,10 @@ struct Actions {
     {
     public:
         explicit Playback(const Icons::Theme & theme);
-        QAction * play, * stop, * previous, * replayLast,
+        QAction * play, * pause, * stop, * previous, * replayLast,
                 * nextFromHistory, * nextRandom, * next, * playAll;
-        QAction * showExternalPlayerWindow, * hideExternalPlayerWindow;
+        QAction * showExternalPlayerWindow, * hideExternalPlayerWindow,
+                * updateStatus;
         QAction * importHistory, * exportHistory, * clearHistory;
     } playback;
 

@@ -44,6 +44,7 @@ Actions::File::File(const Icons::Theme & theme)
 
 Actions::Playback::Playback(const Icons::Theme & theme)
     : play(new QAction(theme.playbackPlay(), tr("&Play"), this)),
+      pause(new QAction(theme.playbackPause(), tr("Pa&use"), this)),
       stop(new QAction(theme.playbackStop(), tr("&Stop"), this)),
       previous(new QAction(theme.playbackPrevious(), tr("Pre&vious"), this)),
       replayLast(new QAction(theme.playbackReplayLast(),
@@ -58,12 +59,16 @@ Actions::Playback::Playback(const Icons::Theme & theme)
                                            tr("&Show window"), this)),
       hideExternalPlayerWindow(new QAction(theme.audioPlayerHide(),
                                            tr("&Hide window"), this)),
+      updateStatus(new QAction(theme.viewRefresh(),
+                               tr("Up&date status"), this)),
       importHistory(new QAction(theme.load(), tr("&Import ..."), this)),
       exportHistory(new QAction(theme.saveAs(), tr("&Export ..."), this)),
       clearHistory(new QAction(theme.clear(), tr("&Clear"), this))
 {
     play->setIconText("Pl");
     play->setShortcut(Qt::CTRL | Qt::Key_P);
+    pause->setIconText("Pa");
+    pause->setShortcut(Qt::CTRL | Qt::Key_U);
     stop->setIconText("St");
     stop->setShortcut(Qt::CTRL | Qt::Key_S);
 
@@ -85,6 +90,8 @@ Actions::Playback::Playback(const Icons::Theme & theme)
         hideExternalPlayerWindow->setIconText("HPW");
         hideExternalPlayerWindow->setToolTip(tr("Hide") + externalPlayerWindow);
     }
+    updateStatus->setIconText("US");
+    updateStatus->setToolTip(tr("Query playback status of external player"));
 
     {
         const QString historyName = tr(" history");

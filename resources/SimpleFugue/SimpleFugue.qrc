@@ -7,6 +7,7 @@
         <file alias="22x22/actions/audio-player-hide.png">../../modules/SimpleFugue/22x22/actions/audio-player-hide.png</file>
         <file alias="22x22/actions/media-replay-last.png">../../modules/SimpleFugue/22x22/actions/media-replay-last.png</file>
         <file alias="22x22/actions/media-next-random.png">../../modules/SimpleFugue/22x22/actions/media-next-random.png</file>
+        <file alias="22x22/actions/media-playback-pause.png">../../modules/SimpleFugue/22x22/actions/media-playback-pause.png</file>
         <file alias="22x22/actions/document-open.png">../../modules/SimpleFugue/22x22/actions/document-open.png</file>
         <file alias="22x22/actions/edit-clear.png">../../modules/SimpleFugue/22x22/actions/edit-clear.png</file>
         <file alias="22x22/actions/media-playback-start.png">../../modules/SimpleFugue/22x22/actions/media-playback-start.png</file>
@@ -25,6 +26,7 @@
         <file alias="22x22/actions/dialog-cancel.png">../../modules/SimpleFugue/22x22/actions/dialog-cancel.png</file>
         <file alias="22x22/actions/help-contents.png">../../modules/SimpleFugue/22x22/actions/help-contents.png</file>
         <file alias="22x22/actions/list-edit.png">../../modules/SimpleFugue/22x22/actions/list-edit.png</file>
+        <file alias="22x22/actions/view-refresh.png">../../modules/SimpleFugue/22x22/actions/view-refresh.png</file>
         <file alias="22x22/actions/media-play-all.png">../../modules/SimpleFugue/22x22/actions/media-play-all.png</file>
         <file alias="22x22/actions/media-playback-stop.png">../../modules/SimpleFugue/22x22/actions/media-playback-stop.png</file>
         <file alias="22x22/actions/media-history-next.png">../../modules/SimpleFugue/22x22/actions/media-history-next.png</file>
@@ -38,6 +40,7 @@
         <file alias="48x48/actions/audio-player-hide.png">../../modules/SimpleFugue/48x48/actions/audio-player-hide.png</file>
         <file alias="48x48/actions/media-replay-last.png">../../modules/SimpleFugue/48x48/actions/media-replay-last.png</file>
         <file alias="48x48/actions/media-next-random.png">../../modules/SimpleFugue/48x48/actions/media-next-random.png</file>
+        <file alias="48x48/actions/media-playback-pause.png">../../modules/SimpleFugue/48x48/actions/media-playback-pause.png</file>
         <file alias="48x48/actions/document-open.png">../../modules/SimpleFugue/48x48/actions/document-open.png</file>
         <file alias="48x48/actions/edit-clear.png">../../modules/SimpleFugue/48x48/actions/edit-clear.png</file>
         <file alias="48x48/actions/media-playback-start.png">../../modules/SimpleFugue/48x48/actions/media-playback-start.png</file>
@@ -56,6 +59,7 @@
         <file alias="48x48/actions/dialog-cancel.png">../../modules/SimpleFugue/48x48/actions/dialog-cancel.png</file>
         <file alias="48x48/actions/help-contents.png">../../modules/SimpleFugue/48x48/actions/help-contents.png</file>
         <file alias="48x48/actions/list-edit.png">../../modules/SimpleFugue/48x48/actions/list-edit.png</file>
+        <file alias="48x48/actions/view-refresh.png">../../modules/SimpleFugue/48x48/actions/view-refresh.png</file>
         <file alias="48x48/actions/media-play-all.png">../../modules/SimpleFugue/48x48/actions/media-play-all.png</file>
         <file alias="48x48/actions/media-playback-stop.png">../../modules/SimpleFugue/48x48/actions/media-playback-stop.png</file>
         <file alias="48x48/actions/media-history-next.png">../../modules/SimpleFugue/48x48/actions/media-history-next.png</file>
@@ -69,6 +73,7 @@
         <file alias="32x32/actions/audio-player-hide.png">../../modules/SimpleFugue/32x32/actions/audio-player-hide.png</file>
         <file alias="32x32/actions/media-replay-last.png">../../modules/SimpleFugue/32x32/actions/media-replay-last.png</file>
         <file alias="32x32/actions/media-next-random.png">../../modules/SimpleFugue/32x32/actions/media-next-random.png</file>
+        <file alias="32x32/actions/media-playback-pause.png">../../modules/SimpleFugue/32x32/actions/media-playback-pause.png</file>
         <file alias="32x32/actions/document-open.png">../../modules/SimpleFugue/32x32/actions/document-open.png</file>
         <file alias="32x32/actions/edit-clear.png">../../modules/SimpleFugue/32x32/actions/edit-clear.png</file>
         <file alias="32x32/actions/media-playback-start.png">../../modules/SimpleFugue/32x32/actions/media-playback-start.png</file>
@@ -87,6 +92,7 @@
         <file alias="32x32/actions/dialog-cancel.png">../../modules/SimpleFugue/32x32/actions/dialog-cancel.png</file>
         <file alias="32x32/actions/help-contents.png">../../modules/SimpleFugue/32x32/actions/help-contents.png</file>
         <file alias="32x32/actions/list-edit.png">../../modules/SimpleFugue/32x32/actions/list-edit.png</file>
+        <file alias="32x32/actions/view-refresh.png">../../modules/SimpleFugue/32x32/actions/view-refresh.png</file>
         <file alias="32x32/actions/media-play-all.png">../../modules/SimpleFugue/32x32/actions/media-play-all.png</file>
         <file alias="32x32/actions/media-playback-stop.png">../../modules/SimpleFugue/32x32/actions/media-playback-stop.png</file>
         <file alias="32x32/actions/media-history-next.png">../../modules/SimpleFugue/32x32/actions/media-history-next.png</file>
@@ -100,6 +106,7 @@
         <file alias="16x16/actions/audio-player-hide.png">../../modules/SimpleFugue/16x16/actions/audio-player-hide.png</file>
         <file alias="16x16/actions/media-replay-last.png">../../modules/SimpleFugue/16x16/actions/media-replay-last.png</file>
         <file alias="16x16/actions/media-next-random.png">../../modules/SimpleFugue/16x16/actions/media-next-random.png</file>
+        <file alias="16x16/actions/media-playback-pause.png">../../modules/SimpleFugue/16x16/actions/media-playback-pause.png</file>
         <file alias="16x16/actions/document-open.png">../../modules/SimpleFugue/16x16/actions/document-open.png</file>
         <file alias="16x16/actions/edit-clear.png">../../modules/SimpleFugue/16x16/actions/edit-clear.png</file>
         <file alias="16x16/actions/media-playback-start.png">../../modules/SimpleFugue/16x16/actions/media-playback-start.png</file>
@@ -118,6 +125,7 @@
         <file alias="16x16/actions/dialog-cancel.png">../../modules/SimpleFugue/16x16/actions/dialog-cancel.png</file>
         <file alias="16x16/actions/help-contents.png">../../modules/SimpleFugue/16x16/actions/help-contents.png</file>
         <file alias="16x16/actions/list-edit.png">../../modules/SimpleFugue/16x16/actions/list-edit.png</file>
+        <file alias="16x16/actions/view-refresh.png">../../modules/SimpleFugue/16x16/actions/view-refresh.png</file>
         <file alias="16x16/actions/media-play-all.png">../../modules/SimpleFugue/16x16/actions/media-play-all.png</file>
         <file alias="16x16/actions/media-playback-stop.png">../../modules/SimpleFugue/16x16/actions/media-playback-stop.png</file>
         <file alias="16x16/actions/media-history-next.png">../../modules/SimpleFugue/16x16/actions/media-history-next.png</file>
@@ -132,6 +140,7 @@
         <file alias="24x24/actions/audio-player-hide.png">../../modules/SimpleFugue/24x24/actions/audio-player-hide.png</file>
         <file alias="24x24/actions/media-replay-last.png">../../modules/SimpleFugue/24x24/actions/media-replay-last.png</file>
         <file alias="24x24/actions/media-next-random.png">../../modules/SimpleFugue/24x24/actions/media-next-random.png</file>
+        <file alias="24x24/actions/media-playback-pause.png">../../modules/SimpleFugue/24x24/actions/media-playback-pause.png</file>
         <file alias="24x24/actions/document-open.png">../../modules/SimpleFugue/24x24/actions/document-open.png</file>
         <file alias="24x24/actions/edit-clear.png">../../modules/SimpleFugue/24x24/actions/edit-clear.png</file>
         <file alias="24x24/actions/media-playback-start.png">../../modules/SimpleFugue/24x24/actions/media-playback-start.png</file>
@@ -150,6 +159,7 @@
         <file alias="24x24/actions/dialog-cancel.png">../../modules/SimpleFugue/24x24/actions/dialog-cancel.png</file>
         <file alias="24x24/actions/help-contents.png">../../modules/SimpleFugue/24x24/actions/help-contents.png</file>
         <file alias="24x24/actions/list-edit.png">../../modules/SimpleFugue/24x24/actions/list-edit.png</file>
+        <file alias="24x24/actions/view-refresh.png">../../modules/SimpleFugue/24x24/actions/view-refresh.png</file>
         <file alias="24x24/actions/media-play-all.png">../../modules/SimpleFugue/24x24/actions/media-play-all.png</file>
         <file alias="24x24/actions/media-playback-stop.png">../../modules/SimpleFugue/24x24/actions/media-playback-stop.png</file>
         <file alias="24x24/actions/media-history-next.png">../../modules/SimpleFugue/24x24/actions/media-history-next.png</file>
@@ -161,6 +171,7 @@
         <file alias="24x24/mimetypes/both-media-dir.png">../../modules/SimpleFugue/24x24/mimetypes/both-media-dir.png</file>
         <file alias="96x96/apps/venturous.png">../../modules/SimpleFugue/96x96/apps/venturous.png</file>
         <file alias="scalable/categories/preferences-desktop.svg">../../modules/SimpleFugue/scalable/categories/preferences-desktop.svg</file>
+        <file alias="scalable/actions/media-playback-pause.svg">../../modules/SimpleFugue/scalable/actions/media-playback-pause.svg</file>
         <file alias="scalable/actions/media-replay-last.svg">../../modules/SimpleFugue/scalable/actions/media-replay-last.svg</file>
         <file alias="scalable/actions/edit-undo.svg">../../modules/SimpleFugue/scalable/actions/edit-undo.svg</file>
         <file alias="scalable/actions/dialog-cancel.svg">../../modules/SimpleFugue/scalable/actions/dialog-cancel.svg</file>
@@ -184,6 +195,7 @@
         <file alias="scalable/actions/document-revert.svg">../../modules/SimpleFugue/scalable/actions/document-revert.svg</file>
         <file alias="scalable/actions/media-next-random.svg">../../modules/SimpleFugue/scalable/actions/media-next-random.svg</file>
         <file alias="scalable/actions/application-exit.svg">../../modules/SimpleFugue/scalable/actions/application-exit.svg</file>
+        <file alias="scalable/actions/view-refresh.svg">../../modules/SimpleFugue/scalable/actions/view-refresh.svg</file>
         <file alias="scalable/actions/media-history-next.svg">../../modules/SimpleFugue/scalable/actions/media-history-next.svg</file>
         <file alias="scalable/places/folder-add.svg">../../modules/SimpleFugue/scalable/places/folder-add.svg</file>
         <file alias="scalable/apps/venturous.svg">../../modules/SimpleFugue/scalable/apps/venturous.svg</file>

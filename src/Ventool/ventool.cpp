@@ -30,16 +30,18 @@ namespace
 {
 /// "help" must always be the last command here.
 /// It is not mapped in commands array.
-const std::array<std::string, 12> commandNames = {{
-        "play", "stop", "previous", "replay-last", "next-from-history",
-        "next-random", "next", "play-all", "quit", "show", "hide", "help"
+const std::array<std::string, 16> commandNames = {{
+        "play", "pause", "stop", "previous", "replay-last", "next-from-history",
+        "next-random", "next", "play-all", "show-external", "hide-external",
+        "update-status", "show", "hide", "quit", "help"
     }
 };
 constexpr std::size_t helpCommand =
     std::tuple_size<decltype(commandNames)>::value - 1;
 
 constexpr std::array<char, helpCommand> commands = {{
-        'P', 'S', 'V', 'L', 'T', 'R', 'N', 'A', 'Q', 'W', 'H'
+        'P', 'U', 'S', 'V', 'L', 'T', 'R', 'N', 'A', 'E', 'X',
+        'D', 'W', 'H', 'Q'
     }
 };
 

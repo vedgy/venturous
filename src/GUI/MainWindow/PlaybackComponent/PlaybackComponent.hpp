@@ -129,6 +129,7 @@ private:
     /// it blocks in case of error.
     void saveHistory(bool noBlocking = false);
 
+    /// NOTE: does not block execution.
     void timerEvent(QTimerEvent *) override;
 
 
@@ -156,6 +157,7 @@ private slots:
     void onPlayerError(QString errorMessage);
 
     /// @brief Checks external player playback status and calls setStatus().
+    /// NOTE: does not block execution.
     void updateStatus();
 
     /// @brief Sets isHistorySaved_ to false, handles
@@ -164,6 +166,8 @@ private slots:
 
     /// NOTE: does not block execution.
     void playbackPlay();
+    /// NOTE: does not block execution.
+    void playbackPause();
     /// NOTE: does not block execution.
     void playbackStop();
     void playbackPrevious();

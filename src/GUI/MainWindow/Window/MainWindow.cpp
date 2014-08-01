@@ -109,7 +109,9 @@ void MainWindow::showNotificationAreaIcon()
     {
         QMenu * const iconMenu = new QMenu(APPLICATION_NAME, this);
         const Actions::Playback & pb = actions_->playback;
-        iconMenu->addActions( { pb.play, pb.stop, pb.previous, pb.next });
+        iconMenu->addActions( { pb.play, pb.pause, pb.stop, pb.previous,
+                                pb.next
+                              });
         iconMenu->addSeparator();
         {
             QMenu * const externalPlayerMenu =
@@ -163,6 +165,9 @@ void MainWindow::timerEvent(QTimerEvent *)
             case 'P':
                 pb.play->trigger();
                 break;
+            case 'U':
+                pb.pause->trigger();
+                break;
             case 'S':
                 pb.stop->trigger();
                 break;
@@ -184,14 +189,23 @@ void MainWindow::timerEvent(QTimerEvent *)
             case 'A':
                 pb.playAll->trigger();
                 break;
-            case 'Q':
-                onFileQuit();
+            case 'E':
+                pb.showExternalPlayerWindow->trigger();
+                break;
+            case 'X':
+                pb.hideExternalPlayerWindow->trigger();
+                break;
+            case 'D':
+                pb.updateStatus->trigger();
                 break;
             case 'W':
                 showWindowProperly();
                 break;
             case 'H':
                 hideWindowProperly();
+                break;
+            case 'Q':
+                onFileQuit();
                 break;
             default:
                 inputController_.showMessage(TOOL_NAME + tr(" command"),

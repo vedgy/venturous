@@ -2,6 +2,7 @@ apps/venturous
 categories/preferences-desktop
 actions/application-exit
 actions/media-playback-start
+actions/media-playback-pause
 actions/media-playback-stop
 actions/media-skip-backward
 actions/media-replay-last
@@ -11,6 +12,7 @@ actions/media-skip-forward
 actions/media-play-all
 actions/audio-player-show
 actions/audio-player-hide
+actions/view-refresh
 actions/list-edit
 actions/dialog-ok-apply
 actions/dialog-cancel
