@@ -35,6 +35,8 @@
 # include <QtCoreUtilities/String.hpp>
 # include <QtCoreUtilities/Miscellaneous.hpp>
 
+# include <CommonUtilities/ExceptionsToStderr.hpp>
+
 # include <QString>
 # include <QStringList>
 # include <QObject>
@@ -144,8 +146,10 @@ PlaylistComponent::PlaylistComponent(
 
 PlaylistComponent::~PlaylistComponent()
 {
-    if (treeWidget_.editMode() && ! noChanges())
-        saveTemporaryTree();
+    CommonUtilities::exceptionsToStderr([this] {
+        if (treeWidget_.editMode() && ! noChanges())
+            saveTemporaryTree();
+    }, VENTUROUS_ERROR_PREFIX "In ~PlaylistComponent(): ");
 }
 
 void PlaylistComponent::setPreferences(const Preferences & preferences)

@@ -99,6 +99,7 @@ set(MainWindowWindow_Path ${MainWindow_Path}/Window)
 set(Resources_Path resources)
 
 include_directories(
+    ${PATH_TO_CMAKE_MODULES}/include
     ${QtCoreUtilities_PublicHeaders_Path}
     ${QtWidgetsUtilities_PublicHeaders_Path}
     ${QtXmlUtilities_PublicHeaders_Path}

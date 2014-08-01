@@ -31,6 +31,8 @@
 
 # include <QtCoreUtilities/Error.hpp>
 
+# include <CommonUtilities/ExceptionsToStderr.hpp>
+
 # include <QString>
 # include <QFileInfo>
 
@@ -64,7 +66,9 @@ PreferencesComponent::PreferencesComponent(
 
 PreferencesComponent::~PreferencesComponent()
 {
-    savePreferences(true);
+    CommonUtilities::exceptionsToStderr([this] {
+        savePreferences(true);
+    }, VENTUROUS_ERROR_PREFIX "In ~PreferencesComponent(): ");
 }
 
 void PreferencesComponent::setTheme(const Icons::Theme & theme)

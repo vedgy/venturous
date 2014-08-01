@@ -29,6 +29,8 @@
 
 # include <QtCoreUtilities/String.hpp>
 
+# include <CommonUtilities/ExceptionsToStderr.hpp>
+
 # include <QString>
 # include <QStringList>
 # include <QObject>
@@ -129,7 +131,9 @@ preferences.playback.history)
 
 PlaybackComponent::~PlaybackComponent()
 {
-    saveHistory(true);
+    CommonUtilities::exceptionsToStderr([this] {
+        saveHistory(true);
+    }, VENTUROUS_ERROR_PREFIX "In ~PlaybackComponent(): ");
 }
 
 void PlaybackComponent::setPreferences(const Preferences & preferences)
