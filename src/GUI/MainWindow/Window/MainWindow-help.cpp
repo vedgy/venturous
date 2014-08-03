@@ -101,3 +101,13 @@ void MainWindow::onHelpAbout()
 # endif
     inputController_.blockInput(false);
 }
+
+void MainWindow::onHelpAboutQt()
+{
+    inputController_.blockInput(true);
+    QMessageBox::aboutQt(this);
+# ifdef DEBUG_VENTUROUS_MAIN_WINDOW
+    std::cout << "\"About Qt\" message box was closed." << std::endl;
+# endif
+    inputController_.blockInput(false);
+}

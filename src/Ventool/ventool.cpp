@@ -16,45 +16,70 @@
  Venturous.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+# include "SharedMemory.hpp"
+
 # include <QSharedMemory>
 
-# include <cstddef>
-# include <algorithm>
-# include <array>
-# include <tuple>
 # include <string>
 # include <iostream>
+# include <iomanip>
 
 
 namespace
 {
-/// "help" must always be the last command here.
-/// It is not mapped in commands array.
-const std::array<std::string, 16> commandNames = {{
-        "play", "pause", "stop", "previous", "replay-last", "next-from-history",
-        "next-random", "next", "play-all", "show-external", "hide-external",
-        "update-status", "show", "hide", "quit", "help"
-    }
-};
-constexpr std::size_t helpCommand =
-    std::tuple_size<decltype(commandNames)>::value - 1;
+namespace Command
+{
+constexpr const char * play() noexcept { return "play"; }
+constexpr const char * pause() noexcept { return "pause"; }
+constexpr const char * stop() noexcept { return "stop"; }
+constexpr const char * previous() noexcept { return "previous"; }
+constexpr const char * replayLast() noexcept { return "replay-last"; }
+constexpr const char * nextFromHistory() noexcept {
+    return "next-from-history";
+}
+constexpr const char * nextRandom() noexcept { return "next-random"; }
+constexpr const char * next() noexcept { return "next"; }
+constexpr const char * playAll() noexcept { return "play-all"; }
+constexpr const char * showExternal() noexcept { return "show-external"; }
+constexpr const char * hideExternal() noexcept { return "hide-external"; }
+constexpr const char * updateStatus() noexcept { return "update-status"; }
+constexpr const char * show() noexcept { return "show"; }
+constexpr const char * hide() noexcept { return "hide"; }
+constexpr const char * quit() noexcept { return "quit"; }
 
-constexpr std::array<char, helpCommand> commands = {{
-        'P', 'U', 'S', 'V', 'L', 'T', 'R', 'N', 'A', 'E', 'X',
-        'D', 'W', 'H', 'Q'
-    }
-};
+constexpr const char * help() noexcept { return "help"; }
+
+}
+
+void printCommand(const char * command, const char * description)
+{
+    std::cout << "    " << std::left << std::setw(20) << command
+              << "- " << description << '\n';
+}
 
 void printHelp()
 {
     std::cout << TOOL_EXECUTABLE " - sends commands to running "
               APPLICATION_NAME " instance.\n";
-    std::cout << "Usage: " TOOL_EXECUTABLE " ";
-    for (std::size_t i = 0; i < commandNames.size(); ++i) {
-        if (i != 0)
-            std::cout << "|";
-        std::cout << commandNames[i];
-    }
+    std::cout << "Usage: " TOOL_EXECUTABLE " <command>\n"
+              "where <command> is on of the following:\n";
+    using namespace Command;
+    printCommand(play(), "starts playback");
+    printCommand(pause(), "pauses playback");
+    printCommand(stop(), "exits external player");
+    printCommand(previous(), "plays previous item from history");
+    printCommand(replayLast(), "plays current item from history");
+    printCommand(nextFromHistory(), "plays next item from history");
+    printCommand(nextRandom(), "plays random item");
+    printCommand(next(), "plays next item");
+    printCommand(playAll(), "plays all playable items");
+    printCommand(showExternal(), "shows external player");
+    printCommand(hideExternal(), "hides external player");
+    printCommand(updateStatus(), "updates playback status");
+    printCommand(show(), "shows " APPLICATION_NAME " window");
+    printCommand(hide(), "hides " APPLICATION_NAME " window");
+    printCommand(quit(), "quits " APPLICATION_NAME);
+    printCommand(help(), "prints [this] help message");
     std::cout << "\nCommands may be prefixed with \"--\" "
               "(GNU-style long-options) or not, your choice.\n\n";
 }
@@ -75,40 +100,70 @@ void printErrorAndHelp(const std::string & error)
 
 int main(int argc, char * argv[])
 {
-    std::size_t command = commandNames.size();
+    using namespace SharedMemory;
+    char symbol = Symbol::noCommand();
     for (int i = 1; i < argc; ++i) {
         std::string arg(argv[i]);
         if (arg.size() >= 2 && arg[0] == '-' && arg[1] == '-') {
             if (arg.size() == 2)
-                break; // "--" -> ignore rest.
+                break; // "--" -> ignore the rest.
             arg.erase(0, 2);
         }
-        const auto it = std::find(commandNames.begin(), commandNames.end(),
-                                  arg);
-        if (it == commandNames.end()) {
-            printErrorAndHelp("unknown command \"" + arg + '"');
-            return 3;
-        }
-        command = it - commandNames.begin();
-        if (command == helpCommand) {
+        using namespace Command;
+        if (arg == play())
+            symbol = Symbol::play();
+        else if (arg == pause())
+            symbol = Symbol::pause();
+        else if (arg == stop())
+            symbol = Symbol::stop();
+        else if (arg == previous())
+            symbol = Symbol::previous();
+        else if (arg == replayLast())
+            symbol = Symbol::replayLast();
+        else if (arg == nextFromHistory())
+            symbol = Symbol::nextFromHistory();
+        else if (arg == nextRandom())
+            symbol = Symbol::nextRandom();
+        else if (arg == next())
+            symbol = Symbol::next();
+        else if (arg == playAll())
+            symbol = Symbol::playAll();
+        else if (arg == showExternal())
+            symbol = Symbol::showExternal();
+        else if (arg == hideExternal())
+            symbol = Symbol::hideExternal();
+        else if (arg == updateStatus())
+            symbol = Symbol::updateStatus();
+        else if (arg == show())
+            symbol = Symbol::show();
+        else if (arg == hide())
+            symbol = Symbol::hide();
+        else if (arg == quit())
+            symbol = Symbol::quit();
+        else if (arg == help()) {
             printHelp();
             return 1;
         }
+        else {
+            printErrorAndHelp("unknown command \"" + arg + '"');
+            return 3;
+        }
+
         if (i != 1) {
             printErrorAndHelp(
                 "more than one command was specified. This is not allowed");
             return 4;
         }
     }
-    if (command == commandNames.size()) {
+    if (symbol == Symbol::noCommand()) {
         printErrorAndHelp("command was expected");
         return 2;
     }
 
-    QSharedMemory shared(SHARED_MEMORY_KEY);
+    QSharedMemory shared(key());
     if (shared.attach(QSharedMemory::ReadWrite)) {
         shared.lock();
-        *(char *)shared.data() = commands[command];
+        *(char *)shared.data() = symbol;
         shared.unlock();
     }
     else {

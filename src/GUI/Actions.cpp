@@ -141,11 +141,13 @@ Actions::Playlist::Playlist(const Icons::Theme & theme)
 
 Actions::Help::Help(const Icons::Theme & theme)
     : help(new QAction(theme.help(), tr("&Help ..."), this)),
-      about(new QAction(theme.about(), tr("&About ..."), this))
+      about(new QAction(theme.about(), tr("&About ..."), this)),
+      aboutQt(new QAction(theme.about(), tr("About &Qt ..."), this))
 {
     help->setIconText("He");
     help->setShortcuts(QKeySequence::HelpContents);
     about->setIconText("Ab");
+    aboutQt->setIconText("AQ");
 }
 
 

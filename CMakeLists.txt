@@ -80,7 +80,6 @@ add_definitions(
     -DAPPLICATION_NAME=\"${Target_Name}\"
     -DTOOL_NAME=\"${Tool_Name}\"
     -DICON_NAME=\"${Icon_Name}\"
-    -DSHARED_MEMORY_KEY=\"oS2huoventurousyiOventoolhJkNQqC{\"
 )
 
 

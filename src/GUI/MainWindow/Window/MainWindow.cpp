@@ -28,6 +28,7 @@
 # include "PreferencesComponent.hpp"
 # include "Actions.hpp"
 # include "Preferences.hpp"
+# include "SharedMemory.hpp"
 
 # include <VenturousCore/MediaPlayer.hpp>
 
@@ -152,59 +153,60 @@ void MainWindow::timerEvent(QTimerEvent *)
 {
     if (inputController_.blocked())
         return;
+    using namespace SharedMemory;
 
     sharedMemory_->lock();
     const char command = *(const char *)sharedMemory_->constData();
-    if (command != 0)
-        *(char *)sharedMemory_->data() = 0;
+    if (command != Symbol::noCommand())
+        *(char *)sharedMemory_->data() = Symbol::noCommand();
     sharedMemory_->unlock();
 
-    if (command != 0) {
+    if (command != Symbol::noCommand()) {
         const Actions::Playback & pb = actions_->playback;
         switch (command) {
-            case 'P':
+            case Symbol::play():
                 pb.play->trigger();
                 break;
-            case 'U':
+            case Symbol::pause():
                 pb.pause->trigger();
                 break;
-            case 'S':
+            case Symbol::stop():
                 pb.stop->trigger();
                 break;
-            case 'V':
+            case Symbol::previous():
                 pb.previous->trigger();
                 break;
-            case 'L':
+            case Symbol::replayLast():
                 pb.replayLast->trigger();
                 break;
-            case 'T':
+            case Symbol::nextFromHistory():
                 pb.nextFromHistory->trigger();
                 break;
-            case 'R':
+            case Symbol::nextRandom():
                 pb.nextRandom->trigger();
                 break;
-            case 'N':
+            case Symbol::next():
                 onPlaybackNext();
                 break;
-            case 'A':
+            case Symbol::playAll():
                 pb.playAll->trigger();
                 break;
-            case 'E':
+            case Symbol::showExternal():
                 pb.showExternalPlayerWindow->trigger();
                 break;
-            case 'X':
+            case Symbol::hideExternal():
                 pb.hideExternalPlayerWindow->trigger();
                 break;
-            case 'D':
+            case Symbol::updateStatus():
                 pb.updateStatus->trigger();
                 break;
-            case 'W':
+            case Symbol::show():
                 showWindowProperly();
                 break;
-            case 'H':
+            case Symbol::hide():
                 hideWindowProperly();
                 break;
-            case 'Q':
+            case Symbol::quit():
                 onFileQuit();
                 break;
             default:

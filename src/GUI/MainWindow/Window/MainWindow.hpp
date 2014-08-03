@@ -121,6 +121,7 @@ private slots:
     void onPlaybackNext();
     void onHelpHelp();
     void onHelpAbout();
+    void onHelpAboutQt();
 
     /// NOTE: does not block execution.
     void onAudioFileStateChanged();

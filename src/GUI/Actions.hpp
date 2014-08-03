@@ -66,7 +66,7 @@ struct Actions {
     {
     public:
         explicit Help(const Icons::Theme & theme);
-        QAction * help, * about;
+        QAction * help, * about, * aboutQt;
     } help;
 
     class AddingPolicy : public QObject

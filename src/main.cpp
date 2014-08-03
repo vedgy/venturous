@@ -18,6 +18,7 @@
 
 # include "MainWindow.hpp"
 # include "Application.hpp"
+# include "SharedMemory.hpp"
 
 # include <QtCoreUtilities/String.hpp>
 
@@ -44,7 +45,7 @@ int main(int argc, char * argv[])
 
     Application app(argc, argv);
 
-    const QString key = SHARED_MEMORY_KEY;
+    const QString key = SharedMemory::key();
     // WORKAROUND for recovering after crash in Unix.
     QSharedMemory(key).attach();
 
@@ -53,7 +54,7 @@ int main(int argc, char * argv[])
         if (shared->error() == QSharedMemory::AlreadyExists) {
             shared->attach(QSharedMemory::ReadWrite);
             shared->lock();
-            *(char *)shared->data() = 'W';
+            *(char *)shared->data() = SharedMemory::Symbol::show();
             shared->unlock();
 
             std::cout << QtUtilities::qStringToString(
@@ -72,7 +73,7 @@ int main(int argc, char * argv[])
     }
     {
         shared->lock();
-        *(char *)shared->data() = 0;
+        *(char *)shared->data() = SharedMemory::Symbol::noCommand();
         shared->unlock();
     }
 

@@ -111,7 +111,9 @@ void initMenuBar(QMenuBar & menuBar, const Actions & actions)
     }
     {
         QMenu * const help = menuBar.addMenu(QObject::tr("&Help"));
-        help->addActions( { actions.help.help, actions.help.about });
+        help->addActions( { actions.help.help, actions.help.about,
+                            actions.help.aboutQt
+                          });
     }
 }
 
@@ -235,6 +237,8 @@ MainWindow::MainWindow(
             SLOT(onPlaybackNext()));
     connect(actions_->help.help, SIGNAL(triggered(bool)), SLOT(onHelpHelp()));
     connect(actions_->help.about, SIGNAL(triggered(bool)), SLOT(onHelpAbout()));
+    connect(actions_->help.aboutQt, SIGNAL(triggered(bool)),
+            SLOT(onHelpAboutQt()));
     {
         const Actions::AddingPolicy & a = actions_->addingPolicy;
         connect(a.audioFile, SIGNAL(triggered(bool)),
