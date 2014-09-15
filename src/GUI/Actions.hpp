@@ -38,6 +38,7 @@ struct Actions {
     {
     public:
         explicit File(const Icons::Theme & theme);
+        ~File() override;
         QAction * preferences, * quit;
     } file;
 
@@ -45,6 +46,7 @@ struct Actions {
     {
     public:
         explicit Playback(const Icons::Theme & theme);
+        ~Playback() override;
         QAction * play, * pause, * stop, * previous, * replayLast,
                 * nextFromHistory, * nextRandom, * next, * playAll;
         QAction * showExternalPlayerWindow, * hideExternalPlayerWindow,
@@ -56,6 +58,7 @@ struct Actions {
     {
     public:
         explicit Playlist(const Icons::Theme & theme);
+        ~Playlist() override;
         QAction * editMode, * applyChanges, * cancelChanges;
         QAction * addFiles, * addDirectory, * cleanUp, * clear,
                 * restorePrevious;
@@ -66,6 +69,7 @@ struct Actions {
     {
     public:
         explicit Help(const Icons::Theme & theme);
+        ~Help() override;
         QAction * help, * about, * aboutQt;
     } help;
 
@@ -73,11 +77,12 @@ struct Actions {
     {
     public:
         explicit AddingPolicy(const Icons::Theme & theme);
-        QAction * audioFile, * mediaDir, * bothAudioFile, * bothMediaDir;
-
+        ~AddingPolicy() override;
         /// @brief Must be called after audioFile's or mediaDir's checkState
         /// changes.
         void primaryActionChanged();
+
+        QAction * audioFile, * mediaDir, * bothAudioFile, * bothMediaDir;
     } addingPolicy;
 };
 

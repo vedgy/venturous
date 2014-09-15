@@ -142,8 +142,8 @@ private:
     bool saveHistoryToDiskImmediately_;
     bool desktopNotifications_;
     Status status_ = Status::stopped;
-    int timerIdentifier_ = 0;
     bool isHistorySaved_ = true;
+    int timerIdentifier_ = 0;
 
     unsigned playerId_;
     std::unique_ptr<MediaPlayer> mediaPlayer_;

@@ -191,7 +191,8 @@ void GeneralPage::writeUiPreferencesTo(Preferences & destination) const
 
     destination.statusBar = statusBarCheckBox.isChecked();
 
-    destination.treeAutoUnfoldedLevels = treeAutoUnfoldedLevelsSpinBox.value();
+    destination.treeAutoUnfoldedLevels =
+        static_cast<unsigned char>(treeAutoUnfoldedLevelsSpinBox.value());
     destination.treeAutoCleanup = treeAutoCleanupCheckBox.isChecked();
 
     destination.savePreferencesToDiskImmediately =

@@ -52,12 +52,11 @@ struct Action {
 
     static Action getEmpty() {
         return {
-            false, QString(), QString(), 1, 1, Action::Type::anyItem, QString()
+            QString(), QString(), 1, 1, Action::Type::anyItem, false, QString()
         };
     }
 
 
-    bool enabled;
     /// Is displayed in the menu.
     QString text;
     /// Is executed if this action is triggered. '?' symbols are replaced with
@@ -65,6 +64,7 @@ struct Action {
     QString command;
     int minArgN, maxArgN;
     Type type;
+    bool enabled;
     /// Is not used by CustomActions.
     /// Can be used for detailed action description.
     QString comment;
@@ -80,7 +80,7 @@ inline bool operator != (const Action & lhs, const Action & rhs)
 typedef std::vector<Action> Actions;
 
 /// @brief Selects displayable elements of actions and shows popup menu with
-/// them at the specified position.\n
+/// them at the specified position.
 /// Executes appropriate command if user selects some action.
 /// @param commonItemPrefix The beginning of absolute path that is common for
 /// all items.

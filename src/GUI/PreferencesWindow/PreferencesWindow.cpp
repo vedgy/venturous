@@ -89,7 +89,7 @@ void PreferencesWindow::setUiPreferences(const Preferences & source)
 void PreferencesWindow::setUiPreferences(
     const int tab, const Preferences & source)
 {
-    const std::size_t page = tab;
+    const std::size_t page = static_cast<std::size_t>(tab);
     if (page == tabs_.size())
         setUiPreferences(source);
     else

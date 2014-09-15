@@ -19,6 +19,8 @@
 # ifndef VENTUROUS_ICONS_HPP
 # define VENTUROUS_ICONS_HPP
 
+# include <CommonUtilities/CopyAndMoveSemantics.hpp>
+
 # include <QString>
 # include <QIcon>
 
@@ -43,6 +45,8 @@ public:
     {
     public:
         explicit Error(const std::string & sWhat) : std::runtime_error(sWhat) {}
+        COPYABLE_AND_MOVABLE(Error)
+        ~Error() noexcept override;
     };
 
     /// @param alwaysUseFallbackIcons If false, system icon theme will be

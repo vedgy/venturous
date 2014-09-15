@@ -159,7 +159,7 @@ TableIndices getSortedSelected(const QTableWidget & table,
                                Compare compare = Compare())
 {
     const auto indices = table.selectionModel()->selectedRows();
-    TableIndices sortedIndices(indices.size());
+    TableIndices sortedIndices(std::size_t(indices.size()));
     std::transform(indices.begin(), indices.end(), sortedIndices.begin(),
                    std::bind(& QModelIndex::row, std::placeholders::_1));
     std::sort(sortedIndices.begin(), sortedIndices.end(), compare);
@@ -253,16 +253,16 @@ CustomActionsPage::CustomActionsPage(
 void CustomActionsPage::setUiPreferences(const Preferences & source)
 {
     const CustomActions::Actions & actions = source.customActions;
-    table_.setRowCount(actions.size());
+    table_.setRowCount(static_cast<int>(actions.size()));
     for (std::size_t i = 0; i < actions.size(); ++i)
-        setRow(table_, i, actions[i]);
+        setRow(table_, static_cast<int>(i), actions[i]);
     table_.resizeColumnsToContents();
 }
 
 void CustomActionsPage::writeUiPreferencesTo(Preferences & destination) const
 {
     CustomActions::Actions & actions = destination.customActions;
-    actions.resize(table_.rowCount());
+    actions.resize(std::size_t(table_.rowCount()));
     for (std::size_t i = 0; i < actions.size(); ++i) {
         CustomActions::Action & a = actions[i];
         const int row = int(i);

@@ -45,7 +45,7 @@ namespace
 {
 /// @param absolutePath Non-empty absolute path.
 /// @return absolutePath without first nHiddenDirs directories. If nHiddenDirs
-/// exceeds number of directories in absolutePath, filename is returned.\n
+/// exceeds number of directories in absolutePath, filename is returned.
 /// If nHiddenDirs < 0, -nHiddenDirs last components of path are returned.
 /// For instance, if nHiddenDirs == -2,
 /// "<directory that contains file>/filename" is returned.
@@ -112,7 +112,7 @@ void HistoryWidget::setPreferences(
 {
     if (history_.maxSize() != preferences.maxSize) {
         history_.setMaxSize(preferences.maxSize);
-        const int maxSize = preferences.maxSize;
+        const int maxSize = static_cast<int>(preferences.maxSize);
         for (int i = count() - 1; i >= maxSize; --i)
             delete takeItem(i);
     }
@@ -210,7 +210,7 @@ void HistoryWidget::clearHistory()
 std::string HistoryWidget::entryAt(const int index) const
 {
     if (index >= 0) {
-        const std::size_t i = index;
+        const std::size_t i = std::size_t(index);
         if (i < history_.items().size())
             return history_.items()[i];
     }
@@ -291,9 +291,9 @@ void HistoryWidget::playSelectedItems()
             onUiItemActivated(items.back());
         else {
             std::vector<std::string> entries;
-            entries.reserve(items.size());
+            entries.reserve(std::size_t(items.size()));
             for (const QListWidgetItem * const item : items)
-                entries.emplace_back(history_.items()[row(item)]);
+                entries.emplace_back(history_.items()[std::size_t(row(item))]);
             playItems_(std::move(entries));
         }
     }
@@ -311,7 +311,7 @@ void HistoryWidget::removeSelectedItems()
         }
 
         std::vector<std::size_t> indices;
-        indices.reserve(items.size());
+        indices.reserve(std::size_t(items.size()));
         for (const QListWidgetItem * const item : items)
             indices.emplace_back(row(item));
         history_.remove(indices);

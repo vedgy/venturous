@@ -16,28 +16,7 @@
  Venturous.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-# ifndef VENTUROUS_PREFERENCES_PAGE_HPP
-# define VENTUROUS_PREFERENCES_PAGE_HPP
-
-# include <QWidget>
+# include "PreferencesPage.hpp"
 
 
-class Preferences;
-
-class PreferencesPage : public QWidget
-{
-public:
-    explicit PreferencesPage(QWidget * parent = nullptr,
-                             Qt::WindowFlags f = 0) : QWidget(parent, f) {}
-
-    virtual ~PreferencesPage();
-
-    /// @brief Sets UI values from source.
-    virtual void setUiPreferences(const Preferences & source) = 0;
-
-    /// @brief Copies preferenses that are handled by this widget,
-    /// from UI to destination.
-    virtual void writeUiPreferencesTo(Preferences & destination) const = 0;
-};
-
-# endif // VENTUROUS_PREFERENCES_PAGE_HPP
+PreferencesPage::~PreferencesPage() = default;

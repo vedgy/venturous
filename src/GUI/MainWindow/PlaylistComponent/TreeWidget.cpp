@@ -94,8 +94,13 @@ void createTreeWidgetItem(
         createTreeWidgetItem(item, child);
 }
 
-const Qt::ItemFlags readOnlyFlags = Qt::ItemIsEnabled | Qt::ItemIsSelectable,
-                    editableFlags = readOnlyFlags | Qt::ItemIsUserCheckable;
+constexpr Qt::ItemFlags readOnlyFlags() noexcept {
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+}
+
+constexpr Qt::ItemFlags editableFlags() noexcept {
+    return readOnlyFlags() | Qt::ItemIsUserCheckable;
+}
 
 /// @brief Sets flags for specified item and all its descendants.
 void recursivelySetFlags(QTreeWidgetItem * item, Qt::ItemFlags flags)
@@ -119,7 +124,7 @@ void removeSelectedItems(QTreeWidgetItem * item, ItemTree::Node & node)
             delete child;
         }
         else
-            removeSelectedItems(child, children[i]);
+            removeSelectedItems(child, children[std::size_t(i)]);
     }
 }
 
@@ -157,6 +162,8 @@ void printMessageAndSelectedItemsSize(const std::string & message, int size)
 
 }
 
+
+TreeWidget::Error::~Error() noexcept = default;
 
 TreeWidget::TreeWidget(const ItemTree::Tree & itemTree,
                        const std::unique_ptr<ItemTree::Tree> & temporaryTree,
@@ -237,11 +244,11 @@ void TreeWidget::setUiEditMode()
     Qt::ItemFlags flags;
     if (editMode_) {
         hue = 280;
-        flags = editableFlags;
+        flags = editableFlags();
     }
     else {
         hue = 57;
-        flags = readOnlyFlags;
+        flags = readOnlyFlags();
     }
 
     {
@@ -324,7 +331,7 @@ void TreeWidget::onDelete()
             delete item;
         }
         else
-            removeSelectedItems(item, nodes[i]);
+            removeSelectedItems(item, nodes[std::size_t(i)]);
     }
 }
 

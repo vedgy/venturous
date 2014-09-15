@@ -116,6 +116,7 @@ set(Sources
 
     ${GUI_Path}/Icons.cpp ${GUI_Path}/Actions.cpp ${GUI_Path}/CustomActions.cpp
 
+    ${PreferencesWindow_Path}/PreferencesPage.cpp
     ${PreferencesWindow_Path}/RevertAndRestoreDefaultsTab.cpp
     ${PreferencesWindow_Path}/PreferencesWindow.cpp
     ${GeneralPage_Path}/GeneralPage.cpp

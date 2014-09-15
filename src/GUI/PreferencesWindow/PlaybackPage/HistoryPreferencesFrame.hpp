@@ -31,6 +31,7 @@ class HistoryPreferencesFrame : public QFrame
 public:
     explicit HistoryPreferencesFrame(QWidget * parent = nullptr,
                                      Qt::WindowFlags f = 0);
+    ~HistoryPreferencesFrame() override;
 
     void setUiPreferences(const Preferences::Playback::History & source);
     void writeUiPreferencesTo(

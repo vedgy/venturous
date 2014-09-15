@@ -41,6 +41,8 @@ Actions::File::File(const Icons::Theme & theme)
     quit->setShortcut(Qt::CTRL | Qt::Key_Q);
 }
 
+Actions::File::~File() = default;
+
 
 Actions::Playback::Playback(const Icons::Theme & theme)
     : play(new QAction(theme.playbackPlay(), tr("&Play"), this)),
@@ -104,6 +106,8 @@ Actions::Playback::Playback(const Icons::Theme & theme)
     }
 }
 
+Actions::Playback::~Playback() = default;
+
 
 Actions::Playlist::Playlist(const Icons::Theme & theme)
     : editMode(new QAction(theme.edit(), tr("&Edit mode"), this)),
@@ -138,6 +142,8 @@ Actions::Playlist::Playlist(const Icons::Theme & theme)
     saveAs->setToolTip(tr("Save%1 as").arg(playlistName));
 }
 
+Actions::Playlist::~Playlist() = default;
+
 
 Actions::Help::Help(const Icons::Theme & theme)
     : help(new QAction(theme.help(), tr("&Help ..."), this)),
@@ -149,6 +155,8 @@ Actions::Help::Help(const Icons::Theme & theme)
     about->setIconText("Ab");
     aboutQt->setIconText("AQ");
 }
+
+Actions::Help::~Help() = default;
 
 
 Actions::AddingPolicy::AddingPolicy(const Icons::Theme & theme)
@@ -170,6 +178,8 @@ Actions::AddingPolicy::AddingPolicy(const Icons::Theme & theme)
     bothMediaDir->setCheckable(true);
     bothMediaDir->setIconText("bAD");
 }
+
+Actions::AddingPolicy::~AddingPolicy() = default;
 
 void Actions::AddingPolicy::primaryActionChanged()
 {

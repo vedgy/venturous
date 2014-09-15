@@ -135,6 +135,9 @@ void printInfo(const QIcon & icon)
 
 namespace Icons
 {
+Theme::Error::~Error() noexcept = default;
+
+
 Theme::Theme(const bool alwaysUseFallbackIcons)
 {
     constexpr std::size_t nIcons = std::tuple_size<decltype(icons_)>::value;

@@ -280,36 +280,36 @@ CustomActions::Actions defaultCustomActions()
     const QString mustBeInstalled = QObject::tr(" must be installed.");
     CustomActions::Actions actions {
         CustomActions::Action {
-            true, QObject::tr("Open in file manager"), "thunar ?", 0, -1,
-            CustomActions::Action::Type::anyItem,
+            QObject::tr("Open in file manager"), "thunar ?", 0, -1,
+            CustomActions::Action::Type::anyItem, true,
             "Thunar" + mustBeInstalled
         },
         CustomActions::Action {
-            false, QObject::tr("Open in VLC"), "vlc ?", 0, -1,
-            CustomActions::Action::Type::anyItem,
+            QObject::tr("Open in VLC"), "vlc ?", 0, -1,
+            CustomActions::Action::Type::anyItem, false,
             "VLC" + mustBeInstalled
         },
         CustomActions::Action {
-            false, QObject::tr("View/edit text file"), "mousepad ?", 0, -1,
-            CustomActions::Action::Type::file,
+            QObject::tr("View/edit text file"), "mousepad ?", 0, -1,
+            CustomActions::Action::Type::file, false,
             "Mousepad" + mustBeInstalled
         },
         CustomActions::Action {
-            false, QObject::tr("Open containing directory"),
+            QObject::tr("Open containing directory"),
             R"(bash -c "thunar \"`dirname \"?\"`\"")", 1, 1,
-            CustomActions::Action::Type::anyItem,
+            CustomActions::Action::Type::anyItem, false,
             "Thunar" + mustBeInstalled +
             QObject::tr(" Does not work correctly if path contains "
             "certain special symbols.")
         },
         CustomActions::Action {
-            false, QObject::tr("Move to music trash"), "mv ? ~/Music/trash/",
-            1, -1, CustomActions::Action::Type::anyItem,
+            QObject::tr("Move to music trash"), "mv ? ~/Music/trash/",
+            1, -1, CustomActions::Action::Type::anyItem, false,
             QObject::tr("~/Music/trash directory must exist.")
         },
         CustomActions::Action {
-            false, QObject::tr("Move to Trash"), "trash-put ?", 1, -1,
-            CustomActions::Action::Type::anyItem,
+            QObject::tr("Move to Trash"), "trash-put ?", 1, -1,
+            CustomActions::Action::Type::anyItem, false,
             "trash-cli" + mustBeInstalled
         }
     };

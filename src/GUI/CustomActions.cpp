@@ -162,8 +162,8 @@ bool Validator::isDisplayable(const Action::Type type)
 {
     if (type == Action::Type::anyItem)
         return true;
-    const auto displayedType = [this](Action::Type type) -> bool & {
-        return displayedType_[static_cast<std::size_t>(type)];
+    const auto displayedType = [this](Action::Type t) -> bool & {
+        return displayedType_[static_cast<std::size_t>(t)];
     };
 
     if (! checkedType_) {

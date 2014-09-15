@@ -24,6 +24,8 @@
 
 # include <QtWidgetsUtilities/TooltipShower.hpp>
 
+# include <CommonUtilities/CopyAndMoveSemantics.hpp>
+
 # include <QTreeWidget>
 
 # include <string>
@@ -44,6 +46,8 @@ public:
     {
     public:
         explicit Error(const std::string & sWhat) : std::runtime_error(sWhat) {}
+        COPYABLE_AND_MOVABLE(Error)
+        ~Error() noexcept override;
     };
 
     /// NOTE: itemTree, temporaryTree and customActions must remain valid

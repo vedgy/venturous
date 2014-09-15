@@ -34,15 +34,23 @@
 
 namespace
 {
-const Qt::ItemFlags captionItemFlags = Qt::ItemIsEnabled | Qt::ItemIsSelectable,
-                    knownItemFlags = captionItemFlags | Qt::ItemIsUserCheckable,
-                    unknownItemFlags = knownItemFlags | Qt::ItemIsEditable;
+constexpr Qt::ItemFlags captionItemFlags() noexcept {
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+}
+
+constexpr Qt::ItemFlags knownItemFlags() noexcept {
+    return captionItemFlags() | Qt::ItemIsUserCheckable;
+}
+
+constexpr Qt::ItemFlags unknownItemFlags() noexcept {
+    return knownItemFlags() | Qt::ItemIsEditable;
+}
 
 void addCaption(QListWidget * listWidget, const QString & text)
 {
     QListWidgetItem * const item = new QListWidgetItem(text);
     item->setBackgroundColor(Qt::cyan);
-    item->setFlags(captionItemFlags);
+    item->setFlags(captionItemFlags());
     listWidget->addItem(item);
 }
 
@@ -50,7 +58,7 @@ QListWidgetItem * addUnknownPattern(QListWidget * listWidget,
                                     const QString & pattern, bool checked)
 {
     QListWidgetItem * const item = new QListWidgetItem(pattern);
-    item->setFlags(unknownItemFlags);
+    item->setFlags(unknownItemFlags());
     item->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
     listWidget->addItem(item);
     return item;
@@ -58,12 +66,12 @@ QListWidgetItem * addUnknownPattern(QListWidget * listWidget,
 
 inline bool isNonCaptionItem(const QListWidgetItem * item)
 {
-    return item->flags() != captionItemFlags;
+    return item->flags() != captionItemFlags();
 }
 
 inline bool isUnknownItem(const QListWidgetItem * item)
 {
-    return item->flags() == unknownItemFlags;
+    return item->flags() == unknownItemFlags();
 }
 
 }
@@ -74,8 +82,9 @@ PatternListWidget::PatternListWidget(QWidget * const parent) :
 {
     setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-    knownPatterns_.reserve(AddingItems::allMetadataPatterns().size() +
-                           AddingItems::allAudioPatterns().size());
+    knownPatterns_.reserve(std::size_t(
+                               AddingItems::allMetadataPatterns().size() +
+                               AddingItems::allAudioPatterns().size()));
 
     captionRows_[0] = count();
     addCaption(this, tr("Metadata patterns"));
@@ -167,15 +176,14 @@ void PatternListWidget::addUnknownPattern()
 
 
 PatternListWidget::KnownPattern::KnownPattern(
-    const QString & pattern, QListWidgetItem * const item)
-    : pattern(pattern), item(item)
-{
-}
+    const QString & p, QListWidgetItem * const i)
+    : pattern(p), item(i)
+{}
 
-PatternListWidget::KnownPattern::KnownPattern(const QString & pattern)
-    : pattern(pattern), item(new QListWidgetItem(pattern))
+PatternListWidget::KnownPattern::KnownPattern(const QString & p)
+    : pattern(p), item(new QListWidgetItem(pattern))
 {
-    item->setFlags(knownItemFlags);
+    item->setFlags(knownItemFlags());
 }
 
 

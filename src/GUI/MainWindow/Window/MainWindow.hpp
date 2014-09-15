@@ -104,7 +104,7 @@ private slots:
     /// NOTE: does not block execution.
     void copyInternalOptionsToPreferences();
     void onPreferencesChanged();
-    /// @brief Sets appropriate window title.\n
+    /// @brief Sets appropriate window title.
     /// Must be called after playbackComponent_->status() or
     /// playlistComponent_->itemCount()
     /// or playlistComponent_->editMode() change.

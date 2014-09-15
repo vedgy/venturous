@@ -73,10 +73,12 @@ HistoryPreferencesFrame::HistoryPreferencesFrame(
     layout->addRow(tr("Number of hidden directories"), & nHiddenDirsSpinBox);
 }
 
+HistoryPreferencesFrame::~HistoryPreferencesFrame() = default;
+
 void HistoryPreferencesFrame::setUiPreferences(
     const Preferences::Playback::History & source)
 {
-    maxSizeSpinBox.setValue(source.maxSize);
+    maxSizeSpinBox.setValue(static_cast<int>(source.maxSize));
     copyPlayedEntryToTopCheckBox.setChecked(source.copyPlayedEntryToTop);
     saveToDiskImmediatelyCheckBox.setChecked(source.saveToDiskImmediately);
     nHiddenDirsSpinBox.setValue(source.nHiddenDirs);
@@ -85,7 +87,7 @@ void HistoryPreferencesFrame::setUiPreferences(
 void HistoryPreferencesFrame::writeUiPreferencesTo(
     Preferences::Playback::History & destination) const
 {
-    destination.maxSize = maxSizeSpinBox.value();
+    destination.maxSize = std::size_t(maxSizeSpinBox.value());
     destination.copyPlayedEntryToTop = copyPlayedEntryToTopCheckBox.isChecked();
     destination.saveToDiskImmediately =
         saveToDiskImmediatelyCheckBox.isChecked();
