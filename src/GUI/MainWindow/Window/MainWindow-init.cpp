@@ -43,6 +43,7 @@
 # include <QMenu>
 # include <QMenuBar>
 # include <QToolBar>
+# include <QApplication>
 
 # include <cassert>
 # include <utility>
@@ -173,6 +174,8 @@ MainWindow::MainWindow(
 
     connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()),
             SLOT(onAboutToQuit()));
+    connect(qApp, SIGNAL(commitDataRequest(QSessionManager &)),
+            SLOT(onCommitDataRequest(QSessionManager &)));
 
     const QString preferencesDir = getPreferencesDirName();
     preferencesComponent_.reset(

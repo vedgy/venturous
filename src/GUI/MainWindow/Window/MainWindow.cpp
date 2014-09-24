@@ -17,6 +17,7 @@
 */
 
 # ifdef DEBUG_VENTUROUS_MAIN_WINDOW
+# include <ios>
 # include <iostream>
 # endif
 
@@ -35,13 +36,15 @@
 # include <QtWidgetsUtilities/Miscellaneous.hpp>
 
 # include <QString>
+# include <QTimer>
 # include <QSharedMemory>
 # include <QCoreApplication>
 # include <QIcon>
-# include <QAction>
-# include <QMenu>
 # include <QKeyEvent>
 # include <QCloseEvent>
+# include <QSessionManager>
+# include <QAction>
+# include <QMenu>
 # include <QSystemTrayIcon>
 
 
@@ -149,6 +152,19 @@ void MainWindow::hideNotificationAreaIcon()
     }
 }
 
+bool MainWindow::quit()
+{
+    preferencesComponent_->closePreferencesWindow();
+    /// WARNING: repeated execution blocking is possible here!
+    if (! playlistComponent_->quit())
+        return false;
+    /// WARNING: repeated execution blocking is possible here!
+    playbackComponent_->quit();
+    /// WARNING: repeated execution blocking is possible here!
+    preferencesComponent_->quit();
+    return true;
+}
+
 void MainWindow::timerEvent(QTimerEvent *)
 {
     if (inputController_.blocked())
@@ -228,40 +244,20 @@ void MainWindow::keyPressEvent(QKeyEvent * const event)
 void MainWindow::closeEvent(QCloseEvent * const event)
 {
 # ifdef DEBUG_VENTUROUS_MAIN_WINDOW
-    std::cout << "Entered MainWindow::closeEvent." << std::endl;
+    std::cout << "Entered MainWindow::closeEvent()." << std::endl;
 # endif
-    if (inputController_.blocked()) {
-        quitState_ = false;
+    if (commitDataState_ == CommitDataState::cancelled ||
+            inputController_.blocked()) {
         event->ignore();
         return;
     }
+    if (commitDataState_ == CommitDataState::commited)
+        return;
 
     const Preferences & preferences = preferencesComponent_->preferences;
-    if (preferences.notificationAreaIcon &&
-            preferences.closeToNotificationArea && ! quitState_) {
-        hide();
-        event->ignore();
-    }
-    else {
-        preferencesComponent_->closePreferencesWindow();
-
-        /// WARNING: repeated execution blocking is possible here!
-        if (! playlistComponent_->quit()) {
-            quitState_ = false;
-            event->ignore();
-            return;
-        }
-# ifdef DEBUG_VENTUROUS_MAIN_WINDOW
-        std::cout << "MainWindow::closeEvent: quit is inevitable." << std::endl;
-# endif
-        playbackComponent_->quit();
-        /// WARNING: repeated execution blocking is possible here!
-        preferencesComponent_->quit();
-
-        QCoreApplication::quit();
-# ifdef DEBUG_VENTUROUS_MAIN_WINDOW
-        std::cout << "MainWindow::closeEvent: finished." << std::endl;
-# endif
+    if (! preferences.notificationAreaIcon ||
+            ! preferences.closeToNotificationArea) {
+        onFileQuit();
     }
 }
 
@@ -314,8 +310,11 @@ void MainWindow::onNotificationAreaIconActivated(
 
 void MainWindow::onFileQuit()
 {
-    quitState_ = true;
-    close();
+# ifdef DEBUG_VENTUROUS_MAIN_WINDOW
+    std::cout << "Entered MainWindow::onFileQuit()." << std::endl;
+# endif
+    if (quit())
+        QCoreApplication::quit();
 }
 
 void MainWindow::onFilePreferences()
@@ -357,6 +356,38 @@ void MainWindow::onBothMediaDirStateChanged()
 {
     preferencesComponent_->preferences.addingPolicy.ifBothAddMediaDirs =
         actions_->addingPolicy.bothMediaDir->isChecked();
+}
+
+void MainWindow::resetCommitDataState()
+{
+    commitDataState_ = CommitDataState::none;
+}
+
+void MainWindow::onCommitDataRequest(QSessionManager & manager)
+{
+# ifdef DEBUG_VENTUROUS_MAIN_WINDOW
+    std::cout << "MainWindow::onCommitDataRequest()" << std::endl;
+    std::cout << "Session manager allows interaction: " << std::boolalpha
+              << manager.allowsInteraction() << std::endl;
+    std::cout << "Session manager allows error interaction: " << std::boolalpha
+              << manager.allowsErrorInteraction() << std::endl;
+# endif
+
+    commitDataState_ = CommitDataState::commited;
+    if (manager.allowsErrorInteraction()) {
+        if (inputController_.blocked() || ! quit()) {
+            manager.cancel();
+            commitDataState_ = CommitDataState::cancelled;
+# ifdef DEBUG_VENTUROUS_MAIN_WINDOW
+            std::cout << "MainWindow::onCommitDataRequest(): cancelled quit."
+                      << std::endl;
+# endif
+        }
+    }
+    QTimer::singleShot(0, this, SLOT(resetCommitDataState()));
+# ifdef DEBUG_VENTUROUS_MAIN_WINDOW
+    std::cout << "MainWindow::onCommitDataRequest(): finished." << std::endl;
+# endif
 }
 
 void MainWindow::onAboutToQuit()

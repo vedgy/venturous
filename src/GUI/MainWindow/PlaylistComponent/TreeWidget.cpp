@@ -411,7 +411,7 @@ void TreeWidget::onUiItemChanged(QTreeWidgetItem * item)
     /// NOTE: the only allowed change is toggling checkbox in edit mode.
     /// So this change is assumed below.
 # ifdef DEBUG_VENTUROUS_TREE_WIDGET
-    std::cout << "TreeWidget: Ui item's checkState changed: "
+    std::cout << "TreeWidget: UI item's checkState changed: "
               << QtUtilities::qStringToString(itemText(item)) << std::endl;
 # endif
 

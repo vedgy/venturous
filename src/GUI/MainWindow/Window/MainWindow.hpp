@@ -37,6 +37,7 @@ class PlaybackComponent;
 class PreferencesComponent;
 struct Actions;
 QT_FORWARD_DECLARE_CLASS(QSharedMemory)
+QT_FORWARD_DECLARE_CLASS(QSessionManager)
 
 /// WARNING: each method can block execution if not stated otherwise.
 class MainWindow : public QMainWindow
@@ -53,6 +54,8 @@ public:
     ~MainWindow();
 
 private:
+    enum class CommitDataState : unsigned char { none, commited, cancelled };
+
     /// @brief Updates state according to preferencesComponent_->preferences
     /// but does not set preferences to components.
     /// NOTE: does not block execution.
@@ -71,6 +74,10 @@ private:
     /// NOTE: does not block execution.
     void hideNotificationAreaIcon();
 
+    /// @brief Should be called before normal quit.
+    /// @return true if quit is allowed, false if user cancelled it.
+    bool quit();
+
     void timerEvent(QTimerEvent *) override;
     void keyPressEvent(QKeyEvent *) override;
     void closeEvent(QCloseEvent *) override;
@@ -86,7 +93,8 @@ private:
 
     /// Blocks/unblocks most of non-GUI user input (Ventool commands for
     /// example).
-    /// Reacting to QCoreApplication::aboutToQuit - immediate quit - is allowed.
+    /// Reacting to QCoreApplication::aboutToQuit and
+    /// QApplication::commitDataRequest signals is allowed.
     /// Reacting to MediaPayer::FinishedSlot is also allowed.
     QtUtilities::Widgets::WindowInputController inputController_;
 
@@ -98,7 +106,7 @@ private:
 
     int ventoolCheckInterval_ = 0;
     int timerIdentifier_ = 0;
-    bool quitState_ = false;
+    CommitDataState commitDataState_ = CommitDataState::none;
 
 private slots:
     /// NOTE: does not block execution.
@@ -131,6 +139,11 @@ private slots:
     void onBothAudioFileStateChanged();
     /// NOTE: does not block execution.
     void onBothMediaDirStateChanged();
+
+    /// NOTE: does not block execution.
+    void resetCommitDataState();
+
+    void onCommitDataRequest(QSessionManager & manager);
 
     /// NOTE: does not block execution.
     void onAboutToQuit();
