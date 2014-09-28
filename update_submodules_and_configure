@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Copyright (C) 2014 Igor Kushnir <igorkuo AT Google mail>
 # License: GPL v3+ (http://www.gnu.org/copyleft/gpl.html)
-# update_and_configure_submodules: inits and updates Venturous git submodules;
+# update_submodules_and_configure: inits and updates Venturous git submodules;
 # gets necessary png icons; configures build.
 
 set -e

@@ -7,7 +7,7 @@
 </head>
 
 <body>
-<h1><i>Venturous</i> - version 1.1.5-dev</h1>
+<h1><i>Venturous</i> - version 1.2</h1>
 
 <a id="Index"><h2>Table of contents</h2></a>
     <ul>
@@ -35,10 +35,11 @@
     (maybe even all) media players: user-defined items for random playback. This
     feature is especially useful for grouping separate tracks that are
     actually parts of one composition. For example, parts of classical music
-    compositions (movements) are often distributed as separate tracks. It is
-    usually desirable to listen to movements in succession and in a proper
-    order.</p>
-    <p><i>Venturous</i> features tree-like playlist, which reflects files' and
+    compositions (movements) are often distributed as separate tracks - either
+    separate audio files or separate entries in the <i>cue</i> file. It is
+    usually desirable to listen to the movements in succession
+    and in a proper order.</p>
+    <p><i>Venturous</i> features a tree-like playlist, which reflects files' and
     directories' location. Each item (file or directory) in playlist tree can be
     marked as playable. Items that are marked as playable can be sent to
     external player's [temporary] playlist. Normal workflow is the following:
@@ -54,12 +55,12 @@
     <p><i>Venturous</i> features playback history, which allows user to identify
     previously played items and play them again.</p>
     <p>Custom actions similar to those in <i>Thunar</i> file manager are
-    available in playlist's and history's custom menus. Custom actions allow
+    available in playlist's and history's context menus. Custom actions allow
     user to open selected items in external application.
     For example: open in file manager or in media player, edit text file,
     move item(s) to trash.</p>
     <p>Another nice feature of <i>Venturous</i> is graceful quit.
-    In many popular desktop environments and window managers
+    In many popular desktop environments
     <i>Audacious</i> would not save playback
     state if it was running while user shut down / restarted / logged out.
     <i>Venturous</i> does save its state in these cases in most popular desktop
@@ -77,18 +78,28 @@
 
 <a id="Requirements"><h2>Requirements</h2></a>
     <ol>
-        <li><i>Audacious</i> version 3.4 or newer.</li>
+        <li><i>qt4</i> OR <i>qt5</i> shared libraries (<i>Core</i>, <i>XML</i>
+        and <i>GUI</i>/<i>Widgets</i> modules)</li>
+        <li><i>Audacious</i> (managed Audacious mode in <i>Venturous</i> - which
+        is <i>not</i> the default mode - requires Audacious 3.4 or later).</li>
         <li><i>audacious</i> and <i>audtool</i> executables must be present in
-        <i>PATH</i>.<br />
-        There are two problems with this requirement in MS Windows:
+        <i>PATH</i>. There are two problems with this requirement in MS Windows:
         <ol type="A">
             <li>Audacious <i>bin</i> directory is not added in <i>PATH</i>
             environment variable automatically.
             User has to manually add it there.</li>
             <li><i>audtool</i> is usually unavailable in Windows at all.
             With <i>audtool</i> missing only basic <i>Venturous</i> features
-            work.</li>
+            work. The biggest problem is that stopping playback does not work in
+            this case, which prevents <i>Venturous</i> from normal functioning.
+            </li>
         </ol></li>
+        <li><i>notify-send</i> from <i>libnotify</i> (optional - for desktop
+        notifications)</li>
+        <li><i>Song Change</i> Audacious plugin (optional - for detached
+        Audacious mode, which is the default mode). This plugin is usually
+        unavailable in MS Windows, so Windows users have to switch to the
+        managed mode.</li>
     </ol>
 
 
@@ -147,7 +158,7 @@
             Press <i>CTRL+A</i> to
             select all file patterns. Press <i>Space</i> to invert all file
             patterns' checked states. Press <i>Escape</i> to close
-            <i>Preferences</i> window (changes are saved automatically).
+            <i>Preferences</i> window (changes are applied automatically).
             <i>Add directory</i> -> select <i>files</i>.</li>
         </ol>
 
@@ -169,8 +180,8 @@
     folds/unfolds it, but be aware that it also activates it in non-edit mode,
     so if the entry is playable, it will be played.
     The following keys for manipulating current
-    entry folded state are supported (these are standard <i>Qt</i> key bindings,
-    so excerpts from <i>Qt</i> documentation follow):</p>
+    entry folded state are supported (these are the standard <i>Qt</i> key
+    bindings, so excerpts from <i>Qt</i> documentation follow):</p>
     <ul>
         <li><i>Up</i> - moves the cursor to the item in the same column
         on the previous row.
@@ -207,10 +218,10 @@
     User has to check menu action <i>Edit mode</i> in <i>Playlist</i> menu
     or toolbar button with the same name in order to enter edit mode.</p>
     <p>In edit mode selected items can be removed by pressing
-    <i>Delete</i> key. If item is removed, all its descendants are also removed
-    recursively. Single item can be checked/unchecked by mouse-clicking.
+    <i>Delete</i> key. If an item is removed, all its descendants are also
+    removed recursively. Single item can be checked/unchecked by mouse-clicking.
     Pressing one of the following keys while playlist has focus will apply
-    corresponding action to all selected items:</p>
+    the corresponding action to all selected items:</p>
     <ul>
         <li><i>Insert</i> - check</li>
         <li><i>Backspace</i> - uncheck</li>
@@ -234,7 +245,8 @@
         equivalent to cancelling unsaved playlist changes;
         loading <i>items.backup</i> file is equivalent to
         <i>Restore previous</i> action.</li>
-        <li><i>Save as ...</i> - saves current playlist to user-defined file.
+        <li><i>Save as ...</i> - saves current playlist to the file
+        selected by user.
         Playlist tree must be in non-edit mode in order to be saved.</li>
     </ol>
     <p>While playlist is being edited, old saved playlist is used for random
@@ -242,7 +254,7 @@
     save changes and start using edited playlist.
     Trigger <i>Cancel changes</i> in the same menu to
     cancel editing without saving. Alternatively, unchecking <i>Edit mode</i> in
-    menu or toolbar will trigger dialog that asks whether changes have to be
+    menu or toolbar will show a dialog that asks whether changes have to be
     saved.</p>
     <p>It is also possible to manually edit playlist tree. It is stored in
     <i>&lt;Venturous preferences directory&gt;/items</i> file in plain text
@@ -250,28 +262,53 @@
     Note that tabs should not be replaced by spaces in this file. Only tab
     character designates tree level indentation.
     <i>items.backup</i> file in the same directory has identical format.</p>
-    <p>In case of urgent <i>Venturous</i> quit (such as quit notice from desktop
-    environment), if playlist is in edit mode, changes are applied and saved.
-    </p>
+    <p>In case of urgent <i>Venturous</i> quit (such as an urgent quit notice
+    from desktop environment), if playlist is in edit mode,
+    changes are applied and saved.</p>
 
 
 <a id="ManagingPlayback"><h2>Managing playback</h2></a>
-    <p>There are two playback modes: stopped and playing. In stopped mode
-    <i>Venturous</i> does not interact with external player at all.
-    In playing mode <i>Venturous</i> controls external player: starts playing
-    next random item from playlist when playback finishes;
-    quits <i>Audacious</i> before quitting itself.</p>
-    <p>There are eight actions, <i>External player</i> and <i>History</i>
-    submenus in <i>Playback</i> menu. All these 8 actions are available as
-    <i>ventool</i> commands.
-    Four most common actions and actions from <i>External player</i> submenu are
-    present on toolbar and in notification area icon context menu.</p>
+    <p>There are two modes of interaction between <i>Venturous</i> and
+    <i>Audacious</i>: <i>detached</i> (default) and <i>managed</i>.</p>
+    <p>In the <i>detached</i> mode <i>Venturous</i> stores certain
+    <i>Audacious</i> settings in the <i>Audacious</i> configuration files
+    (these modifications are reverted when the user switches to the
+    <i>managed</i> mode). These automatically set settings ensure
+    that <b><i>ventool&nbsp;next</i></b> command is called by the
+    <i>Song Change</i> <i>Audacious</i> plugin when playback of the current
+    <i>Audacious</i> playlist reaches an end.</p>
+    <p>In the <i>managed</i> mode <i>Venturous</i> invokes <i>Audacious</i> with
+    the <i>-q</i> command line option and controls the <i>Audacious</i>
+    process. <i>Venturous</i> assumes that the current
+    <i>Audacious</i> playlist reaches an end whenever
+    <i>Audacious</i> process exits. Of course, this is not always the case -
+    <i>Audacious</i> may be closed by the user, the process also exits when
+    the user triggers <i>stop playback</i> action in <i>Audacious</i>.
+    This possibly confusing behavior combined with the constant restarting of
+    <i>Audacious</i> defines problems with the <i>managed</i> mode. Also note
+    that this mode requires <i>Audacious</i> version 3.4 or later
+    (because the <i>-q</i> command line option was introduced in 3.4).
+    But the <i>managed</i> mode is not without advantages: since
+    <i>Venturous</i> has an access to <i>Audacious</i> standard and error
+    output, common issues are detected and the appropriate error messages
+    are shown by <i>Venturous</i>.</p>
+
+    <p>There are three playback statuses: <i>stopped</i>, <i>paused</i> and
+    <i>playing</i>.
+    <i>Stopped</i> status means that <i>Audacious</i> is not running or that
+    playback is stopped; <i>paused</i> - playback is paused; <i>playing</i> -
+    playback is active.</p>
+    <p>There are nine actions, <i>External player</i> and <i>History</i>
+    submenus in <i>Playback</i> menu. All these 9 actions and all 3 actions from
+    the <i>External player</i> submenu are available as <i>ventool</i> commands.
+    Five most common actions and two actions from <i>External player</i> submenu
+    are present on toolbar and in notification area icon context menu.</p>
     <ol>
-        <li><i>Play</i> - launches external player and continues playing
-        whatever was played last time in that external player
-        (<i>Audacious</i>); enters playing playback mode.</li>
-        <li><i>Stop</i> - quits external player and enters
-        stopped playback mode.</li>
+        <li><i>Play</i> - launches external player (if needed) and continues
+        playing whatever was played the last time in that external player
+        (<i>Audacious</i>).</li>
+        <li><i>Pause</i> - pauses playback.</li>
+        <li><i>Stop</i> - exits external player.</li>
         <li><i>Previous</i> - plays previous item from history.</li>
         <li><i>Replay last</i> - plays current item from history.</li>
         <li><i>Next from history</i> - plays next item from history.</li>
@@ -282,30 +319,21 @@
         triggers <i>Next random</i> action.</li>
         <li><i>Play all</i> - plays all playable items from playlist.</li>
     </ol>
-    <p>Common behavior of last six actions
-    (all except <i>Play</i> and <i>Stop</i>):</p>
+    <p>Common behavior of the last six actions
+    (all except <i>Play</i>, <i>Pause</i> and <i>Stop</i>):</p>
     <ul>
-        <li>In case of success, external player is started or restarted with
-        specified item(s) in temporary playlist; playing playback mode is
-        entered.</li>
+        <li>In case of success, external player playback is started with the
+        specified item(s) in a temporary playlist.</li>
         <li>In case of failure (no corresponding item in history or
         empty playlist), <i>Stop</i> action is triggered.</li>
     </ul>
-    <p><i>External player</i> submenu contains two actions:
+    <p><i>External player</i> submenu contains three actions:
     <i>Show window</i> and <i>Hide window</i>, which allow to show/hide
-    <i>Audacious</i> main window.</p>
+    <i>Audacious</i> main window; <i>Update status</i> that allows to query
+    external player playback status manually.</p>
     <p>All external player's functionality - both actions and options - is
-    also available to user. Note: <i>Audacious</i> is started with special
-    command line arguments, which ensure that it quits
-    after playback is finished.
-    So, if user stops playback in <i>Audacious</i> or quits it,
-    <i>Venturous</i> assumes that last item was played and starts playing
-    next item.
-    It means that usual meaning of quitting and stopping playback
-    in <i>Audacious</i>, managed by <i>Venturous</i>, is changed.
-    Pausing playback in <i>Audacious</i> works as usual though.</p>
-    <p>Recommended <i>Audacious</i> options (can be configured in Audacious
-    settings):</p>
+    also available to the user. Recommended <i>Audacious</i> options
+    (can be configured in Audacious settings):</p>
     <ul>
         <li><i>Playlist</i> -> <i>Continue playback on startup</i> - continues
         playing track from the saved position, not from the beginning.</li>
@@ -314,20 +342,24 @@
         desktop environment / window manager supports application icons in
         notification area).</li>
     </ul>
+
     <p>Apart from described above <i>Next from history</i> option,
     <i>Playback</i> tab of <i>Preferences</i> contains
-    <i>History</i> options and 4 other playback options:</p>
+    <i>History</i> options and other playback options:</p>
     <ol>
+        <li><i>External player</i> - allows user to choose the preferred mode
+        of interaction between <i>Venturous</i> and <i>Audacious</i>.</li>
         <li><i>Always set external player options</i> - this option is on
         by default, which ensures that external player is configured properly.
-        But if user
+        But if the user
         desires to change those options manually to achieve some peculiar
         behavior or if he never changes them and wants to save CPU cycles,
         switching setting options off can be useful.</li>
         <li><i>Always hide external player window</i> - allows to hide
         <i>Audacious</i> window each time player is launched.
         This option is especially useful if <i>Audacious</i> notification area
-        icon (<i>Status Icon</i>) is disabled.
+        icon (<i>Status Icon</i>) is disabled and the <i>managed</i> mode of
+        interaction is used.
         In this case hiding external player window prevents <i>Audacious</i>
         window popping up annoyance.
         Note that with <i>Audacious Status Icon</i> disabled,
@@ -335,6 +367,19 @@
         command or trigger <i>Show external player window</i> action in
         Venturous <i>Playback</i> menu / toolbar in order to show
         <i>Audacious</i> main window after hiding it.</li>
+        <li><i>Exit external player on quit</i> - if enabled, external player
+        would be exited when <i>Venturous</i> quits; otherwise it would remain
+        running. This option is available only in the <i>detached</i> mode
+        because the external player must be exited when quitting in the
+        <i>managed</i> mode.</li>
+        <li><i>Update status regularly</i> and <i>Status update interval</i> -
+        allow to set the time interval at which <i>Venturous</i> would query
+        <i>Audacious</i> playback status in order to display the correct status
+        to the user in the <i>Venturous</i> window. This option is not important
+        for <i>Venturous</i> functioning, but it may prove convenient for the
+        user. Note that this option increases CPU usage in idle state
+        substantially, especially in case of small time interval,
+        so it is disabled by default.</li>
         <li><i>Desktop notifications</i> - if enabled, desktop notification is
         shown after played item is changed. If <i>notify-send</i> executable
         from <i>libnotify</i> is not available in <i>PATH</i>, notifications
@@ -344,9 +389,7 @@
         four playback actions on <i>Venturous</i> start.
         Note that more sophisticated startup behavior can be
         achieved with <i>Ventool</i> commands. For example:<br />
-        <b><i>(venturous&nbsp;>&nbsp;/dev/null&nbsp;&amp;)\<br />
-        &amp;&amp;&nbsp;sleep&nbsp;1\<br />
-        &amp;&amp;&nbsp;ventool&nbsp;previous</i></b><br />
+        <b><i>venturous&nbsp;&amp;&nbsp;sleep&nbsp;1&nbsp;&amp;&amp;&nbsp;ventool&nbsp;previous</i></b><br />
         command allows to play previous item from history at the start.
         See also <a href="#Ventool">Ventool and global shortcuts</a></li>
     </ol>
@@ -385,7 +428,7 @@
     <p>If history entry is activated (double click), playback of this entry is
     started. Pressing <i>Backspace</i> key sets current history index to -1
     (this index is also set when multiple items are played).
-    The effect of pressing <i>Insert</i> key varies depending on number
+    The effect of pressing <i>Insert</i> key varies depending on the number
     of selected entries:</p>
     <ul>
         <li>If no entries are selected, has no effect.</li>
@@ -425,7 +468,8 @@
     installing it). All available <i>Ventool</i> commands can be found by
     running <b><i>ventool&nbsp;help</i></b> command from terminal.</p>
     <p><i>Ventool</i> allows to manage playback and quit <i>Venturous</i> from
-    command line.
+    command line. It is <b>mandatory</b> for the default <i>detached</i>
+    interaction mode.
     It can also be used to create various global keyboard shortcuts. One
     shortcut can be assigned to <i>venturous</i> command
     (launching <i>Venturous</i>);
@@ -461,9 +505,10 @@
     <p>If you are lucky enough to have notification area icon support in your
     environment, you get several features. Left or middle click on Venturous
     notification area icon shows/hides <i>Venturous</i> window.
-    Right click shows a context menu with following actions:</p>
+    Right click shows a context menu with the following actions:</p>
     <ul>
         <li><i>Play</i></li>
+        <li><i>Pause</i></li>
         <li><i>Stop</i></li>
         <li><i>Previous</i></li>
         <li><i>Next</i></li>
@@ -475,25 +520,6 @@
         </li>
         <li><i>Preferences ...</i></li>
         <li><i>Quit</i></li>
-    </ul>
-    <p>There is a problem with <i>Close Venturous to notification area</i>
-    option.
-    Many popular desktop environments close visible windows before exit.
-    This allows <i>Venturous</i> to ask user about applying changes to playlist
-    if playlist is in edit mode. It also allows reporting saving errors.
-    If <i>Close Venturous to notification area</i> option is enabled,
-    two scenarios are possible:</p>
-    <ul>
-        <li>If <i>Venturous</i> window is not hidden, it would just become
-        hidden, not closed. This can block desktop environment quit.
-        It can also result in something else (depending on
-        desktop environment / window manager).</li>
-        <li>If <i>Venturous</i> window is hidden, it will receive urgent quit
-        warning (in most desktop environments).
-        Changes to playlist would be applied
-        without user's confirmation if it was in edit mode. Errors would not be
-        shown to user but written to <i>stderr</i>. This would usually result in
-        errors unnoticed by user.</li>
     </ul>
 
 
@@ -533,14 +559,17 @@
         <li><i>BUILD_VENTOOL</i> : <i>BOOLEAN</i> (default: <i>ON</i>) -
         if enabled, <i>Ventool</i> is built along with <i>Venturous</i>.
         If you do not need command line interface and global shortcuts for
-        <i>Venturous</i>, feel free to disable this option. See also
+        <i>Venturous</i> <b>and</b> you prefer the <i>managed</i> interaction
+        mode, feel free to disable this option. Don't forget to select
+        <i>Audacious (managed)</i> as an <i>External player</i> in the
+        <i>Playback</i> tab of Preferences. See also
         <a href="#Ventool"><i>Ventool</i> and global shortcuts</a></li>
     </ul>
     <h3>Run-time configuration (<i>Venturous</i> preferences)</h3>
     <p><i>Venturous</i> preferences can be accessed in several ways:
     <i>Preferences ...</i> action in <i>File</i> menu, corresponding toolbar
     button or notification area icon's context menu.
-    Each option in <i>Preferences</i> has verbose tooltip. Hover over control
+    Each option in <i>Preferences</i> has a verbose tooltip. Hover over control
     element (spinbox, checkbox or combobox) to activate tooltip.</p>
     <p><i>Preferences</i> window has five tabs:</p>
     <ol>
@@ -612,7 +641,7 @@
         possible. <i>History</i> window has its own title bar, which can be used
         for moving in place of toolbar handle.</li>
         <li>There is an option in <i>General</i> tab of <i>Preferences</i>:
-        <i>Status bar</i>. If checked, status bar is displayed with
+        <i>Status bar</i>. If checked, status bar is displayed with the
         last played item label on it. If <i>History</i> window is visible,
         status bar information is redundant.
         But if <i>History</i> is hidden, status bar might be useful.</li>
@@ -628,10 +657,10 @@
     <ol>
         <li>Quit <i>Venturous</i>.</li>
         <li>Remove line
-        <i>&lt;VentoolCheckInterval&gt;2000&lt;/VentoolCheckInterval&gt;</i>
+        <i>&lt;VentoolCheckInterval&gt;1234&lt;/VentoolCheckInterval&gt;</i>
         from <i>&lt;Venturous preferences directory&gt;/Venturous.xml</i>.</li>
-        <li>Start <i>Venturous</i>. Default value of option is restored, you can
-        verify this by opening <i>Preferences</i> window.</li>
+        <li>Start <i>Venturous</i>. Default value of the option is restored,
+        you can verify this by opening <i>Preferences</i> window.</li>
     </ol>
     <p>If you want to restore all default values, you can click
     <i>Restore defaults</i> button (Target tab = <i>&lt;all&gt;</i>) in

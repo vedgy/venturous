@@ -72,15 +72,10 @@ PlaybackPage::PlaybackPage(QWidget * const parent, const Qt::WindowFlags f)
     layout->addRow(tr("Exit external player on quit"),
                    & exitPlayerOnQuitCheckBox);
 
-    QtUtilities::Widgets::addSpacing(layout);
-
 
     statusUpdateCheckBox.setToolTip(
         tr("If checked, playback status would be updated\n"
            "at the specified interval."));
-    onStatusUpdateToggled(statusUpdateCheckBox.isChecked());
-    connect(& statusUpdateCheckBox, SIGNAL(toggled(bool)),
-            SLOT(onStatusUpdateToggled(bool)));
     layout->addRow(tr("Update status regularly"), & statusUpdateCheckBox);
 
     statusUpdateWarningLabel.setWordWrap(true);
@@ -90,7 +85,6 @@ PlaybackPage::PlaybackPage(QWidget * const parent, const Qt::WindowFlags f)
         + tr("WARNING: regular updating playback status increases\n"
              "%1 CPU usage in idle state significantly.").
         arg(APPLICATION_NAME) + "</font>");
-    layout->addRow(& statusUpdateWarningLabel);
 
     {
         using P = Preferences::Playback;
@@ -107,7 +101,9 @@ PlaybackPage::PlaybackPage(QWidget * const parent, const Qt::WindowFlags f)
     QtUtilities::Widgets::addSubWidget(layout, tr("Status update interval"),
                                        & statusUpdateSpinBox);
 
-    QtUtilities::Widgets::addSpacing(layout);
+    onStatusUpdateToggled(statusUpdateCheckBox.isChecked());
+    connect(& statusUpdateCheckBox, SIGNAL(toggled(bool)),
+            SLOT(onStatusUpdateToggled(bool)));
 
 
     nextFromHistoryCheckBox.setToolTip(
@@ -116,8 +112,6 @@ PlaybackPage::PlaybackPage(QWidget * const parent, const Qt::WindowFlags f)
            "Otherwise, \"Next\" action always plays random item."));
     layout->addRow(tr("Next from history"), & nextFromHistoryCheckBox);
 
-    QtUtilities::Widgets::addSpacing(layout);
-
 
     desktopNotificationsCheckBox.setToolTip(tr(
             "If checked, desktop notifications would be shown after\n"
@@ -125,7 +119,6 @@ PlaybackPage::PlaybackPage(QWidget * const parent, const Qt::WindowFlags f)
             "(requires notify-send executable (from libnotify) in PATH)."));
     layout->addRow(tr("Desktop notifications"), & desktopNotificationsCheckBox);
 
-    QtUtilities::Widgets::addSpacing(layout);
 
     startupPolicyComboBox.addItems( {
         tr("<no action>"), tr("Start playback"), tr("Replay last item"),
@@ -196,8 +189,8 @@ void PlaybackPage::onPlayerIdChanged(const int newId)
     exitPlayerOnQuitCheckBox.setEnabled(enabled);
     exitPlayerOnQuitCheckBox.setToolTip(
         (enabled ?
-         tr("If checked, external player would be finished when %1 quits;\n"
-            "otherwise it would remain running.") :
+         tr("If checked, external player would be exited when\n"
+            "%1 quits; otherwise it would remain running.") :
          tr("Current external player must be finished when %1 quits.\n"
             "So this option has no effect.")
         ).arg(APPLICATION_NAME));
@@ -206,5 +199,19 @@ void PlaybackPage::onPlayerIdChanged(const int newId)
 void PlaybackPage::onStatusUpdateToggled(const bool checked)
 {
     statusUpdateWarningLabel.setVisible(checked);
+
+    constexpr int row = 5;
+    QFormLayout & layout = * static_cast<QFormLayout *>(this->layout());
+    const bool warningInLayout =
+        layout.itemAt(row, QFormLayout::SpanningRole) != nullptr;
+    if (checked) {
+        if (! warningInLayout)
+            layout.insertRow(row, & statusUpdateWarningLabel);
+    }
+    else {
+        if (warningInLayout)
+            layout.removeWidget(& statusUpdateWarningLabel);
+    }
+
     statusUpdateSpinBox.setEnabled(checked);
 }

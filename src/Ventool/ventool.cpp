@@ -62,7 +62,7 @@ void printHelp()
     std::cout << TOOL_EXECUTABLE " - sends commands to running "
               APPLICATION_NAME " instance.\n";
     std::cout << "Usage: " TOOL_EXECUTABLE " <command>\n"
-              "where <command> is on of the following:\n";
+              "where <command> is one of the following:\n";
     using namespace Command;
     printCommand(play(), "starts playback");
     printCommand(pause(), "pauses playback");

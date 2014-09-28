@@ -2,37 +2,41 @@
 
 <b>Venturous</b> is a random playback manager, which uses media player's
 command line interface.
-Currently only Audacious media player is supported, but adding support for
+Currently only *Audacious* media player is supported, but adding support for
 other players should be quite simple.
 
-Venturous is built around one feature, which is missing from most (maybe
+*Venturous* is built around one feature, which is missing from most (maybe
 even all) media players: user-defined items for random playback. This
 feature is especially useful for grouping separate tracks that are
 actually parts of one composition. For example parts of classical music
-compositions (movements) are often distributed as separate tracks. It is
-usually desirable to listen to movements in succession and in a proper order.
+compositions (movements) are often distributed as separate tracks - either
+separate audio files or separate entries in the *cue* file. It is
+usually desirable to listen to the movements in succession
+and in a proper order.
 
-Venturous has hierarchical playlist, which reflects file system. The playlist
-is protected from accidental changes.<br>
-Venturous also features playback history, which allows user to identify
+*Venturous* has a hierarchical playlist, which reflects a file system.
+The playlist is protected from accidental changes.<br>
+*Venturous* also features playback history, which allows user to identify
 previously played items and play them again.<br>
-Custom actions similar to those in Thunar file manager are available in
-playlist's and history's custom menus. Custom actions allow user to open
+Custom actions similar to those in *Thunar* file manager are available in
+playlist's and history's context menus. Custom actions allow user to open
 selected items in external application.
 For example: open in file manager or in media player, edit text file,
 move item(s) to trash.
 
 ## Build requirements
 
-GNU/Linux or MS Windows (might also work in OS X, not tested).
+*GNU/Linux* or *MS Windows* (might also work in other systems - not tested).
 
 ### External Dependencies
-* git
-* wget OR curl OR inkscape
-* cmake (2.8 or later)
-* make
-* g++ (4.7 or later) [recent versions of clang++ also suffice but only with qt5]
-* qt4 OR qt5 development libraries (Core, XML and GUI/Widgets modules)
+* *git*
+* *wget* OR *curl* OR *inkscape*
+* *cmake* (2.8 or later)
+* *make*
+* *g++* (4.7 or later) [recent versions of *clang++* also suffice but only with
+    *qt5*]
+* *qt4* OR *qt5* development libraries (*Core*, *XML* and *GUI*/*Widgets*
+    modules)
 
 ## How to build and install
 
@@ -44,40 +48,50 @@ GNU/Linux or MS Windows (might also work in OS X, not tested).
 
         cd venturous
 
-3. If you want to install latest stable version, execute the following command:
+3. If you want to install the latest stable version, execute the following
+command:
 
-        git checkout tags/v1.1.1
-If you prefer latest development version (can be unstable), just skip this step.
+        git checkout tags/v1.2
+If you prefer the latest development version (can be unstable), just skip this
+step.
 
 4. Run configuration script:
 
-        ./update_and_configure_submodules
+        ./update_submodules_and_configure
 
 5. Follow instructions that appear at the end of
-`update_and_configure_submodules` output.
+`update_submodules_and_configure` output.
 
 ### Troubleshooting
-If errors appear after running `update_and_configure_submodules`, ensure
+If errors appear after running `update_submodules_and_configure`, ensure
 that all [build dependencies](#external-dependencies) are satisfied.
 
 Errors also appear in the following cases:
-* qt4 is not installed. If you have qt5 installed and want to use it, pass
-"qt5" argument to `update_and_configure_submodules`.
-* Neither wget nor curl is installed. If you have inkscape installed and want
-to use it for icon generation, pass "generate-png" argument to
-`update_and_configure_submodules`.
+* *qt4* is not installed. If you have *qt5* installed and want to use it, pass
+*qt5* argument to `update_submodules_and_configure`.
+* Neither *wget* nor *curl* is installed. If you have *inkscape* installed and
+want to use it for icon generation, pass *generate-png* argument to
+`update_submodules_and_configure`.
 
 ## Runtime requirements
-* qt4 OR qt5 shared libraries (Core, XML and GUI/Widgets modules)
-* Audacious
-* audacious and audtool executables must be present in PATH.
-    There are two problems with this requirement in MS Windows:
-    * Audacious bin directory is not added in PATH environment
-    variable automatically. User has to manually add it there.
-    * audtool is usually unavailable in Windows at all. With audtool
-    missing only basic Venturous features work. The biggest problem is that
-    stopping playback is very buggy in this case.
-* notify-send from libnotify (optional - for desktop notifications)
+* <i>qt4</i> OR <i>qt5</i> shared libraries (<i>Core</i>, <i>XML</i>
+    and <i>GUI</i>/<i>Widgets</i> modules)
+* <i>Audacious</i> (managed Audacious mode in <i>Venturous</i> - which
+    is <i>not</i> the default mode - requires Audacious 3.4 or later).
+* <i>audacious</i> and <i>audtool</i> executables must be present in
+    <i>PATH</i>. There are two problems with this requirement in MS Windows:
+    * Audacious <i>bin</i> directory is not added in <i>PATH</i>
+    environment variable automatically. User has to manually add it there.
+    * <i>audtool</i> is usually unavailable in Windows at all.
+    With <i>audtool</i> missing only basic <i>Venturous</i> features
+    work. The biggest problem is that stopping playback does not work in
+    this case, which prevents <i>Venturous</i> from normal functioning.
+* <i>notify-send</i> from <i>libnotify</i> (optional - for desktop
+    notifications)
+* <i>Song Change</i> Audacious plugin (optional - for detached
+    Audacious mode, which is the default mode). This plugin is usually
+    unavailable in MS Windows, so Windows users have to switch to the
+    managed mode.
 
 ## How to uninstall
 Enter `venturous/build` directory, acquire root privileges (`sudo` or `su`)
