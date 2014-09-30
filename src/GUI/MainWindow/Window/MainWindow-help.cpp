@@ -76,7 +76,7 @@ void MainWindow::onHelpHelp()
     const QString url = dir.filePath(filenames.front());
     if (! QDesktopServices::openUrl(QUrl(url, QUrl::StrictMode))) {
         inputController_.showMessage(errorTitle,
-                                     tr("Could not open URL: ") + url);
+                                     tr("Could not open URL ") + url);
     }
 }
 

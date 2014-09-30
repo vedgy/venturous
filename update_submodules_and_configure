@@ -8,7 +8,7 @@ set -e
 
 print_help()
 {
-    echo 'This script accepts following options:
+    echo 'This script accepts the following options:
         "download-png", "generate-png", "qt4", "qt5", "help", "--".'
     echo '"download-png" and "qt4" are assumed if not specified.'
     echo 'Options that appear later override preceding ones.'
@@ -68,7 +68,7 @@ if [[ "$qt4" == true ]] ; then
 else
     args="-DFORCE_QT4=OFF"
 fi
-cmake "$args" -DCMAKE_BUILD_TYPE=Release ..
+cmake "$args" -DCMAKE_BUILD_TYPE=Release -Wno-dev ..
 
 echo ''
 echo 'Default configuration is complete. Follow instructions below to install Venturous:'

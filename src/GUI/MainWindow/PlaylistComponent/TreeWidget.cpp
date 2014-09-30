@@ -69,15 +69,26 @@ inline QString itemText(const QTreeWidgetItem * item)
     return item->text(0);
 }
 
-/// @return Path to item (item's name is included). Path ends with '/'.
-QString getAbsolutePath(const QTreeWidgetItem * item)
+inline QString itemTooltip(const QTreeWidgetItem * item)
 {
-    QString absolutePath;
-    while (item != nullptr) {
-        absolutePath.prepend(itemText(item) + '/');
-        item = item->parent();
-    }
-    return absolutePath;
+    return item->toolTip(0);
+}
+
+inline QString itemPath(const QTreeWidgetItem * item)
+{
+    return itemTooltip(item) + itemText(item);
+}
+
+/// @brief Sets an appropriate tooltip for item with the specified parent.
+void setToolTip(const QTreeWidgetItem * parent, QTreeWidgetItem * item)
+{
+    // Tooltip consists of absolute path to item (item's name is not included).
+    item->setToolTip(0, itemPath(parent) + '/');
+}
+void setToolTip(const QTreeWidget *, QTreeWidgetItem * item)
+{
+    // Absolute path is empty for the top-level item.
+    item->setToolTip(0, "");
 }
 
 /// @brief Creates structure that matches node's structure
@@ -88,6 +99,7 @@ void createTreeWidgetItem(
 {
     QTreeWidgetItem * const item = new QTreeWidgetItem(
         parent, { QtUtilities::toQString(node.name()) });
+    setToolTip(parent, item);
     setChecked(item, node.isPlayable());
 
     for (const ItemTree::Node & child : node.children())
@@ -132,22 +144,18 @@ typedef std::deque<QString> PlayablePaths;
 /// @brief Appends absolute paths of item's playable descendants
 /// (including item) that are under selection to playablePaths.
 /// @param item Top-level item of the tree.
-/// @param pathToItem Must be empty string for top-level items.
 /// @param wasSelected Must be false for top-level items.
-void getPathsToPlay(const QTreeWidgetItem * item, const QString & pathToItem,
-                    PlayablePaths & playablePaths, bool wasSelected = false)
+void getPathsToPlay(const QTreeWidgetItem * item, PlayablePaths & playablePaths,
+                    bool wasSelected = false)
 {
     if (item->isSelected())
         wasSelected = true;
     if (wasSelected && isChecked(item))
-        playablePaths.emplace_back(pathToItem + itemText(item));
+        playablePaths.emplace_back(itemPath(item));
 
     const int nChildren = item->childCount();
-    if (nChildren != 0) {
-        const QString path = pathToItem + itemText(item) + '/';
-        for (int i = 0; i < nChildren; ++i)
-            getPathsToPlay(item->child(i), path, playablePaths, wasSelected);
-    }
+    for (int i = 0; i < nChildren; ++i)
+        getPathsToPlay(item->child(i), playablePaths, wasSelected);
 }
 
 
@@ -343,7 +351,7 @@ void TreeWidget::onEnter()
     PlayablePaths paths;
     const int nItems = topLevelItemCount();
     for (int i = 0; i < nItems; ++i)
-        getPathsToPlay(topLevelItem(i), QString(), paths);
+        getPathsToPlay(topLevelItem(i), paths);
     if (! paths.empty()) {
         CommonTypes::ItemCollection items(paths.size());
         std::transform(paths.cbegin(), paths.cend(), items.begin(),
@@ -375,7 +383,7 @@ void TreeWidget::contextMenuEvent(QContextMenuEvent * const event)
                     return;
                 }
             }
-            commonPrefix = getAbsolutePath(parent);
+            commonPrefix = itemTooltip(selected.front());
             itemNames.reserve(selected.size());
             for (const QTreeWidgetItem * item : selected)
                 itemNames << itemText(item);
@@ -401,9 +409,7 @@ void TreeWidget::onUiItemActivated(QTreeWidgetItem * const item)
 {
     if (editMode_ || ! isChecked(item))
         return;
-    const QString absolutePath =
-        getAbsolutePath(item->parent()) + itemText(item);
-    playItems_( { QtUtilities::qStringToString(absolutePath) });
+    playItems_( { QtUtilities::qStringToString(itemPath(item)) });
 }
 
 void TreeWidget::onUiItemChanged(QTreeWidgetItem * item)

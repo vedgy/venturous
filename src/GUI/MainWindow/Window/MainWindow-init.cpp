@@ -35,7 +35,6 @@
 # include <QString>
 # include <QObject>
 # include <QSharedMemory>
-# include <QDir>
 # include <QCoreApplication>
 # include <QAction>
 # include <QSizePolicy>
@@ -52,20 +51,13 @@
 
 namespace
 {
-inline QString getPreferencesDirName()
-{
-    QString result(PREFERENCES_DIR);
-    if (! result.isEmpty() && result[0] == '~')
-        result.replace(0, 1, QDir::homePath());
-    return result;
-}
-
-
 void initMenuBar(QMenuBar & menuBar, const Actions & actions)
 {
     {
         QMenu * const file = menuBar.addMenu(QObject::tr("&File"));
-        file->addActions( { actions.file.preferences, actions.file.quit });
+        file->addActions( { actions.file.preferences,
+                            actions.file.preferencesDirectory, actions.file.quit
+                          });
     }
     {
         const Actions::Playback & pbA = actions.playback;
@@ -233,9 +225,11 @@ MainWindow::MainWindow(
     connect(playlistComponent_.get(), SIGNAL(editModeChanged()),
             SLOT(setWindowTitle()));
 
-    connect(actions_->file.quit, SIGNAL(triggered(bool)), SLOT(onFileQuit()));
     connect(actions_->file.preferences, SIGNAL(triggered(bool)),
             SLOT(onFilePreferences()));
+    connect(actions_->file.preferencesDirectory, SIGNAL(triggered(bool)),
+            SLOT(onFilePreferencesDirectory()));
+    connect(actions_->file.quit, SIGNAL(triggered(bool)), SLOT(onFileQuit()));
     connect(actions_->playback.next, SIGNAL(triggered(bool)),
             SLOT(onPlaybackNext()));
     connect(actions_->help.help, SIGNAL(triggered(bool)), SLOT(onHelpHelp()));

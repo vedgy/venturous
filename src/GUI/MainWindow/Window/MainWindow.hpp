@@ -56,6 +56,9 @@ public:
 private:
     enum class CommitDataState : unsigned char { none, commited, cancelled };
 
+    /// @return Path to Venturous preferences.
+    static QString getPreferencesDirName();
+
     /// @brief Updates state according to preferencesComponent_->preferences
     /// but does not set preferences to components.
     /// NOTE: does not block execution.
@@ -123,9 +126,10 @@ private slots:
     /// NOTE: does not block execution.
     void onNotificationAreaIconActivated(QSystemTrayIcon::ActivationReason);
 
-    void onFileQuit();
     /// NOTE: does not block execution.
     void onFilePreferences();
+    void onFilePreferencesDirectory();
+    void onFileQuit();
     void onPlaybackNext();
     void onHelpHelp();
     void onHelpAbout();

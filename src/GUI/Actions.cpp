@@ -32,11 +32,14 @@ Actions::Actions(const Icons::Theme & theme)
 
 
 Actions::File::File(const Icons::Theme & theme)
-    : preferences(new QAction(
-                      theme.preferences(), tr("&Preferences ..."), this)),
+    : preferences(new QAction(theme.preferences(),
+                              tr("&Preferences ..."), this)),
+    /// TODO: add icon (places/folder).
+    preferencesDirectory(new QAction(tr("Preferences &directory"), this)),
     quit(new QAction(theme.quit(), tr("&Quit"), this))
 {
     preferences->setIconText("Pf");
+    preferencesDirectory->setIconText("PD");
     quit->setIconText("Q");
     quit->setShortcut(Qt::CTRL | Qt::Key_Q);
 }

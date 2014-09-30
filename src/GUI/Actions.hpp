@@ -39,7 +39,7 @@ struct Actions {
     public:
         explicit File(const Icons::Theme & theme);
         ~File() override;
-        QAction * preferences, * quit;
+        QAction * preferences, * preferencesDirectory, * quit;
     } file;
 
     class Playback : public QObject

@@ -37,15 +37,20 @@
 
 # include <QString>
 # include <QTimer>
+# include <QDir>
+# include <QUrl>
 # include <QSharedMemory>
 # include <QCoreApplication>
 # include <QIcon>
+# include <QDesktopServices>
 # include <QKeyEvent>
 # include <QCloseEvent>
 # include <QSessionManager>
 # include <QAction>
 # include <QMenu>
 # include <QSystemTrayIcon>
+
+# include <utility>
 
 
 namespace
@@ -66,6 +71,15 @@ MainWindow::~MainWindow()
 # endif
 }
 
+
+
+QString MainWindow::getPreferencesDirName()
+{
+    QString result(PREFERENCES_DIR);
+    if (! result.isEmpty() && result[0] == '~')
+        result.replace(0, 1, QDir::homePath());
+    return result;
+}
 
 
 void MainWindow::setPreferencesNoComponents()
@@ -308,6 +322,21 @@ void MainWindow::onNotificationAreaIconActivated(
     }
 }
 
+void MainWindow::onFilePreferences()
+{
+    preferencesComponent_->showPreferencesWindow(this);
+}
+
+void MainWindow::onFilePreferencesDirectory()
+{
+    QString directory = getPreferencesDirName();
+    if (! QDesktopServices::openUrl(QUrl::fromLocalFile(directory))) {
+        inputController_.showMessage(
+            tr("Preferences directory error"),
+            tr("Could not open directory ") + std::move(directory));
+    }
+}
+
 void MainWindow::onFileQuit()
 {
 # ifdef DEBUG_VENTUROUS_MAIN_WINDOW
@@ -315,11 +344,6 @@ void MainWindow::onFileQuit()
 # endif
     if (quit())
         QCoreApplication::quit();
-}
-
-void MainWindow::onFilePreferences()
-{
-    preferencesComponent_->showPreferencesWindow(this);
 }
 
 void MainWindow::onPlaybackNext()
