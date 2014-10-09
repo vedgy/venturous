@@ -133,9 +133,11 @@ void MainWindow::showNotificationAreaIcon()
         iconMenu->addSeparator();
         {
             QMenu * const externalPlayerMenu =
-                iconMenu->addMenu(tr("External player"));
+                iconMenu->addMenu(tr("&External player"));
             externalPlayerMenu->addActions( { pb.showExternalPlayerWindow,
-                                              pb.hideExternalPlayerWindow
+                                              pb.hideExternalPlayerWindow,
+                                              pb.setExternalPlayerOptions,
+                                              pb.updateStatus
                                             });
             iconMenu->addSeparator();
         }
@@ -226,6 +228,9 @@ void MainWindow::timerEvent(QTimerEvent *)
                 break;
             case Symbol::hideExternal():
                 pb.hideExternalPlayerWindow->trigger();
+                break;
+            case Symbol::setExternalOptions():
+                pb.setExternalPlayerOptions->trigger();
                 break;
             case Symbol::updateStatus():
                 pb.updateStatus->trigger();

@@ -156,6 +156,9 @@ private slots:
                           QStringList missingFilesAndDirs);
     void onPlayerError(QString errorMessage);
 
+    /// NOTE: does not block execution.
+    void setExternalPlayerOptions();
+
     /// @brief Checks external player playback status and calls setStatus().
     /// NOTE: does not block execution.
     void updateStatus();

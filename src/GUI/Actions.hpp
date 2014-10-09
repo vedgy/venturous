@@ -50,7 +50,7 @@ struct Actions {
         QAction * play, * pause, * stop, * previous, * replayLast,
                 * nextFromHistory, * nextRandom, * next, * playAll;
         QAction * showExternalPlayerWindow, * hideExternalPlayerWindow,
-                * updateStatus;
+                * setExternalPlayerOptions, * updateStatus;
         QAction * importHistory, * exportHistory, * clearHistory;
     } playback;
 

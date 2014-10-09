@@ -118,6 +118,8 @@ preferences.playback.history)
             SLOT(showExternalPlayerWindow()));
     connect(actions.hideExternalPlayerWindow, SIGNAL(triggered(bool)),
             SLOT(hideExternalPlayerWindow()));
+    connect(actions.setExternalPlayerOptions, SIGNAL(triggered(bool)),
+            SLOT(setExternalPlayerOptions()));
     connect(actions.updateStatus, SIGNAL(triggered(bool)),
             SLOT(updateStatus()));
 
@@ -374,6 +376,11 @@ void PlaybackComponent::onPlayerError(QString errorMessage)
         externalPlayerErrors(false),
         mediaPlayer_->playerName() + ": " + std::move(errorMessage));
     updateStatus();
+}
+
+void PlaybackComponent::setExternalPlayerOptions()
+{
+    mediaPlayer_->setEssentialOptions();
 }
 
 void PlaybackComponent::updateStatus()

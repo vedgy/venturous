@@ -40,6 +40,7 @@ constexpr char next() noexcept { return 'N'; }
 constexpr char playAll() noexcept { return 'A'; }
 constexpr char showExternal() noexcept { return 'E'; }
 constexpr char hideExternal() noexcept { return 'X'; }
+constexpr char setExternalOptions() noexcept { return 'O'; }
 constexpr char updateStatus() noexcept { return 'D'; }
 constexpr char show() noexcept { return 'W'; }
 constexpr char hide() noexcept { return 'H'; }

@@ -42,6 +42,9 @@ constexpr const char * next() noexcept { return "next"; }
 constexpr const char * playAll() noexcept { return "play-all"; }
 constexpr const char * showExternal() noexcept { return "show-external"; }
 constexpr const char * hideExternal() noexcept { return "hide-external"; }
+constexpr const char * setExternalOptions() noexcept {
+    return "set-external-options";
+}
 constexpr const char * updateStatus() noexcept { return "update-status"; }
 constexpr const char * show() noexcept { return "show"; }
 constexpr const char * hide() noexcept { return "hide"; }
@@ -75,6 +78,8 @@ void printHelp()
     printCommand(playAll(), "plays all playable items");
     printCommand(showExternal(), "shows external player");
     printCommand(hideExternal(), "hides external player");
+    printCommand(setExternalOptions(),
+                 "sets the necessary external player options");
     printCommand(updateStatus(), "updates playback status");
     printCommand(show(), "shows " APPLICATION_NAME " window");
     printCommand(hide(), "hides " APPLICATION_NAME " window");
@@ -132,6 +137,8 @@ int main(int argc, char * argv[])
             symbol = Symbol::showExternal();
         else if (arg == hideExternal())
             symbol = Symbol::hideExternal();
+        else if (arg == setExternalOptions())
+            symbol = Symbol::setExternalOptions();
         else if (arg == updateStatus())
             symbol = Symbol::updateStatus();
         else if (arg == show())

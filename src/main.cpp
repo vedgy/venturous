@@ -34,6 +34,14 @@
 namespace
 {
 inline QString quittingMessage() { return QObject::tr("\nQuitting ..."); }
+
+void setSymbol(const std::unique_ptr<QSharedMemory> & shared, char symbol)
+{
+    shared->lock();
+    *(char *)shared->data() = symbol;
+    shared->unlock();
+}
+
 }
 
 
@@ -53,9 +61,7 @@ int main(int argc, char * argv[])
     if (! shared->create(sizeof(char), QSharedMemory::ReadWrite)) {
         if (shared->error() == QSharedMemory::AlreadyExists) {
             shared->attach(QSharedMemory::ReadWrite);
-            shared->lock();
-            *(char *)shared->data() = SharedMemory::Symbol::show();
-            shared->unlock();
+            setSymbol(shared, SharedMemory::Symbol::show());
 
             std::cout << QtUtilities::qStringToString(
                           QObject::tr("Another instance of %1 is running.\n"
@@ -71,11 +77,7 @@ int main(int argc, char * argv[])
             return 2;
         }
     }
-    {
-        shared->lock();
-        *(char *)shared->data() = SharedMemory::Symbol::noCommand();
-        shared->unlock();
-    }
+    setSymbol(shared, SharedMemory::Symbol::noCommand());
 
     bool cancelled;
     MainWindow mainWindow(std::move(shared), cancelled);

@@ -75,14 +75,15 @@ void initMenuBar(QMenuBar & menuBar, const Actions & actions)
         playback->addSeparator();
         {
             QMenu * const externalPlayer =
-                playback->addMenu(QObject::tr("External player"));
+                playback->addMenu(QObject::tr("&External player"));
             externalPlayer->addActions( { pbA.showExternalPlayerWindow,
                                           pbA.hideExternalPlayerWindow,
+                                          pbA.setExternalPlayerOptions,
                                           pbA.updateStatus
                                         });
         }
         {
-            QMenu * const history = playback->addMenu(QObject::tr("History"));
+            QMenu * const history = playback->addMenu(QObject::tr("&History"));
             history->addActions( { pbA.importHistory, pbA.exportHistory });
             history->addSeparator();
             history->addAction(pbA.clearHistory);

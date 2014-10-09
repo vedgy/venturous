@@ -39,7 +39,10 @@ Actions::File::File(const Icons::Theme & theme)
     quit(new QAction(theme.quit(), tr("&Quit"), this))
 {
     preferences->setIconText("Pf");
+    preferences->setToolTip(tr("Show preferences window"));
     preferencesDirectory->setIconText("PD");
+    preferencesDirectory->setToolTip(
+        tr("Show preferences directory in the file manager"));
     quit->setIconText("Q");
     quit->setShortcut(Qt::CTRL | Qt::Key_Q);
 }
@@ -55,7 +58,7 @@ Actions::Playback::Playback(const Icons::Theme & theme)
       replayLast(new QAction(theme.playbackReplayLast(),
                              tr("Replay &last"), this)),
       nextFromHistory(new QAction(theme.playbackNextFromHistory(),
-                                  tr("Next from &history"), this)),
+                                  tr("Next &from history"), this)),
       nextRandom(new QAction(theme.playbackNextRandom(),
                              tr("Next &random"), this)),
       next(new QAction(theme.playbackNext(), tr("&Next"), this)),
@@ -64,6 +67,7 @@ Actions::Playback::Playback(const Icons::Theme & theme)
                                            tr("&Show window"), this)),
       hideExternalPlayerWindow(new QAction(theme.audioPlayerHide(),
                                            tr("&Hide window"), this)),
+      setExternalPlayerOptions(new QAction(tr("Set &essential options"), this)),
       updateStatus(new QAction(theme.viewRefresh(),
                                tr("Up&date status"), this)),
       importHistory(new QAction(theme.load(), tr("&Import ..."), this)),
@@ -95,6 +99,9 @@ Actions::Playback::Playback(const Icons::Theme & theme)
         hideExternalPlayerWindow->setIconText("HPW");
         hideExternalPlayerWindow->setToolTip(tr("Hide") + externalPlayerWindow);
     }
+    setExternalPlayerOptions->setIconText("SPO");
+    setExternalPlayerOptions->setToolTip(
+        tr("Set the necessary external player options"));
     updateStatus->setIconText("US");
     updateStatus->setToolTip(tr("Query playback status of external player"));
 

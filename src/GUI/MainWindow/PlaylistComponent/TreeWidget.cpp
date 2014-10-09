@@ -80,12 +80,12 @@ inline QString itemPath(const QTreeWidgetItem * item)
 }
 
 /// @brief Sets an appropriate tooltip for item with the specified parent.
-void setToolTip(const QTreeWidgetItem * parent, QTreeWidgetItem * item)
+void setTooltip(const QTreeWidgetItem * parent, QTreeWidgetItem * item)
 {
     // Tooltip consists of absolute path to item (item's name is not included).
     item->setToolTip(0, itemPath(parent) + '/');
 }
-void setToolTip(const QTreeWidget *, QTreeWidgetItem * item)
+void setTooltip(const QTreeWidget *, QTreeWidgetItem * item)
 {
     // Absolute path is empty for the top-level item.
     item->setToolTip(0, "");
@@ -99,7 +99,7 @@ void createTreeWidgetItem(
 {
     QTreeWidgetItem * const item = new QTreeWidgetItem(
         parent, { QtUtilities::toQString(node.name()) });
-    setToolTip(parent, item);
+    setTooltip(parent, item);
     setChecked(item, node.isPlayable());
 
     for (const ItemTree::Node & child : node.children())
