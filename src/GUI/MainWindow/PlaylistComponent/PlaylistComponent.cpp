@@ -169,7 +169,7 @@ bool PlaylistComponent::playRandomItem()
 
 bool PlaylistComponent::quit()
 {
-    return ensureAskOutOfEditMode();
+    return ! treeWidget_.editMode() || noChanges() || leaveAskChangedEditMode();
 }
 
 
@@ -315,7 +315,6 @@ void PlaylistComponent::saveTemporaryTree(bool * const cancelled)
         handleErrors.blocking(inputController_, ioError(), cancelled);
 }
 
-template <typename FilenameGetter>
 void PlaylistComponent::loadTemporaryPlaylist(FilenameGetter filenameGetter)
 {
     if (! ensureAskInEditMode())

@@ -26,6 +26,7 @@
 # include <QString>
 # include <QObject>
 
+# include <functional>
 # include <memory>
 
 
@@ -79,11 +80,13 @@ signals:
     /// @brief Is emitted before saving preferences to disk unless saving is
     /// performed in destructor. Internal options should be updated via
     /// preferences field in receiving slot.
-    /// WARNING: signal receiver must not block execution.
+    /// WARNING: signal receiver may not block execution.
     void aboutToSave();
 
 private:
-    /// @brief Calls callable object f, catches and handles QtUtilities::Error.
+    using Function = std::function<void()>;
+
+    /// @brief Calls f(), catches and handles QtUtilities::Error.
     /// @param errorPrefix Text that will be displayed before
     /// QtUtilities::Error::message().
     /// @param silentMode Makes a difference only in case of error.
@@ -94,8 +97,7 @@ private:
     /// *cancelled is set to true if user cancels the operation; is set to false
     /// otherwise (success or ignoring error).
     /// @return true on success, false on failure (error).
-    template <typename F>
-    bool handlePreferencesErrors(F f, const QString & errorPrefix,
+    bool handlePreferencesErrors(Function f, const QString & errorPrefix,
                                  bool silentMode = false,
                                  bool * cancelled = nullptr);
 

@@ -394,12 +394,11 @@ void TreeWidget::contextMenuEvent(QContextMenuEvent * const event)
         position, tooltipShower_);
 }
 
-template <typename ItemUser>
-void TreeWidget::applyToSelectedItems(ItemUser f)
+void TreeWidget::applyToSelectedItems(ItemUser itemUser)
 {
     hide(); // Improves performance for large tree.
     const auto selected = selectedItems();
-    std::for_each(selected.begin(), selected.end(), f);
+    std::for_each(selected.begin(), selected.end(), std::move(itemUser));
     show();
     setFocus();
 }

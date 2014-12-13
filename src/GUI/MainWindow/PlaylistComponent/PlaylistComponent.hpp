@@ -28,6 +28,7 @@
 # include <QString>
 # include <QObject>
 
+# include <functional>
 # include <string>
 
 
@@ -82,10 +83,12 @@ public:
 
 signals:
     /// @brief Is emitted after playlist edit mode is changed.
-    /// WARNING: signal receiver must not block execution.
+    /// WARNING: signal receiver may not block execution.
     void editModeChanged();
 
 private:
+    using FilenameGetter = std::function<QString()>;
+
     /// Must be called after switching edit mode.
     /// NOTE: does not block execution.
     void updateActionsState();
@@ -128,9 +131,6 @@ private:
     /// @brief Calls ensureAskInEditMode(). If edit mode is set, calls
     /// filenameGetter() and if acquired filename is not empty, tries to load
     /// temporaryTree_ from it.
-    /// @tparam FilenameGetter Must be a callable object
-    /// that returns [const] QString [&[&]].
-    template <typename FilenameGetter>
     void loadTemporaryPlaylist(FilenameGetter filenameGetter);
 
 

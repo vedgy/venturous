@@ -28,6 +28,7 @@
 
 # include <QTreeWidget>
 
+# include <functional>
 # include <string>
 # include <stdexcept>
 # include <memory>
@@ -37,6 +38,7 @@ namespace ItemTree
 {
 class Tree;
 }
+QT_FORWARD_DECLARE_CLASS(QTreeWidgetItem)
 
 class TreeWidget : public QTreeWidget
 {
@@ -89,6 +91,8 @@ public:
     }
 
 private:
+    using ItemUser = std::function<void(QTreeWidgetItem *)>;
+
     /// @brief Updates visual representation to match itemTree.
     void updateTree(const ItemTree::Tree & itemTree);
 
@@ -106,7 +110,6 @@ private:
 
     void contextMenuEvent(QContextMenuEvent *) override;
 
-    template <typename ItemUser>
     void applyToSelectedItems(ItemUser f);
 
 

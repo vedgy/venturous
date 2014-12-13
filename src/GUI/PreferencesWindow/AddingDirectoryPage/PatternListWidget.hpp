@@ -23,6 +23,7 @@
 # include <QString>
 # include <QListWidget>
 
+# include <functional>
 # include <array>
 # include <vector>
 
@@ -67,6 +68,8 @@ private:
         QListWidgetItem * item;
     };
 
+    using ItemUser = std::function<void(QListWidgetItem *)>;
+
     void unselectAllItems();
 
     void removeAllUnknownPatterns();
@@ -78,8 +81,7 @@ private:
 
     void removeSelectedUnknownItems();
 
-    template <typename ItemUser>
-    void applyToSelectedItems(ItemUser f);
+    void applyToSelectedItems(ItemUser itemUser);
 
     /// Indices of caption rows. Is not changed after constructor.
     std::array<int, 3> captionRows_;

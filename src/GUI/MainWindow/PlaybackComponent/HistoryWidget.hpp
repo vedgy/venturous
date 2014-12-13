@@ -40,8 +40,8 @@ public:
     typedef std::function<void(std::string)> PlayExistingEntry;
 
     /// @param playExistingEntry function that starts playing entry from
-    /// history. It must not be pushed in history after playing.
-    /// WARNING: playExistingEntry must not block execution.
+    /// history. It may not be pushed in history after playing.
+    /// WARNING: playExistingEntry may not block execution.
     /// @param playItems Function that starts playing ItemCollection
     /// parameter. If item(s) actually get(s) played, HistoryWidget must be
     /// notified about this via push() or playedMultipleItems().

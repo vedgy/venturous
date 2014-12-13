@@ -28,6 +28,7 @@
 # include <QKeyEvent>
 
 # include <cstddef>
+# include <utility>
 # include <algorithm>
 # include <set>
 
@@ -259,8 +260,7 @@ void PatternListWidget::removeSelectedUnknownItems()
         scrollToBottom();
 }
 
-template <typename ItemUser>
-void PatternListWidget::applyToSelectedItems(ItemUser f)
+void PatternListWidget::applyToSelectedItems(ItemUser itemUser)
 {
     std::set<QListWidgetItem *> selected;
 
@@ -288,8 +288,5 @@ void PatternListWidget::applyToSelectedItems(ItemUser f)
         });
     }
 
-    std::for_each(selected.cbegin(), selected.cend(),
-    [& f](QListWidgetItem * const item) {
-        f(item);
-    });
+    std::for_each(selected.cbegin(), selected.cend(), std::move(itemUser));
 }

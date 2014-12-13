@@ -3,7 +3,7 @@
     <qresource prefix="Venturous">
         <file alias="CopyLeft">icons/CopyLeft.png</file>
         <file alias="CopyRight">icons/CopyRight.png</file>
-        <file alias="Venturous.png">icons/venturous.png</file>
+        <file alias="venturous.png">icons/venturous.png</file>
         <file alias="user-guide.html">documents/user-guide.html</file>
         <file alias="icon_list">SimpleFugue/icon_list</file>
     </qresource>

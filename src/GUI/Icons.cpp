@@ -185,7 +185,7 @@ Theme::Theme(const bool alwaysUseFallbackIcons)
         std::cout << "Using application icon from " APPLICATION_NAME
                   " resources." << std::endl;
 # endif
-        icons_.front().addFile(getAbsolutePath(APPLICATION_NAME ".png"));
+        icons_.front().addFile(getAbsolutePath(ICON_NAME ".png"));
     }
 }
 

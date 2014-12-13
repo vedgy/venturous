@@ -85,7 +85,7 @@ public:
 
 signals:
     /// status is always equal to status().
-    /// WARNING: signal receiver must not block execution.
+    /// WARNING: signal receiver may not block execution.
     void statusChanged(MediaPlayer::Status status);
 
 private:

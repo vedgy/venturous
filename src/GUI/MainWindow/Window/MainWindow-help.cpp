@@ -40,12 +40,12 @@ void MainWindow::onHelpHelp()
 {
     /// Names in Venturous resources.
     const std::array<QString, 2> filenames = {{
-            "user-guide.html", APPLICATION_NAME ".png"
+            "user-guide.html", ICON_NAME ".png"
         }
     };
     const QString errorTitle = APPLICATION_NAME + tr(" help");
     const QString dirName =
-        APPLICATION_NAME "-v" + QCoreApplication::applicationVersion();
+        ICON_NAME "-v" + QCoreApplication::applicationVersion();
 
     QDir dir = QDir::temp();
     const QString dirErrorMessage =
@@ -73,10 +73,10 @@ void MainWindow::onHelpHelp()
             }
         }
     }
-    const QString url = dir.filePath(filenames.front());
-    if (! QDesktopServices::openUrl(QUrl(url, QUrl::StrictMode))) {
+    const QString absoluteName = dir.filePath(filenames.front());
+    if (! QDesktopServices::openUrl(QUrl::fromLocalFile(absoluteName))) {
         inputController_.showMessage(errorTitle,
-                                     tr("Could not open URL ") + url);
+                                     tr("Could not open file ") + absoluteName);
     }
 }
 

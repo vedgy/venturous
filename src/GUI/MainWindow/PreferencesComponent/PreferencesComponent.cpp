@@ -107,9 +107,8 @@ void PreferencesComponent::quit()
 
 
 
-template <typename F>
 bool PreferencesComponent::handlePreferencesErrors(
-    F f, const QString & errorPrefix, const bool silentMode,
+    Function f, const QString & errorPrefix, const bool silentMode,
     bool * const cancelled)
 {
     QtUtilities::Widgets::HandleErrors handleErrors {
