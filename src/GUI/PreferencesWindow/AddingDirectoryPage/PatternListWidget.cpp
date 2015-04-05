@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2015 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -18,204 +18,154 @@
 
 # include "PatternListWidget.hpp"
 
-# include <VenturousCore/AddingItems.hpp>
+# include "FilePattern.hpp"
 
 # include <QList>
 # include <QString>
-# include <QStringList>
+# include <QVariant>
 # include <QListWidgetItem>
 # include <QListWidget>
 # include <QKeyEvent>
 
 # include <cstddef>
+# include <cassert>
 # include <utility>
 # include <algorithm>
-# include <set>
 
 
 namespace
 {
-constexpr Qt::ItemFlags captionItemFlags() noexcept {
-    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+using PatternSet = PatternListWidget::PatternSet;
 }
+Q_DECLARE_METATYPE(PatternSet::iterator)
 
-constexpr Qt::ItemFlags knownItemFlags() noexcept {
-    return captionItemFlags() | Qt::ItemIsUserCheckable;
-}
-
-constexpr Qt::ItemFlags unknownItemFlags() noexcept {
-    return knownItemFlags() | Qt::ItemIsEditable;
-}
-
-void addCaption(QListWidget * listWidget, const QString & text)
+namespace
 {
-    QListWidgetItem * const item = new QListWidgetItem(text);
-    item->setBackgroundColor(Qt::cyan);
-    item->setFlags(captionItemFlags());
-    listWidget->addItem(item);
-}
-
-QListWidgetItem * addUnknownPattern(QListWidget * listWidget,
-                                    const QString & pattern, bool checked)
+inline void setChecked(QListWidgetItem * item, bool checked)
 {
-    QListWidgetItem * const item = new QListWidgetItem(pattern);
-    item->setFlags(unknownItemFlags());
     item->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
-    listWidget->addItem(item);
-    return item;
 }
 
-inline bool isNonCaptionItem(const QListWidgetItem * item)
+inline void appendPatternToList(FilePatternList & patternList,
+                                const QListWidgetItem * item)
 {
-    return item->flags() != captionItemFlags();
+    patternList.push_back( { item->text(),
+                             item->checkState() == Qt::Checked
+                           });
 }
 
-inline bool isUnknownItem(const QListWidgetItem * item)
+inline PatternSet::iterator getIterator(const QListWidgetItem * item)
 {
-    return item->flags() == unknownItemFlags();
+    return item->data(Qt::UserRole).value<PatternSet::iterator>();
 }
 
+inline void setIterator(QListWidgetItem * item, PatternSet::iterator iterator)
+{
+    item->setData(Qt::UserRole, QVariant::fromValue(std::move(iterator)));
 }
+
+} // END unnamed namespace
 
 
 PatternListWidget::PatternListWidget(QWidget * const parent) :
-    QListWidget(parent)
+    QListWidget(parent), tooltipShower_(this)
 {
     setSelectionMode(QAbstractItemView::ExtendedSelection);
-
-    knownPatterns_.reserve(std::size_t(
-                               AddingItems::allMetadataPatterns().size() +
-                               AddingItems::allAudioPatterns().size()));
-
-    captionRows_[0] = count();
-    addCaption(this, tr("Metadata patterns"));
-    addKnownPatterns(AddingItems::allMetadataPatterns());
-
-    captionRows_[1] = count();
-    addCaption(this, tr("Audio patterns"));
-    addKnownPatterns(AddingItems::allAudioPatterns());
-
-    std::sort(knownPatterns_.begin(), knownPatterns_.end());
-
-    captionRows_[2] = count();
-    addCaption(this, tr("Other patterns"));
+    connect(this, SIGNAL(itemChanged(QListWidgetItem *)),
+            SLOT(onItemChanged(QListWidgetItem *)));
 }
 
-void PatternListWidget::setUiPatterns(const QStringList & patterns)
+void PatternListWidget::setUiPatterns(const FilePatternList & patterns)
 {
-    removeAllUnknownPatterns();
-    std::for_each(knownPatterns_.cbegin(), knownPatterns_.cend(),
-    [](const KnownPattern & kp) {
-        kp.item->setCheckState(Qt::Unchecked);
-    });
-
-    for (const QString & pattern : patterns) {
-        const auto range = std::equal_range(
-                               knownPatterns_.cbegin(), knownPatterns_.cend(),
-                               KnownPattern(pattern, nullptr));
-        if (range.first == range.second)
-            ::addUnknownPattern(this, pattern, true);
-        else
-            range.first->item->setCheckState(Qt::Checked);
-    }
+    clear();
+    patternSet_.clear();
+    addUniquePatterns(patterns);
 }
 
-QStringList PatternListWidget::getUiPatterns() const
+FilePatternList PatternListWidget::getUiPatterns() const
 {
-    QStringList result;
-    std::set<QString> included;
-
+    FilePatternList result;
     const int nItems = count();
-    for (int i = 0; i < nItems; ++i) {
-        const QListWidgetItem * const current = item(i);
-        if (current->checkState() == Qt::Checked) {
-            const auto p = included.insert(current->text());
-            if (p.second)
-                result << * p.first;
-        }
-    }
+    result.reserve(std::size_t(nItems));
+    for (int i = 0; i < nItems; ++i)
+        appendPatternToList(result, item(i));
     return result;
 }
 
-void PatternListWidget::addUnknownPatterns(const QStringList & unknownPatterns)
+void PatternListWidget::addPatterns(const FilePatternList & patterns)
 {
-    for (const QString & pattern : unknownPatterns)
-        ::addUnknownPattern(this, pattern, false);
+    clearSelection();
+    addUniquePatterns(patterns);
     scrollToBottom();
 }
 
-QStringList PatternListWidget::getSelectedUnknownPatterns() const
+FilePatternList PatternListWidget::getSelectedPatterns() const
 {
-    QStringList result;
-    if (item(captionRows_.back())->isSelected()) {
-        const int startItem = captionRows_.back() + 1;
-        const int nItems = count();
-        result.reserve(nItems - startItem);
-        for (int i = startItem; i < nItems; ++i)
-            result << item(i)->text();
-    }
-    else {
-        const auto selected = selectedItems();
-
-        for (const QListWidgetItem * item : selected) {
-            if (isUnknownItem(item))
-                result << item->text();
-        }
-    }
+    FilePatternList result;
+    const auto selected = selectedItems();
+    result.reserve(std::size_t(selected.size()));
+    for (const QListWidgetItem * item : selected)
+        appendPatternToList(result, item);
     return result;
 }
 
 
-void PatternListWidget::addUnknownPattern()
+void PatternListWidget::addPattern()
 {
-    unselectAllItems();
-    QListWidgetItem * const item =
-        ::addUnknownPattern(this, tr("<pattern>"), true);
+    clearSelection();
+    QListWidgetItem * item;
+    const QString newItemText = tr("<enter new pattern>");
+    if (patternSet_.count(newItemText) == 1) {
+        // Reuse the existing pattern with text=newItemText.
+        const auto items = findItems(newItemText, Qt::MatchExactly);
+        assert(items.size() == 1);
+        item = items.back();
+    }
+    else {
+        // Create a new pattern with text=newItemText.
+        const PatternSet::iterator iterator =
+            patternSet_.insert(newItemText).first;
+        item = addPatternToUiList(newItemText, true, iterator);
+    }
     scrollToItem(item);
     editItem(item);
 }
 
 
-PatternListWidget::KnownPattern::KnownPattern(
-    const QString & p, QListWidgetItem * const i)
-    : pattern(p), item(i)
-{}
-
-PatternListWidget::KnownPattern::KnownPattern(const QString & p)
-    : pattern(p), item(new QListWidgetItem(pattern))
+void PatternListWidget::addUniquePattern(const FilePattern & pattern)
 {
-    item->setFlags(knownItemFlags());
+    const auto pair = patternSet_.insert(pattern.pattern);
+    if (pair.second)
+        addPatternToUiList(pattern.pattern, pattern.enabled, pair.first);
 }
 
-
-void PatternListWidget::unselectAllItems()
+void PatternListWidget::addUniquePatterns(const FilePatternList & patterns)
 {
-    const auto selected = selectedItems();
-    std::for_each(selected.begin(), selected.end(),
-    [](QListWidgetItem * const item) {
-        item->setSelected(false);
-    });
+    for (const FilePattern & p : patterns)
+        addUniquePattern(p);
 }
 
-void PatternListWidget::removeAllUnknownPatterns()
+QListWidgetItem * PatternListWidget::addPatternToUiList(
+    const QString & pattern, const bool checked,
+    const PatternSet::iterator iterator)
 {
-    for (int i = count() - 1; i > captionRows_.back(); --i)
-        delete takeItem(i);
-}
-
-void PatternListWidget::addKnownPatterns(const QStringList & patterns)
-{
-    for (const QString & pattern : patterns) {
-        knownPatterns_.emplace_back(pattern);
-        addItem(knownPatterns_.back().item);
-    }
+    QListWidgetItem * const item = new QListWidgetItem(pattern);
+    item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable |
+                   Qt::ItemIsUserCheckable | Qt::ItemIsEditable);
+    setChecked(item, checked);
+    setIterator(item, iterator);
+    addItem(item);
+    return item;
 }
 
 void PatternListWidget::keyPressEvent(QKeyEvent * const event)
 {
     switch (event->key()) {
         case Qt::Key_Delete:
-            removeSelectedUnknownItems();
+            applyToSelectedItems([this](QListWidgetItem * item) {
+                patternSet_.erase(getIterator(item));
+                delete item;
+            });
             break;
         case Qt::Key_Insert:
             applyToSelectedItems([](QListWidgetItem * item) {
@@ -238,55 +188,35 @@ void PatternListWidget::keyPressEvent(QKeyEvent * const event)
     }
 }
 
-void PatternListWidget::removeSelectedUnknownItems()
-{
-    if (item(captionRows_.back())->isSelected()) {
-        removeAllUnknownPatterns();
-        scrollToBottom();
-        return;
-    }
-
-    const auto selected = selectedItems();
-    bool itemRemoved = false;
-    std::for_each(selected.begin(), selected.end(),
-    [&](QListWidgetItem * const item) {
-        if (isUnknownItem(item)) {
-            delete item;
-            itemRemoved = true;
-        }
-    });
-
-    if (itemRemoved)
-        scrollToBottom();
-}
-
+template <typename ItemUser>
 void PatternListWidget::applyToSelectedItems(ItemUser itemUser)
 {
-    std::set<QListWidgetItem *> selected;
+    const auto selected = selectedItems();
+    std::for_each(selected.begin(), selected.end(), std::move(itemUser));
+}
 
-    bool allItemsSelected = true;
 
-    // Insert children of selected captions.
-    for (std::size_t i = 0; i < captionRows_.size(); ++i) {
-        if (item(captionRows_[i])->isSelected()) {
-            const int end = (i + 1 == captionRows_.size() ?
-                             count() : captionRows_[i + 1]);
-            for (int row = captionRows_[i] + 1; row < end; ++row)
-                selected.insert(item(row));
+void PatternListWidget::onItemChanged(QListWidgetItem * const item)
+{
+    const auto iterator = getIterator(item);
+    const auto handleInvalidPattern = [&](QString && errorMessage) {
+        tooltipShower_.show(mapToGlobal(QPoint {}), std::move(errorMessage));
+        item->setText(*iterator);
+    };
+
+    QString newText = item->text();
+    if (newText.isEmpty()) {
+        handleInvalidPattern(tr("Pattern can not be empty."));
+        return;
+    }
+    if (newText != *iterator) { // item's text was changed.
+        const auto pair = patternSet_.insert(std::move(newText));
+        if (! pair.second) {
+            handleInvalidPattern(
+                tr("Entered pattern is already present in the list."));
+            return;
         }
-        else
-            allItemsSelected = false;
+        patternSet_.erase(iterator);
+        setIterator(item, pair.first);
     }
-
-    if (! allItemsSelected) {
-        // Insert all non-caption selected items.
-        const auto selectedRows = selectedItems();
-        std::for_each(selectedRows.begin(), selectedRows.end(),
-        [&](QListWidgetItem * const item) {
-            if (isNonCaptionItem(item))
-                selected.insert(item);
-        });
-    }
-
-    std::for_each(selected.cbegin(), selected.cend(), std::move(itemUser));
 }

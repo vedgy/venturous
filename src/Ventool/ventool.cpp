@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2015 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -62,7 +62,7 @@ void printCommand(const char * command, const char * description)
 
 void printHelp()
 {
-    std::cout << TOOL_EXECUTABLE " - sends commands to running "
+    std::cout << TOOL_NAME " - sends commands to the running "
               APPLICATION_NAME " instance.\n";
     std::cout << "Usage: " TOOL_EXECUTABLE " <command>\n"
               "where <command> is one of the following:\n";
@@ -91,13 +91,8 @@ void printHelp()
 
 void printError(const std::string & error)
 {
-    std::cerr << TOOL_EXECUTABLE ": " << error << "." << std::endl;
-}
-
-void printErrorAndHelp(const std::string & error)
-{
-    printError(error);
-    printHelp();
+    std::cerr << error << ". Try \"" TOOL_EXECUTABLE " "
+              << Command::help() << "\"." << std::endl;
 }
 
 }
@@ -108,11 +103,15 @@ int main(int argc, char * argv[])
     using namespace SharedMemory;
     char symbol = Symbol::noCommand();
     for (int i = 1; i < argc; ++i) {
-        std::string arg(argv[i]);
-        if (arg.size() >= 2 && arg[0] == '-' && arg[1] == '-') {
-            if (arg.size() == 2)
-                break; // "--" -> ignore the rest.
-            arg.erase(0, 2);
+        std::string arg;
+        {
+            const char * a = argv[i];
+            if (a[0] == '-' && a[1] == '-') {
+                if (a[2] == 0)
+                    break; // " -- " -> ignore the rest.
+                a += 2; // "--arg" -> ignore the "--" prefix.
+            }
+            arg = a;
         }
         using namespace Command;
         if (arg == play())
@@ -152,18 +151,18 @@ int main(int argc, char * argv[])
             return 1;
         }
         else {
-            printErrorAndHelp("unknown command \"" + arg + '"');
+            printError("Unknown command \"" + arg + '"');
             return 3;
         }
 
         if (i != 1) {
-            printErrorAndHelp(
-                "more than one command was specified. This is not allowed");
+            printError(
+                "More than one command was specified. This is not allowed");
             return 4;
         }
     }
     if (symbol == Symbol::noCommand()) {
-        printErrorAndHelp("command was expected");
+        printError("A command was expected");
         return 2;
     }
 

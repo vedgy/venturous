@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2015 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 # include "Preferences.hpp"
 
 # include "CustomActions.hpp"
+# include "FilePattern.hpp"
 
 # include <VenturousCore/AddingItems.hpp>
 # include <VenturousCore/MediaPlayer.hpp>
@@ -33,6 +34,7 @@
 # include <QDomDocument>
 
 # include <cstddef>
+# include <utility>
 
 
 namespace
@@ -55,7 +57,7 @@ VENTUROUS_PREFERENCES_STRING_CONSTANT(saveToDiskImmediately,
                                       "SaveToDiskImmediately")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(nHiddenDirs, "HiddenDirsNumber")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(currentIndex, "CurrentIndex")
-}
+} // END namespace History
 
 VENTUROUS_PREFERENCES_STRING_CONSTANT(localRoot, "Playback")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(playerId, "PlayerID")
@@ -71,20 +73,22 @@ VENTUROUS_PREFERENCES_STRING_CONSTANT(nextFromHistory, "NextFromHistory")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(desktopNotifications,
                                       "DesktopNotifications")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(startupPolicy, "StartupPolicy")
-}
+} // END namespace Playback
 
-namespace AddingItemsPolicy
+namespace AddingItems
 {
-VENTUROUS_PREFERENCES_STRING_CONSTANT(localRoot, "AddingItemsPolicy")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(localRoot, "AddingItems")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(filePatterns, "FilePatterns")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(mediaDirFilePatterns,
                                       "MediaDirFilePatterns")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(pattern, "pattern")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(enabled, "enabled")
+VENTUROUS_PREFERENCES_STRING_CONSTANT(policy, "Policy")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(addFiles, "AddFiles")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(addMediaDirs, "AddMediaDirs")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(ifBothAddFiles, "IfBothAddFiles")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(ifBothAddMediaDirs, "IfBothAddMediaDirs")
-}
+} // END namespace AddingItems
 
 namespace CustomActions
 {
@@ -97,7 +101,7 @@ VENTUROUS_PREFERENCES_STRING_CONSTANT(minArgN, "MinArgN")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(maxArgN, "MaxArgN")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(type, "Type")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(comment, "Comment")
-}
+} // END namespace CustomActions
 
 VENTUROUS_PREFERENCES_STRING_CONSTANT(root, APPLICATION_NAME)
 VENTUROUS_PREFERENCES_STRING_CONSTANT(alwaysUseFallbackIcons,
@@ -123,7 +127,7 @@ VENTUROUS_PREFERENCES_STRING_CONSTANT(windowGeometry, "WindowGeometry")
 VENTUROUS_PREFERENCES_STRING_CONSTANT(windowState, "WindowState")
 
 # undef VENTUROUS_PREFERENCES_STRING_CONSTANT
-}
+} // END namespace Names
 
 
 typedef QtUtilities::XmlWriting::Element XmlElement;
@@ -132,7 +136,7 @@ void appendHistory(XmlElement & parent,
                    const Preferences::Playback::History & history)
 {
     using namespace Names::Playback::History;
-    XmlElement e = parent.appendChild(localRoot());
+    XmlElement e = parent.appendElement(localRoot());
 
     e.appendChild(maxSize(), history.maxSize);
     e.appendChild(copyPlayedEntryToTop(), history.copyPlayedEntryToTop);
@@ -144,7 +148,7 @@ void appendHistory(XmlElement & parent,
 void appendPlayback(XmlElement & parent, const Preferences::Playback & playback)
 {
     using namespace Names::Playback;
-    XmlElement e = parent.appendChild(localRoot());
+    XmlElement e = parent.appendElement(localRoot());
 
     e.appendChild(playerId(), playback.playerId);
 
@@ -166,29 +170,46 @@ void appendPlayback(XmlElement & parent, const Preferences::Playback & playback)
     appendHistory(e, playback.history);
 }
 
-void appendAddingItemsPolicy(XmlElement & parent,
-                             const AddingItems::Policy & policy)
+void appendFilePatternList(XmlElement & parent, const QString & listName,
+                           const FilePatternList & list)
 {
-    using namespace Names::AddingItemsPolicy;
-    XmlElement e = parent.appendChild(localRoot());
+    XmlElement e = parent.appendElement(listName);
+    for (const FilePattern & p : list) {
+        using namespace Names::AddingItems;
+        e.appendChildWithAttribute(pattern(), p.pattern, enabled(), p.enabled);
+    }
+}
 
-    e.appendQStringList(filePatterns(), pattern(), policy.filePatterns);
-    e.appendQStringList(mediaDirFilePatterns(), pattern(),
-                        policy.mediaDirFilePatterns);
-    e.appendChild(addFiles(), policy.addFiles);
-    e.appendChild(addMediaDirs(), policy.addMediaDirs);
-    e.appendChild(ifBothAddFiles(), policy.ifBothAddFiles);
-    e.appendChild(ifBothAddMediaDirs(), policy.ifBothAddMediaDirs);
+void appendAddingPolicy(XmlElement & parent, const AddingItems::Policy & p)
+{
+    using namespace Names::AddingItems;
+    XmlElement e = parent.appendElement(policy());
+    e.appendChild(addFiles(), p.addFiles);
+    e.appendChild(addMediaDirs(), p.addMediaDirs);
+    e.appendChild(ifBothAddFiles(), p.ifBothAddFiles);
+    e.appendChild(ifBothAddMediaDirs(), p.ifBothAddMediaDirs);
+}
+
+void appendAddingItems(XmlElement & parent,
+                       const Preferences::AddingPatterns & patterns,
+                       const AddingItems::Policy & policy)
+{
+    using namespace Names::AddingItems;
+    XmlElement base = parent.appendElement(localRoot());
+    appendFilePatternList(base, filePatterns(), patterns.filePatterns);
+    appendFilePatternList(base, mediaDirFilePatterns(),
+                          patterns.mediaDirFilePatterns);
+    appendAddingPolicy(base, policy);
 }
 
 void appendCustomActions(XmlElement & parent,
                          const CustomActions::Actions & actions)
 {
     using namespace Names::CustomActions;
-    XmlElement base = parent.appendChild(localRoot());
+    XmlElement base = parent.appendElement(localRoot());
 
     for (const CustomActions::Action & a : actions) {
-        XmlElement e = base.appendChild(action());
+        XmlElement e = base.appendElement(action());
         e.appendChild(enabled(), a.enabled);
         e.appendChild(text(), a.text);
         e.appendChild(command(), a.command);
@@ -210,7 +231,8 @@ void loadHistory(const QDomElement & parent,
     typedef Preferences::Playback::History H;
 
     const QDomElement e = getUniqueChild(parent, localRoot());
-
+    if (e.isNull())
+        return;
     copyUniqueChildsTextToMax(e, maxSize(), history.maxSize, H::maxMaxSize);
     copyUniqueChildsTextTo(e, copyPlayedEntryToTop(),
                            history.copyPlayedEntryToTop);
@@ -229,6 +251,8 @@ void loadPlayback(const QDomElement & parent, Preferences::Playback & playback)
     typedef Preferences::Playback P;
 
     const QDomElement e = getUniqueChild(parent, localRoot());
+    if (e.isNull())
+        return;
 
     copyUniqueChildsTextToMax(
         e, playerId(), playback.playerId,
@@ -259,20 +283,78 @@ void loadPlayback(const QDomElement & parent, Preferences::Playback & playback)
     loadHistory(e, playback.history);
 }
 
-void loadAddingItemsPolicy(const QDomElement & parent,
-                           AddingItems::Policy & policy)
+void addToPatternList(FilePatternList & patternList, QStringList && stringList,
+                      bool enabled)
+{
+    for (QString & pattern : stringList)
+        patternList.push_back( { std::move(pattern), enabled });
+}
+
+Preferences::AddingPatterns defaultAddingPatterns()
+{
+    Preferences::AddingPatterns patterns;
+    {
+        QStringList metadata = AddingItems::allMetadataPatterns();
+        QStringList audio = AddingItems::allAudioPatterns();
+        FilePatternList & patternList = patterns.filePatterns;
+        patternList.reserve(std::size_t(metadata.size() + audio.size()));
+        addToPatternList(patternList, std::move(metadata), true);
+        addToPatternList(patternList, std::move(audio), false);
+    }
+    {
+        QStringList audio = AddingItems::allAudioPatterns();
+        FilePatternList & patternList = patterns.mediaDirFilePatterns;
+        patternList.reserve(std::size_t(audio.size()));
+        addToPatternList(patternList, std::move(audio), true);
+    }
+    return patterns;
+}
+
+FilePattern domElementToFilePattern(const QDomElement & e)
+{
+    FilePattern pattern { e.text(), true };
+    QtUtilities::XmlReading::copyElementsAttributeTo(
+        e, Names::AddingItems::enabled(), pattern.enabled);
+    return pattern;
+}
+
+void loadFilePatternList(const QDomElement & parent, const QString & listName,
+                         FilePatternList & list)
 {
     using namespace QtUtilities::XmlReading;
-    using namespace Names::AddingItemsPolicy;
-    const QDomElement e = getUniqueChild(parent, localRoot());
+    const QDomElement e = getUniqueChild(parent, listName);
+    if (e.isNull())
+        return;
+    list = getChildren<FilePatternList>(e, Names::AddingItems::pattern(),
+                                        domElementToFilePattern);
+}
 
-    copyQStringListTo(e, filePatterns(), pattern(), policy.filePatterns);
-    copyQStringListTo(e, mediaDirFilePatterns(), pattern(),
-                      policy.mediaDirFilePatterns);
-    copyUniqueChildsTextTo(e, addFiles(), policy.addFiles);
-    copyUniqueChildsTextTo(e, addMediaDirs(), policy.addMediaDirs);
-    copyUniqueChildsTextTo(e, ifBothAddFiles(), policy.ifBothAddFiles);
-    copyUniqueChildsTextTo(e, ifBothAddMediaDirs(), policy.ifBothAddMediaDirs);
+void loadAddingPolicy(const QDomElement & parent, AddingItems::Policy & p)
+{
+    using namespace QtUtilities::XmlReading;
+    using namespace Names::AddingItems;
+    const QDomElement e = getUniqueChild(parent, policy());
+    if (e.isNull())
+        return;
+    copyUniqueChildsTextTo(e, addFiles(), p.addFiles);
+    copyUniqueChildsTextTo(e, addMediaDirs(), p.addMediaDirs);
+    copyUniqueChildsTextTo(e, ifBothAddFiles(), p.ifBothAddFiles);
+    copyUniqueChildsTextTo(e, ifBothAddMediaDirs(), p.ifBothAddMediaDirs);
+}
+
+void loadAddingItems(const QDomElement & parent,
+                     Preferences::AddingPatterns & patterns,
+                     AddingItems::Policy & policy)
+{
+    using namespace Names::AddingItems;
+    const QDomElement e = QtUtilities::XmlReading::getUniqueChild(
+                              parent, localRoot());
+    if (e.isNull())
+        return;
+    loadFilePatternList(e, filePatterns(), patterns.filePatterns);
+    loadFilePatternList(e, mediaDirFilePatterns(),
+                        patterns.mediaDirFilePatterns);
+    loadAddingPolicy(e, policy);
 }
 
 CustomActions::Actions defaultCustomActions()
@@ -331,39 +413,41 @@ CustomActions::Actions defaultCustomActions()
     return actions;
 }
 
+CustomActions::Action domElementToCustomAction(const QDomElement & e)
+{
+    using namespace QtUtilities::XmlReading;
+    using namespace Names::CustomActions;
+    using CustomActions::Action;
+    Action a = Action::getEmpty();
+    copyUniqueChildsTextTo(e, enabled(), a.enabled);
+    copyUniqueChildsTextTo(e, text(), a.text);
+    copyUniqueChildsTextTo(e, command(), a.command);
+    copyUniqueChildsTextToRange(e, minArgN(), a.minArgN,
+                                Action::minMinArgN, Action::maxMinArgN);
+    copyUniqueChildsTextToRange(e, maxArgN(), a.maxArgN,
+                                Action::minMaxArgN, Action::maxMaxArgN);
+    {
+        Action::TypeUnderlyingType t;
+        if (copyUniqueChildsTextToMax(e, type(), t, Action::maxType))
+            a.type = static_cast<Action::Type>(t);
+    }
+    copyUniqueChildsTextTo(e, comment(), a.comment);
+    return a;
+}
+
 void loadCustomActions(const QDomElement & parent,
                        CustomActions::Actions & actions)
 {
     using namespace QtUtilities::XmlReading;
     using namespace Names::CustomActions;
-    const QDomElement base = getUniqueChild(parent, localRoot());
-    if (base.isNull())
+    const QDomElement e = getUniqueChild(parent, localRoot());
+    if (e.isNull())
         return;
-
-    const auto collection = getChildren(base, action());
-    typedef CustomActions::Action Action;
-    actions.resize(collection.size(), Action::getEmpty());
-    for (std::size_t i = 0; i < collection.size(); ++i) {
-        const QDomElement & e = collection[i];
-        Action & a = actions[i];
-
-        copyUniqueChildsTextTo(e, enabled(), a.enabled);
-        copyUniqueChildsTextTo(e, text(), a.text);
-        copyUniqueChildsTextTo(e, command(), a.command);
-        copyUniqueChildsTextToRange(e, minArgN(), a.minArgN,
-                                    Action::minMinArgN, Action::maxMinArgN);
-        copyUniqueChildsTextToRange(e, maxArgN(), a.maxArgN,
-                                    Action::minMaxArgN, Action::maxMaxArgN);
-        {
-            Action::TypeUnderlyingType t;
-            if (copyUniqueChildsTextToMax(e, type(), t, Action::maxType))
-                a.type = static_cast<Action::Type>(t);
-        }
-        copyUniqueChildsTextTo(e, comment(), a.comment);
-    }
+    actions = getChildren<CustomActions::Actions>(
+                  e, action(), domElementToCustomAction);
 }
 
-}
+} // END unnamed namespace
 
 
 constexpr std::size_t Preferences::Playback::History::maxMaxSize;
@@ -374,8 +458,7 @@ constexpr int Preferences::Playback::History::multipleItemsIndex;
 Preferences::Playback::History::History()
     : maxSize(100), copyPlayedEntryToTop(false), saveToDiskImmediately(false),
       nHiddenDirs(-2), currentIndex(0)
-{
-}
+{}
 
 
 constexpr unsigned Preferences::Playback::minStatusUpdateInterval;
@@ -389,7 +472,15 @@ Preferences::Playback::Playback()
       autoHideExternalPlayerWindow(false), exitExternalPlayerOnQuit(true),
       statusUpdateInterval(0), nextFromHistory(false),
       desktopNotifications(true), startupPolicy(StartupPolicy::doNothing)
+{}
+
+
+AddingItems::Patterns Preferences::AddingPatterns::enabledPatternLists() const
 {
+    return {
+        getEnabledFilePatterns(filePatterns),
+        getEnabledFilePatterns(mediaDirFilePatterns)
+    };
 }
 
 
@@ -398,7 +489,9 @@ constexpr unsigned Preferences::defaultVentoolCheckInterval;
 constexpr unsigned Preferences::maxVentoolCheckInterval;
 
 Preferences::Preferences()
-    : alwaysUseFallbackIcons(false),
+    : addingPatterns(defaultAddingPatterns()),
+      addingPolicy(),
+      alwaysUseFallbackIcons(false),
       notificationAreaIcon(false),
       startToNotificationArea(false),
       closeToNotificationArea(false),
@@ -408,8 +501,7 @@ Preferences::Preferences()
       savePreferencesToDiskImmediately(false),
       ventoolCheckInterval(defaultVentoolCheckInterval),
       customActions(defaultCustomActions())
-{
-}
+{}
 
 void Preferences::save(const QString & filename) const
 {
@@ -433,14 +525,14 @@ void Preferences::save(const QString & filename) const
     root.appendChild(Names::ventoolCheckInterval(), ventoolCheckInterval);
 
     appendPlayback(root, playback);
-    appendAddingItemsPolicy(root, addingPolicy);
+    appendAddingItems(root, addingPatterns, addingPolicy);
     appendCustomActions(root, customActions);
 
 
-    root.appendByteArray(Names::preferencesWindowGeometry(),
-                         preferencesWindowGeometry);
-    root.appendByteArray(Names::windowGeometry(), windowGeometry);
-    root.appendByteArray(Names::windowState(), windowState);
+    root.appendChildByteArray(Names::preferencesWindowGeometry(),
+                              preferencesWindowGeometry);
+    root.appendChildByteArray(Names::windowGeometry(), windowGeometry);
+    root.appendChildByteArray(Names::windowState(), windowState);
 
     doc.save(filename);
 }
@@ -477,7 +569,7 @@ void Preferences::load(const QString & filename)
                                         maxVentoolCheckInterval);
 
     loadPlayback(root, playback);
-    loadAddingItemsPolicy(root, addingPolicy);
+    loadAddingItems(root, addingPatterns, addingPolicy);
     loadCustomActions(root, customActions);
 
 
@@ -514,9 +606,18 @@ bool operator == (const Preferences::Playback & lhs,
            lhs.startupPolicy == rhs.startupPolicy;
 }
 
+bool operator == (const Preferences::AddingPatterns & lhs,
+                  const Preferences::AddingPatterns & rhs)
+{
+    return lhs.filePatterns == rhs.filePatterns &&
+           lhs.mediaDirFilePatterns == rhs.mediaDirFilePatterns;
+}
+
 bool operator == (const Preferences & lhs, const Preferences & rhs)
 {
     return lhs.playback == rhs.playback &&
+
+           lhs.addingPatterns == rhs.addingPatterns &&
            lhs.addingPolicy == rhs.addingPolicy &&
 
            lhs.alwaysUseFallbackIcons == rhs.alwaysUseFallbackIcons &&

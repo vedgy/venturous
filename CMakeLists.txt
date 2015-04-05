@@ -111,8 +111,8 @@ include_directories(
 )
 
 set(Sources
-    ${Sources_Path}/Application.cpp ${Sources_Path}/Preferences.cpp
-    ${Sources_Path}/main.cpp
+    ${Sources_Path}/Application.cpp ${Sources_Path}/FilePattern.cpp
+    ${Sources_Path}/Preferences.cpp ${Sources_Path}/main.cpp
 
     ${GUI_Path}/Icons.cpp ${GUI_Path}/Actions.cpp ${GUI_Path}/CustomActions.cpp
 

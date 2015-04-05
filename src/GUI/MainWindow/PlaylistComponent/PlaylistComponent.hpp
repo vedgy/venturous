@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2015 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 
 # include "TreeWidget.hpp"
 # include "CommonTypes.hpp"
+# include "Preferences.hpp"
 
 # include <VenturousCore/ItemTree.hpp>
 
@@ -33,7 +34,6 @@
 
 
 struct Actions;
-class Preferences;
 namespace AddingItems
 {
 struct Policy;
@@ -136,6 +136,7 @@ private:
 
     const Actions & actions_;
     QtUtilities::Widgets::InputController & inputController_;
+    const Preferences::AddingPatterns & addingPatterns_;
     const AddingItems::Policy & addingPolicy_;
     const CommonTypes::PlayItems playItems_;
     const std::string itemsFilename_;

@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2015 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 # define VENTUROUS_PREFERENCES_HPP
 
 # include "CustomActions.hpp"
+# include "FilePattern.hpp"
 
 # include <VenturousCore/AddingItems.hpp>
 
@@ -80,6 +81,15 @@ public:
     playback;
 
 
+    struct AddingPatterns {
+        FilePatternList filePatterns;
+        FilePatternList mediaDirFilePatterns;
+
+        /// @return Enabled pattern lists.
+        AddingItems::Patterns enabledPatternLists() const;
+    };
+
+
     static constexpr unsigned minVentoolCheckInterval = 100,
                               defaultVentoolCheckInterval = 1000,
                               maxVentoolCheckInterval = 9999;
@@ -98,6 +108,7 @@ public:
     void load(const QString & filename);
 
 
+    AddingPatterns addingPatterns;
     AddingItems::Policy addingPolicy;
     bool alwaysUseFallbackIcons;
     bool notificationAreaIcon, startToNotificationArea, closeToNotificationArea;
@@ -131,6 +142,15 @@ bool operator == (const Preferences::Playback & lhs,
 
 inline bool operator != (const Preferences::Playback & lhs,
                          const Preferences::Playback & rhs)
+{
+    return !(lhs == rhs);
+}
+
+bool operator == (const Preferences::AddingPatterns & lhs,
+                  const Preferences::AddingPatterns & rhs);
+
+inline bool operator != (const Preferences::AddingPatterns & lhs,
+                         const Preferences::AddingPatterns & rhs)
 {
     return !(lhs == rhs);
 }

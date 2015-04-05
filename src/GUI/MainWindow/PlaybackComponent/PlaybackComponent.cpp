@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2015 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -59,6 +59,11 @@ inline QString externalPlayerErrors(bool plural = true)
 {
     return QObject::tr("External player ") +
            (plural ? QObject::tr("errors") : QObject::tr("error"));
+}
+
+inline QString externalPlayerError()
+{
+    return externalPlayerErrors(false);
 }
 
 }
@@ -340,18 +345,23 @@ void PlaybackComponent::onPlayerFinished(
     const QStringList missingFilesAndDirs)
 {
     QString errorMessage;
+    int nErrors = 0;
     if (crashExit)
         errorMessage = tr("crashed");
     else if (exitCode != 0)
         errorMessage = tr("finished with exit code %1").arg(exitCode);
     if (! errorMessage.isEmpty()) {
+        ++nErrors;
         errorMessage = mediaPlayer_->playerName() + ' ' +
                        errorMessage + ".\n\n";
     }
 
-    if (! errors.empty())
+    if (! errors.empty()) {
+        nErrors += errors.size();
         errorMessage += errors.join("\n") + "\n\n";
+    }
     if (! missingFilesAndDirs.empty()) {
+        ++nErrors;
         errorMessage += tr("No such files or directories (%1):")
                         .arg(missingFilesAndDirs.size()) + '\n' +
                         missingFilesAndDirs.join(";\n") + ".\n\n";
@@ -361,9 +371,9 @@ void PlaybackComponent::onPlayerFinished(
         errorMessage += '\t' + tr("Continue playback?");
         setStatus(Status::stopped);
         const auto selectedButton =
-            inputController_.showMessage(externalPlayerErrors(), errorMessage,
-                                         QMessageBox::Yes | QMessageBox::No,
-                                         QMessageBox::No);
+            inputController_.showMessage(
+                externalPlayerErrors(nErrors > 1), errorMessage,
+                QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
         if (selectedButton == QMessageBox::No)
             return;
     }
@@ -373,7 +383,7 @@ void PlaybackComponent::onPlayerFinished(
 void PlaybackComponent::onPlayerError(QString errorMessage)
 {
     inputController_.showMessage(
-        externalPlayerErrors(false),
+        externalPlayerError(),
         mediaPlayer_->playerName() + ": " + std::move(errorMessage));
     updateStatus();
 }

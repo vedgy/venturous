@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2015 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -80,6 +80,7 @@ PlaylistComponent::PlaylistComponent(
     const Preferences & preferences, CommonTypes::PlayItems playItems,
     const std::string & preferencesDir, bool & cancelled)
     : actions_(actions), inputController_(inputController),
+      addingPatterns_(preferences.addingPatterns),
       addingPolicy_(preferences.addingPolicy), playItems_(std::move(playItems)),
       itemsFilename_(preferencesDir + "items"),
       qItemsFilename_(QtUtilities::toQString(itemsFilename_)),
@@ -408,7 +409,8 @@ void PlaylistComponent::onAddDirectory()
                             tr("Add directory"), QFileDialog::AcceptOpen,
                             QFileDialog::Directory);
     if (! dir.isEmpty()) {
-        AddingItems::addDir(dir, addingPolicy_, * temporaryTree_);
+        AddingItems::addDir(dir, addingPatterns_.enabledPatternLists(),
+                            addingPolicy_, * temporaryTree_);
         treeWidget_.updateTree();
     }
 }

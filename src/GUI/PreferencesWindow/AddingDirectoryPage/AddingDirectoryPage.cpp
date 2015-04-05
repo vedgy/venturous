@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2015 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -76,16 +76,16 @@ AddingDirectoryPage::AddingDirectoryPage(const QIcon & addIcon,
 void AddingDirectoryPage::setUiPreferences(const Preferences & source)
 {
     addingPolicyFrame_.setUiPreferences(source.addingPolicy);
-    filePatternList_.setUiPatterns(source.addingPolicy.filePatterns);
+    filePatternList_.setUiPatterns(source.addingPatterns.filePatterns);
     mediaDirFilePatternList_.setUiPatterns(
-        source.addingPolicy.mediaDirFilePatterns);
+        source.addingPatterns.mediaDirFilePatterns);
 }
 
 void AddingDirectoryPage::writeUiPreferencesTo(Preferences & destination) const
 {
     addingPolicyFrame_.writeUiPreferencesTo(destination.addingPolicy);
-    destination.addingPolicy.filePatterns = filePatternList_.getUiPatterns();
-    destination.addingPolicy.mediaDirFilePatterns =
+    destination.addingPatterns.filePatterns = filePatternList_.getUiPatterns();
+    destination.addingPatterns.mediaDirFilePatterns =
         mediaDirFilePatternList_.getUiPatterns();
 }
 
@@ -100,8 +100,7 @@ void AddingDirectoryPage::addColumn(
 
     QPushButton * const addButton =
         new QPushButton(addIcon, tr("Add pattern"), this);
-    patternList.connect(addButton, SIGNAL(clicked(bool)),
-                        SLOT(addUnknownPattern()));
+    patternList.connect(addButton, SIGNAL(clicked(bool)), SLOT(addPattern()));
     layout->addWidget(addButton, 6, column);
 }
 
@@ -121,12 +120,12 @@ void AddingDirectoryPage::addCopyButton(
 
 void AddingDirectoryPage::copyLeft()
 {
-    filePatternList_.addUnknownPatterns(
-        mediaDirFilePatternList_.getSelectedUnknownPatterns());
+    filePatternList_.addPatterns(
+        mediaDirFilePatternList_.getSelectedPatterns());
 }
 
 void AddingDirectoryPage::copyRight()
 {
-    mediaDirFilePatternList_.addUnknownPatterns(
-        filePatternList_.getSelectedUnknownPatterns());
+    mediaDirFilePatternList_.addPatterns(
+        filePatternList_.getSelectedPatterns());
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2015 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -19,74 +19,68 @@
 # ifndef VENTUROUS_PATTERN_LIST_WIDGET
 # define VENTUROUS_PATTERN_LIST_WIDGET
 
+# include "FilePattern.hpp"
+
+# include <QtWidgetsUtilities/TooltipShower.hpp>
+
 # include <QtGlobal>
 # include <QString>
 # include <QListWidget>
 
-# include <functional>
-# include <array>
-# include <vector>
+# include <set>
 
 
-QT_FORWARD_DECLARE_CLASS(QStringList)
 QT_FORWARD_DECLARE_CLASS(QListWidgetItem)
 
+/// A list widget of unique checkable file patterns.
 class PatternListWidget : public QListWidget
 {
     Q_OBJECT
 public:
     explicit PatternListWidget(QWidget * parent = nullptr);
 
-    /// @brief All previously specified known patterns are unchecked, unknown
-    /// patterns are removed. Then supplied patterns are added (if unknown) and
-    /// checked.
-    void setUiPatterns(const QStringList & patterns);
-    /// @return All (unique!) checked patterns.
-    QStringList getUiPatterns() const;
+    /// @brief Replaces the existing patterns with the supplied ones.
+    void setUiPatterns(const FilePatternList & patterns);
+    /// @return All patterns in the list.
+    FilePatternList getUiPatterns() const;
 
-    /// @brief Adds unchecked patterns.
-    void addUnknownPatterns(const QStringList & unknownPatterns);
+    /// @brief Adds patterns to the list and scrolls the list to bottom.
+    void addPatterns(const FilePatternList & patterns);
 
-    /// @return All (unique!) selected unknown patterns.
-    QStringList getSelectedUnknownPatterns() const;
+    /// @return All selected patterns.
+    FilePatternList getSelectedPatterns() const;
 
 public slots:
-    /// @brief Adds unknown pattern, checks it and starts editing it.
-    void addUnknownPattern();
+    /// @brief Adds a new pattern and starts editing it.
+    void addPattern();
+
+public:
+    /// This type alias is for internal use only. It is public for
+    /// technical reasons (QVariant and Q_DECLARE_METATYPE).
+    using PatternSet = std::set<QString>;
 
 private:
-    struct KnownPattern {
-        explicit KnownPattern(const QString & pattern, QListWidgetItem * item);
-        /// @brief Creates item and sets appropriate flags.
-        explicit KnownPattern(const QString & pattern);
-
-        bool operator<(const KnownPattern & rhs) const {
-            return pattern < rhs.pattern;
-        }
-
-        QString pattern;
-        QListWidgetItem * item;
-    };
-
-    using ItemUser = std::function<void(QListWidgetItem *)>;
-
-    void unselectAllItems();
-
-    void removeAllUnknownPatterns();
-
-    /// @brief Adds patterns to knownPatterns_ and as ListWidgetItems.
-    void addKnownPatterns(const QStringList & patterns);
+    /// @brief If no such pattern is present in the list, adds it to the list
+    /// and to the set; otherwise does nothing.
+    void addUniquePattern(const FilePattern & pattern);
+    /// @brief Calls addUniquePattern() for each element of patterns.
+    void addUniquePatterns(const FilePatternList & patterns);
+    /// @brief Adds pattern to the UI list, sets the specified check state;
+    /// stores iterator in the newly added item's user data.
+    /// @return The newly added item.
+    QListWidgetItem * addPatternToUiList(const QString & pattern, bool checked,
+                                         PatternSet::iterator setIterator);
 
     void keyPressEvent(QKeyEvent *) override;
-
-    void removeSelectedUnknownItems();
-
+    template <typename ItemUser>
     void applyToSelectedItems(ItemUser itemUser);
 
-    /// Indices of caption rows. Is not changed after constructor.
-    std::array<int, 3> captionRows_;
-    /// Sorted collection of known patterns. Is not changed after constructor.
-    std::vector<KnownPattern> knownPatterns_;
+    PatternSet patternSet_;
+
+    QtUtilities::Widgets::TooltipShower tooltipShower_;
+
+private slots:
+    void onItemChanged(QListWidgetItem * item);
 };
 
 # endif // VENTUROUS_PATTERN_LIST_WIDGET

@@ -28,7 +28,7 @@ move item(s) to trash.
 
 *GNU/Linux* or *MS Windows* (might also work in other systems - not tested).
 
-### External Dependencies
+### External dependencies
 * *git*
 * *wget* OR *curl* OR *inkscape*
 * *cmake* (2.8 or later)
@@ -101,7 +101,7 @@ and run
 
 ## License
 
-Copyright (C) 2014 Igor Kushnir <igorkuo AT Google mail>
+Copyright (C) 2014, 2015 Igor Kushnir <igorkuo AT Google mail>
 
 Venturous is licensed under the <b>GNU GPLv3+</b> license,
 a copy of which can be found in the `COPYING` file.

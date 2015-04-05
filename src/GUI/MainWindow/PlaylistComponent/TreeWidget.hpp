@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2015 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
 
 # include <CommonUtilities/CopyAndMoveSemantics.hpp>
 
+# include <QtGlobal>
 # include <QTreeWidget>
 
 # include <functional>
