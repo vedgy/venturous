@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2015 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -68,13 +68,13 @@ struct IconName {
         name = std::move(parts.back());
     }
 };
-template <std::size_t N>
-using IconNames = std::array<IconName, N>;
+template <std::size_t nIcons>
+using IconNames = std::array<IconName, nIcons>;
 
-template <std::size_t N>
-IconNames<N> getNames()
+template <std::size_t nIcons>
+IconNames<nIcons> getNames()
 {
-    IconNames<N> names;
+    IconNames<nIcons> names;
     std::size_t index = 0;
     const QString filename = Icons::getAbsolutePath("icon_list");
     QFile source(filename);
@@ -130,7 +130,7 @@ void printInfo(const QIcon & icon)
 # endif // DEBUG_VENTUROUS_ICONS
 # endif // EMBEDDED_ICONS
 
-}
+} // END unnamed namespace
 
 
 namespace Icons
@@ -359,4 +359,4 @@ const QIcon & Theme::bothMediaDir() const
     return icons_[addingPolicyStartIndex + 3];
 }
 
-}
+} // END namespace Icons

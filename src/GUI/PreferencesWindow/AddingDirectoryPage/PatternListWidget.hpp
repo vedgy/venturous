@@ -62,7 +62,9 @@ public:
 private:
     /// @brief If no such pattern is present in the list, adds it to the list
     /// and to the set; otherwise does nothing.
-    void addUniquePattern(const FilePattern & pattern);
+    /// @return true If pattern was added; false if it was already present
+    /// in the list.
+    bool addUniquePattern(const FilePattern & pattern);
     /// @brief Calls addUniquePattern() for each element of patterns.
     void addUniquePatterns(const FilePatternList & patterns);
     /// @brief Adds pattern to the UI list, sets the specified check state;
@@ -70,6 +72,9 @@ private:
     /// @return The newly added item.
     QListWidgetItem * addPatternToUiList(const QString & pattern, bool checked,
                                          PatternSet::iterator setIterator);
+
+    /// @brief Shows message in the tooltip for this PatternListWidget.
+    void showTooltip(QString message);
 
     void keyPressEvent(QKeyEvent *) override;
     template <typename ItemUser>

@@ -419,7 +419,7 @@ void PlaybackComponent::playbackPause()
 
 void PlaybackComponent::playbackStop()
 {
-    mediaPlayer_->exit();
+    mediaPlayer_->exitPlayer();
     setStatus(Status::stopped);
 }
 

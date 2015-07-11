@@ -132,17 +132,27 @@ void PatternListWidget::addPattern()
 }
 
 
-void PatternListWidget::addUniquePattern(const FilePattern & pattern)
+bool PatternListWidget::addUniquePattern(const FilePattern & pattern)
 {
     const auto pair = patternSet_.insert(pattern.pattern);
-    if (pair.second)
+    if (pair.second) {
         addPatternToUiList(pattern.pattern, pattern.enabled, pair.first);
+        return true;
+    }
+    return false;
 }
 
 void PatternListWidget::addUniquePatterns(const FilePatternList & patterns)
 {
-    for (const FilePattern & p : patterns)
-        addUniquePattern(p);
+    bool skippedPatterns = false;
+    for (const FilePattern & p : patterns) {
+        if (! addUniquePattern(p))
+            skippedPatterns = true;
+    }
+    if (skippedPatterns) {
+        showTooltip(tr("Some patterns were already present\n"
+                       "in the target list and thus not copied."));
+    }
 }
 
 QListWidgetItem * PatternListWidget::addPatternToUiList(
@@ -156,6 +166,11 @@ QListWidgetItem * PatternListWidget::addPatternToUiList(
     setIterator(item, iterator);
     addItem(item);
     return item;
+}
+
+void PatternListWidget::showTooltip(QString message)
+{
+    tooltipShower_.show(mapToGlobal(QPoint {}), std::move(message));
 }
 
 void PatternListWidget::keyPressEvent(QKeyEvent * const event)
@@ -200,7 +215,7 @@ void PatternListWidget::onItemChanged(QListWidgetItem * const item)
 {
     const auto iterator = getIterator(item);
     const auto handleInvalidPattern = [&](QString && errorMessage) {
-        tooltipShower_.show(mapToGlobal(QPoint {}), std::move(errorMessage));
+        showTooltip(std::move(errorMessage));
         item->setText(*iterator);
     };
 

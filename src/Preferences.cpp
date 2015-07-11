@@ -27,6 +27,8 @@
 # include <QtXmlUtilities/ReadingShortcuts.hpp>
 # include <QtXmlUtilities/WritingShortcuts.hpp>
 
+# include <CommonUtilities/FunctionConstant.hpp>
+
 # include <QString>
 # include <QStringList>
 # include <QObject>
@@ -41,92 +43,91 @@ namespace
 {
 namespace Names
 {
-# define VENTUROUS_PREFERENCES_STRING_CONSTANT(NAME, VALUE) \
-    inline const QString & NAME() {                         \
-        static const QString value{ VALUE }; return value; }
+# define VENTUROUS_preferences_string_constant(name, value) \
+    NAMESPACE_FUNCTION_CONSTANT(QString, name, value)
 
 namespace Playback
 {
 namespace History
 {
-VENTUROUS_PREFERENCES_STRING_CONSTANT(localRoot, "History")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(maxSize, "MaxSize")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(copyPlayedEntryToTop,
+VENTUROUS_preferences_string_constant(localRoot, "History")
+VENTUROUS_preferences_string_constant(maxSize, "MaxSize")
+VENTUROUS_preferences_string_constant(copyPlayedEntryToTop,
                                       "CopyPlayedEntryToTop")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(saveToDiskImmediately,
+VENTUROUS_preferences_string_constant(saveToDiskImmediately,
                                       "SaveToDiskImmediately")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(nHiddenDirs, "HiddenDirsNumber")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(currentIndex, "CurrentIndex")
+VENTUROUS_preferences_string_constant(nHiddenDirs, "HiddenDirsNumber")
+VENTUROUS_preferences_string_constant(currentIndex, "CurrentIndex")
 } // END namespace History
 
-VENTUROUS_PREFERENCES_STRING_CONSTANT(localRoot, "Playback")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(playerId, "PlayerID")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(autoSetExternalPlayerOptions,
+VENTUROUS_preferences_string_constant(localRoot, "Playback")
+VENTUROUS_preferences_string_constant(playerId, "PlayerID")
+VENTUROUS_preferences_string_constant(autoSetExternalPlayerOptions,
                                       "AutoSetExternalPlayerOptions")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(autoHideExternalPlayerWindow,
+VENTUROUS_preferences_string_constant(autoHideExternalPlayerWindow,
                                       "AutoHideExternalPlayerWindow")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(exitExternalPlayerOnQuit,
+VENTUROUS_preferences_string_constant(exitExternalPlayerOnQuit,
                                       "ExitExternalPlayerOnQuit")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(statusUpdateInterval,
+VENTUROUS_preferences_string_constant(statusUpdateInterval,
                                       "StatusUpdateInterval")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(nextFromHistory, "NextFromHistory")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(desktopNotifications,
+VENTUROUS_preferences_string_constant(nextFromHistory, "NextFromHistory")
+VENTUROUS_preferences_string_constant(desktopNotifications,
                                       "DesktopNotifications")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(startupPolicy, "StartupPolicy")
+VENTUROUS_preferences_string_constant(startupPolicy, "StartupPolicy")
 } // END namespace Playback
 
 namespace AddingItems
 {
-VENTUROUS_PREFERENCES_STRING_CONSTANT(localRoot, "AddingItems")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(filePatterns, "FilePatterns")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(mediaDirFilePatterns,
+VENTUROUS_preferences_string_constant(localRoot, "AddingItems")
+VENTUROUS_preferences_string_constant(filePatterns, "FilePatterns")
+VENTUROUS_preferences_string_constant(mediaDirFilePatterns,
                                       "MediaDirFilePatterns")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(pattern, "pattern")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(enabled, "enabled")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(policy, "Policy")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(addFiles, "AddFiles")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(addMediaDirs, "AddMediaDirs")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(ifBothAddFiles, "IfBothAddFiles")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(ifBothAddMediaDirs, "IfBothAddMediaDirs")
+VENTUROUS_preferences_string_constant(pattern, "pattern")
+VENTUROUS_preferences_string_constant(enabled, "enabled")
+VENTUROUS_preferences_string_constant(policy, "Policy")
+VENTUROUS_preferences_string_constant(addFiles, "AddFiles")
+VENTUROUS_preferences_string_constant(addMediaDirs, "AddMediaDirs")
+VENTUROUS_preferences_string_constant(ifBothAddFiles, "IfBothAddFiles")
+VENTUROUS_preferences_string_constant(ifBothAddMediaDirs, "IfBothAddMediaDirs")
 } // END namespace AddingItems
 
 namespace CustomActions
 {
-VENTUROUS_PREFERENCES_STRING_CONSTANT(localRoot, "CustomActions")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(action, "action")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(enabled, "Enabled")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(text, "Text")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(command, "Command")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(minArgN, "MinArgN")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(maxArgN, "MaxArgN")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(type, "Type")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(comment, "Comment")
+VENTUROUS_preferences_string_constant(localRoot, "CustomActions")
+VENTUROUS_preferences_string_constant(action, "action")
+VENTUROUS_preferences_string_constant(enabled, "Enabled")
+VENTUROUS_preferences_string_constant(text, "Text")
+VENTUROUS_preferences_string_constant(command, "Command")
+VENTUROUS_preferences_string_constant(minArgN, "MinArgN")
+VENTUROUS_preferences_string_constant(maxArgN, "MaxArgN")
+VENTUROUS_preferences_string_constant(type, "Type")
+VENTUROUS_preferences_string_constant(comment, "Comment")
 } // END namespace CustomActions
 
-VENTUROUS_PREFERENCES_STRING_CONSTANT(root, APPLICATION_NAME)
-VENTUROUS_PREFERENCES_STRING_CONSTANT(alwaysUseFallbackIcons,
+VENTUROUS_preferences_string_constant(root, APPLICATION_NAME)
+VENTUROUS_preferences_string_constant(alwaysUseFallbackIcons,
                                       "AlwaysUseFallbackIcons")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(notificationAreaIcon,
+VENTUROUS_preferences_string_constant(notificationAreaIcon,
                                       "NotificationAreaIcon")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(startToNotificationArea,
+VENTUROUS_preferences_string_constant(startToNotificationArea,
                                       "StartToNotificationArea")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(closeToNotificationArea,
+VENTUROUS_preferences_string_constant(closeToNotificationArea,
                                       "CloseToNotificationArea")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(statusBar, "StatusBar")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(treeAutoUnfoldedLevels,
+VENTUROUS_preferences_string_constant(statusBar, "StatusBar")
+VENTUROUS_preferences_string_constant(treeAutoUnfoldedLevels,
                                       "TreeAutoUnfoldedLevels")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(treeAutoCleanup, "TreeAutoCleanup")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(savePreferencesToDiskImmediately,
+VENTUROUS_preferences_string_constant(treeAutoCleanup, "TreeAutoCleanup")
+VENTUROUS_preferences_string_constant(savePreferencesToDiskImmediately,
                                       "SavePreferencesToDiskImmediately")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(ventoolCheckInterval,
+VENTUROUS_preferences_string_constant(ventoolCheckInterval,
                                       "VentoolCheckInterval")
 
-VENTUROUS_PREFERENCES_STRING_CONSTANT(preferencesWindowGeometry,
+VENTUROUS_preferences_string_constant(preferencesWindowGeometry,
                                       "PreferencesWindowGeometry")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(windowGeometry, "WindowGeometry")
-VENTUROUS_PREFERENCES_STRING_CONSTANT(windowState, "WindowState")
+VENTUROUS_preferences_string_constant(windowGeometry, "WindowGeometry")
+VENTUROUS_preferences_string_constant(windowState, "WindowState")
 
-# undef VENTUROUS_PREFERENCES_STRING_CONSTANT
+# undef VENTUROUS_preferences_string_constant
 } // END namespace Names
 
 

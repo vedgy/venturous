@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2015 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -114,6 +114,18 @@ constexpr Qt::ItemFlags editableFlags() noexcept {
     return readOnlyFlags() | Qt::ItemIsUserCheckable;
 }
 
+QPalette getPlaylistPalette(QPalette currentPalette, bool editMode)
+{
+    const int hue = editMode ? 280 : 57;
+    constexpr int minLightness = 20, maxLightness = 247;
+    const int lightness = std::max(minLightness, std::min(maxLightness,
+                                   currentPalette.base().color().lightness()));
+    constexpr int saturation = 255;
+    currentPalette.setColor(
+        QPalette::Base, QColor::fromHsl(hue, saturation, lightness));
+    return currentPalette;
+}
+
 /// @brief Sets flags for specified item and all its descendants.
 void recursivelySetFlags(QTreeWidgetItem * item, Qt::ItemFlags flags)
 {
@@ -168,7 +180,7 @@ void printMessageAndSelectedItemsSize(const std::string & message, int size)
 }
 # endif
 
-}
+} // END unnamed namespace
 
 
 TreeWidget::Error::~Error() noexcept = default;
@@ -248,26 +260,8 @@ void TreeWidget::setUiEditMode()
     if (visible)
         hide(); // Dramatically improves performance for large tree.
 
-    int hue;
-    Qt::ItemFlags flags;
-    if (editMode_) {
-        hue = 280;
-        flags = editableFlags();
-    }
-    else {
-        hue = 57;
-        flags = readOnlyFlags();
-    }
-
-    {
-        QPalette p = palette();
-        constexpr int minLightness = 20, maxLightness = 247;
-        const int lightness = std::max(std::min(p.base().color().lightness(),
-                                                maxLightness), minLightness);
-        constexpr int saturation = 255;
-        p.setColor(QPalette::Base, QColor::fromHsl(hue, saturation, lightness));
-        setPalette(p);
-    }
+    setPalette(getPlaylistPalette(palette(), editMode_));
+    const Qt::ItemFlags flags = editMode_ ? editableFlags() : readOnlyFlags();
     for (int i = topLevelItemCount() - 1; i >= 0; --i)
         recursivelySetFlags(topLevelItem(i), flags);
 
