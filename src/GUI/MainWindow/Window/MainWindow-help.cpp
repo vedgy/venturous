@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2015 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -25,16 +25,63 @@
 
 # include "Icons.hpp"
 
+# include <QtGlobal>
 # include <QString>
 # include <QDir>
 # include <QFile>
 # include <QUrl>
+# include <QObject>
 # include <QCoreApplication>
 # include <QMessageBox>
 # include <QDesktopServices>
 
 # include <array>
 
+
+namespace
+{
+namespace ApplicationInfo
+{
+QString applicationVersion()
+{
+    return "<b>" APPLICATION_NAME "</b> " + QObject::tr("version")
+           + " <b>" + QCoreApplication::applicationVersion() + "</b>"
+           + QObject::tr(" - random playback manager.");
+}
+
+QString copyrightAndLicense()
+{
+    return QString::fromUtf8(
+               "© 2014, 2015 Igor Kushnir &lt;igorkuo AT Google mail&gt;.<br>")
+           + "License: <a href='http://www.gnu.org/copyleft/gpl.html'>"
+           "GNU GPL v3 or later</a>.";
+}
+
+QString compilerAndQtVersions()
+{
+    return QObject::tr("Compiled with ") +
+# ifdef __VERSION__
+#   if defined(__GNUG__) && ! defined(__INTEL_COMPILER)
+           "GCC "
+#   endif
+           __VERSION__
+# else // __VERSION__
+           QObject::tr("unknown compiler");
+# endif // __VERSION__
+           + QObject::tr(" and Qt version ") + QT_VERSION_STR ".<br>"
+           + QObject::tr("Currently using Qt shared libraries version ")
+           + qVersion() + '.';
+}
+
+QString webLink()
+{
+    return QObject::tr("Report bugs and request features at ") +
+           "<a href='https://github.com/vedgy/venturous/issues'>"
+           "Venturous GitHub repository</a>.";
+}
+
+} // END namespace ApplicationInfo
+} // END unnamed namespace
 
 void MainWindow::onHelpHelp()
 {
@@ -83,31 +130,14 @@ void MainWindow::onHelpHelp()
 void MainWindow::onHelpAbout()
 {
     inputController_.blockInput(true);
+    using namespace ApplicationInfo;
     QMessageBox::about(
         this, tr("About ") + APPLICATION_NAME,
-        "<b>" APPLICATION_NAME "</b> " + tr("version") + " <b>" +
-        QCoreApplication::applicationVersion() + "</b>" +
-        tr(" - random playback manager.") +
-        QString::fromUtf8(
-            "<br><br>© 2014 Igor Kushnir &lt;igorkuo AT Google mail&gt;.<br>") +
-        "License: <a href='http://www.gnu.org/copyleft/gpl.html'>GNU GPL v3</a>"
-        " or later.<br><br>" +
-        tr("Report bugs and request features at ") +
-        "<a href='https://github.com/vedgy/venturous/issues'>"
-        "Venturous GitHub repository</a>.");
+        applicationVersion() + "<br><br>" + copyrightAndLicense() + "<br><br>"
+        + compilerAndQtVersions() + "<br><br>" + webLink());
 
 # ifdef DEBUG_VENTUROUS_MAIN_WINDOW
     std::cout << "\"About\" message box was closed." << std::endl;
-# endif
-    inputController_.blockInput(false);
-}
-
-void MainWindow::onHelpAboutQt()
-{
-    inputController_.blockInput(true);
-    QMessageBox::aboutQt(this);
-# ifdef DEBUG_VENTUROUS_MAIN_WINDOW
-    std::cout << "\"About Qt\" message box was closed." << std::endl;
 # endif
     inputController_.blockInput(false);
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2015 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -157,13 +157,11 @@ Actions::Playlist::~Playlist() = default;
 
 Actions::Help::Help(const Icons::Theme & theme)
     : help(new QAction(theme.help(), tr("&Help ..."), this)),
-      about(new QAction(theme.about(), tr("&About ..."), this)),
-      aboutQt(new QAction(theme.about(), tr("About &Qt ..."), this))
+      about(new QAction(theme.about(), tr("&About ..."), this))
 {
     help->setIconText("He");
     help->setShortcuts(QKeySequence::HelpContents);
     about->setIconText("Ab");
-    aboutQt->setIconText("AQ");
 }
 
 Actions::Help::~Help() = default;

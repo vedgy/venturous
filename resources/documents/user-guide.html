@@ -7,7 +7,7 @@
 </head>
 
 <body>
-<h1><i>Venturous</i> - version 1.2.5-dev</h1>
+<h1><i>Venturous</i> - version 1.3</h1>
 
 <a id="Index"><h2>Table of contents</h2></a>
     <ul>
@@ -278,7 +278,15 @@
     <i>managed</i> mode). These automatically set settings ensure
     that <b><i>ventool&nbsp;next</i></b> command is called by the
     <i>Song Change</i> <i>Audacious</i> plugin when playback of the current
-    <i>Audacious</i> playlist reaches an end.</p>
+    <i>Audacious</i> playlist reaches an end. Note that since the
+    <i>detached</i> mode depends on <i>Audacious</i> configuration files,
+    issues are possible if <i>Venturous</i> is launched before these files are
+    created or after <i>Audacious</i> is updated.
+    The workaround to restore settings:
+    open <i>Venturous</i> Preferences window; switch to <i>managed</i> mode;
+    close <i>Venturous</i> Preferences window;
+    open it again, switch to <i>detached</i> mode and close
+    the Preferences window.</p>
     <p>In the <i>managed</i> mode <i>Venturous</i> invokes <i>Audacious</i> with
     the <i>-q</i> command line option and controls the <i>Audacious</i>
     process. <i>Venturous</i> assumes that the current
@@ -534,12 +542,7 @@
     <ul>
         <li><i>FORCE_QT4</i> : <i>BOOLEAN</i> (default: <i>OFF</i>) -
         if enabled, <i>Qt4</i> will always be used; otherwise,
-        <i>Qt5</i> is used if available.
-        Note: even though <i>Qt5</i> is the default here, <i>Venturous</i> build
-        script sets this option <i>ON</i>, so user would have to manually switch
-        it <i>OFF</i> to use <i>Qt5</i>. <i>Qt4</i> is preferred (for now)
-        because of notification area icon bug and font rendering issues in
-        <i>Qt5</i>.</li>
+        <i>Qt5</i> is used if available.</li>
         <li><i>PREFERENCES_DIR</i> : <i>STRING</i>
         (default: <i>~/.config/venturous</i>) -
         directory that contains user preferences and playlist

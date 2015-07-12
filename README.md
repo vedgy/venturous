@@ -51,7 +51,7 @@ move item(s) to trash.
 3. If you want to install the latest stable version, execute the following
 command:
 
-        git checkout tags/v1.2
+        git checkout tags/v1.3
 If you prefer the latest development version (can be unstable), just skip this
 step.
 
@@ -66,9 +66,7 @@ step.
 If errors appear after running `update_submodules_and_configure`, ensure
 that all [build dependencies](#external-dependencies) are satisfied.
 
-Errors also appear in the following cases:
-* *qt4* is not installed. If you have *qt5* installed and want to use it, pass
-*qt5* argument to `update_submodules_and_configure`.
+Errors also appear in the following case:
 * Neither *wget* nor *curl* is installed. If you have *inkscape* installed and
 want to use it for icon generation, pass *generate-png* argument to
 `update_submodules_and_configure`.

@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2015 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -105,9 +105,7 @@ void initMenuBar(QMenuBar & menuBar, const Actions & actions)
     }
     {
         QMenu * const help = menuBar.addMenu(QObject::tr("&Help"));
-        help->addActions( { actions.help.help, actions.help.about,
-                            actions.help.aboutQt
-                          });
+        help->addActions( { actions.help.help, actions.help.about });
     }
 }
 
@@ -235,8 +233,6 @@ MainWindow::MainWindow(
             SLOT(onPlaybackNext()));
     connect(actions_->help.help, SIGNAL(triggered(bool)), SLOT(onHelpHelp()));
     connect(actions_->help.about, SIGNAL(triggered(bool)), SLOT(onHelpAbout()));
-    connect(actions_->help.aboutQt, SIGNAL(triggered(bool)),
-            SLOT(onHelpAboutQt()));
     {
         const Actions::AddingPolicy & a = actions_->addingPolicy;
         connect(a.audioFile, SIGNAL(triggered(bool)),

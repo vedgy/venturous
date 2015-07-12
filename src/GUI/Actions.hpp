@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2015 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -70,7 +70,7 @@ struct Actions {
     public:
         explicit Help(const Icons::Theme & theme);
         ~Help() override;
-        QAction * help, * about, * aboutQt;
+        QAction * help, * about;
     } help;
 
     class AddingPolicy : public QObject

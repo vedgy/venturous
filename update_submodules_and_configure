@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copyright (C) 2014 Igor Kushnir <igorkuo AT Google mail>
+# Copyright (C) 2014, 2015 Igor Kushnir <igorkuo AT Google mail>
 # License: GPL v3+ (http://www.gnu.org/copyleft/gpl.html)
 # update_submodules_and_configure: inits and updates Venturous git submodules;
 # gets necessary png icons; configures build.
@@ -10,7 +10,7 @@ print_help()
 {
     echo 'This script accepts the following options:
         "download-png", "generate-png", "qt4", "qt5", "help", "--".'
-    echo '"download-png" and "qt4" are assumed if not specified.'
+    echo '"download-png" is assumed if not specified.'
     echo 'Options that appear later override preceding ones.'
     echo 'Options after "--" are ignored.'
     echo 'Option may be prefixed with "--" (GNU-style long-options) or not, your choice.'
@@ -23,7 +23,8 @@ matches()
 }
 
 generate_png=false
-qt4=true
+qt4=false
+qt5=false
 for arg in "$@"
 do
     if matches "$arg" "download-png" ; then
@@ -32,8 +33,10 @@ do
         generate_png=true
     elif matches "$arg" "qt4" ; then
         qt4=true
+        qt5=false
     elif matches "$arg" "qt5" ; then
         qt4=false
+        qt5=true
     elif matches "$arg" "help" ; then
         print_help
     elif [[ "$arg" == "--" ]] ; then
@@ -65,8 +68,10 @@ cd $dir_name
 
 if [[ "$qt4" == true ]] ; then
     args="-DFORCE_QT4=ON"
-else
+elif [[ "$qt5" == true ]] ; then
     args="-DFORCE_QT4=OFF"
+else
+    args=""
 fi
 cmake "$args" -DCMAKE_BUILD_TYPE=Release -Wno-dev ..
 
@@ -76,7 +81,7 @@ echo '1. Enter build directory (type "cd build").'
 echo '2. If you wish to change default configuration, type "cmake -L .", and you will see the list of options.'
 echo '   If you want to see option descriptions, type "cmake -LH .".'
 echo '   Type "cmake -D<option name>=<value> ." in order to change some option.'
-echo '   For example: "cmake -DFORCE_QT4=OFF ." turns off FORCE_QT4 option.'
+echo '   For example: "cmake -DFORCE_QT4=ON ." turns on FORCE_QT4 option.'
 echo '   Alternatively, if you have cmake-gui installed, you could type "cmake-gui ." and use GUI configuration tool.'
 echo '   If you are happy with default configuration, skip this step.'
 echo '3. After you are done configuring (or skipped configuration step), type "make -j 2" (you can replace "2" with the number of processor cores to speed up a build process).'
