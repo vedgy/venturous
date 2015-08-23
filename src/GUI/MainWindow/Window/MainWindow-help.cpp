@@ -42,6 +42,11 @@ namespace
 {
 namespace ApplicationInfo
 {
+constexpr const char * sectionSeparator()
+{
+    return "<br><br>";
+}
+
 QString applicationVersion()
 {
     return "<b>" APPLICATION_NAME "</b> " + QObject::tr("version")
@@ -133,8 +138,9 @@ void MainWindow::onHelpAbout()
     using namespace ApplicationInfo;
     QMessageBox::about(
         this, tr("About ") + APPLICATION_NAME,
-        applicationVersion() + "<br><br>" + copyrightAndLicense() + "<br><br>"
-        + compilerAndQtVersions() + "<br><br>" + webLink());
+        applicationVersion() + sectionSeparator() + copyrightAndLicense()
+        + sectionSeparator() + compilerAndQtVersions()
+        + sectionSeparator() + webLink());
 
 # ifdef DEBUG_VENTUROUS_MAIN_WINDOW
     std::cout << "\"About\" message box was closed." << std::endl;

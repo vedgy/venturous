@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2015 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -59,8 +59,10 @@ struct Action {
 
     /// Is displayed in the menu.
     QString text;
-    /// Is executed if this action is triggered. '?' symbols are replaced with
-    /// absolute paths to items; "??" is replaced with "?".
+    /// Is executed if this action is triggered. '?' symbol is replaced with
+    /// the list of absolute paths to items; '@' symbol is replaced with
+    /// commonItemPrefix; there are some other quoting/escaping rules that
+    /// mimic Bash shell syntax.
     QString command;
     int minArgN, maxArgN;
     Type type;

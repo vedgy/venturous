@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2015 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -402,12 +402,18 @@ void CustomActionsPage::onShowHelpToggled()
         al(tr("%1. <i>Enabled</i>: disabled actions are not shown in menu."));
         al(tr("%1. <i>Text</i> is displayed in the menu."));
         al(tr("%1. <i>Command</i> is executed when this action is triggered. "
-              "The following rules apply to <i>Command</i> text:<ul>"
+              "The following rules apply to the <i>Command</i> text:<ul>"
               "<li>most Bash shell rules with respect to double and single "
               "quotes, backslash, whitespaces;</li>"
-              "<li>'?' symbol is replaced with absolute paths to items unless "
+              "<li>'?' symbol is replaced with the list of absolute paths "
+              "to items unless "
               "escaped with '\\' or enclosed in single quotes;</li>"
-              "<li>'~' symbol is replaced with current user's HOME directory."
+              "<li>'@' symbol is replaced with the path to "
+              "containing directory unless "
+              "escaped with '\\' or enclosed in single quotes;</li>"
+              "<li>'~' symbol is replaced with the current user's HOME "
+              "directory unless escaped with '\\' or "
+              "enclosed in single or double quotes."
               "</li></ul>"));
         al(tr("%1,%2. <i>Min</i>, <i>Max</i> - minimum and maximum number of "
               "selected items respectively. Custom action is available only if "
@@ -415,9 +421,9 @@ void CustomActionsPage::onShowHelpToggled()
               "<i>Max</i>. <i>Max</i>=-1 means \"without upper bound\".").arg(
                ++number));
         al(tr("%1. <i>Type</i> - allowed type of selected items."));
-        al(tr("%1. <i>Comment</i> - field that is not used by the program. "
+        al(tr("%1. <i>Comment</i> - a field that is not used by the program. "
               "It can be used to provide user with additional information "
-              "about custom action."));
+              "about the custom action."));
 
         this->layout()->addWidget(helpFrame_.get());
     }

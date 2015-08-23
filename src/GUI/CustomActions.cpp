@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2015 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -101,7 +101,7 @@ private:
 };
 
 std::pair<QString, QStringList> getProgramAndArgs(
-    QString command, QString commonItemPrefix, QStringList itemNames);
+    QString command, const QString & commonItemPrefix, QStringList itemNames);
 
 
 CustomMenu::CustomMenu(const CustomActions::Actions & actions,
@@ -253,7 +253,7 @@ QStringList getArgs(const QString & commonItemPrefix,
 }
 
 std::pair<QString, QStringList> getProgramAndArgs(
-    QString command, QString commonItemPrefix, QStringList itemNames)
+    QString command, const QString & commonItemPrefix, QStringList itemNames)
 {
     QStringList args;
 
@@ -274,8 +274,10 @@ std::pair<QString, QStringList> getProgramAndArgs(
                 else if (mode == Mode::inDoubleQuotes) {
                     if (++i != command.size()) { // Wrong syntax otherwise.
                         const char c = toChar(command[i]);
-                        if (c == '?' || needsEscapingWithinDoubleQuotes(c))
+                        if (c == '?' || c == '@'
+                                || needsEscapingWithinDoubleQuotes(c)) {
                             pushToCurrent(); // escaped.
+                        }
                         else if (c != '\n') { // escaped newline is removed.
                             --i; // appending backslash symbol.
                             pushToCurrent();
@@ -325,6 +327,18 @@ std::pair<QString, QStringList> getProgramAndArgs(
                 }
                 else if (mode == Mode::inDoubleQuotes)
                     current += joinArgs(commonItemPrefix, itemNames);
+                else
+                    pushToCurrent();
+                break;
+            case '@':
+                if (mode == Mode::plain || mode == Mode::inDoubleQuotes) {
+                    current +=
+# if WIN32_CUSTOM_ACTIONS_USE_BACKSLASH
+                        replaceSlashesWithBackslashes(commonItemPrefix);
+# else
+                        commonItemPrefix;
+# endif
+                }
                 else
                     pushToCurrent();
                 break;

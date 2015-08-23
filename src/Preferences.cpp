@@ -257,7 +257,7 @@ void loadPlayback(const QDomElement & parent, Preferences::Playback & playback)
 
     copyUniqueChildsTextToMax(
         e, playerId(), playback.playerId,
-        unsigned(GetMediaPlayer::playerList().size() - 1));
+        static_cast<unsigned>(GetMediaPlayer::playerList().size() - 1));
 
     copyUniqueChildsTextTo(e, autoSetExternalPlayerOptions(),
                            playback.autoSetExternalPlayerOptions);
@@ -361,11 +361,17 @@ void loadAddingItems(const QDomElement & parent,
 CustomActions::Actions defaultCustomActions()
 {
     const QString mustBeInstalled = QObject::tr(" must be installed.");
+    const QString thunarMustBeInstalled = "Thunar" + mustBeInstalled;
     CustomActions::Actions actions {
         CustomActions::Action {
             QObject::tr("Open in file manager"), "thunar ?", 0, -1,
             CustomActions::Action::Type::anyItem, true,
-            "Thunar" + mustBeInstalled
+            thunarMustBeInstalled
+        },
+        CustomActions::Action {
+            QObject::tr("Open containing directory"), "thunar @", 0, -1,
+            CustomActions::Action::Type::anyItem, true,
+            thunarMustBeInstalled
         },
         CustomActions::Action {
             QObject::tr("Open in VLC"), "vlc ?", 0, -1,
@@ -376,14 +382,6 @@ CustomActions::Actions defaultCustomActions()
             QObject::tr("View/edit text file"), "mousepad ?", 0, -1,
             CustomActions::Action::Type::file, false,
             "Mousepad" + mustBeInstalled
-        },
-        CustomActions::Action {
-            QObject::tr("Open containing directory"),
-            R"(bash -c "thunar \"`dirname \"?\"`\"")", 1, 1,
-            CustomActions::Action::Type::anyItem, false,
-            "Thunar" + mustBeInstalled +
-            QObject::tr(" Does not work correctly if path contains "
-            "certain special symbols.")
         },
         CustomActions::Action {
             QObject::tr("Move to music trash"), "mv ? ~/Music/trash/",
@@ -404,7 +402,11 @@ CustomActions::Actions defaultCustomActions()
         fileManager.maxArgN = 1;
         fileManager.comment.clear();
 
-        CustomActions::Action & textEditor = actions[2];
+        CustomActions::Action & containingDirectory = actions[1];
+        containingDirectory.command = "explorer @";
+        containingDirectory.comment.clear();
+
+        CustomActions::Action & textEditor = actions[3];
         textEditor.command = "notepad ?";
         textEditor.maxArgN = 1;
         textEditor.comment.clear();

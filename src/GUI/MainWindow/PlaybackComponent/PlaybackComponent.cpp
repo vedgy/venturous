@@ -78,7 +78,7 @@ PlaybackComponent::PlaybackComponent(
     : mainWindow_(mainWindow), actions_(actions),
       inputController_(inputController),
       historyFilename_(preferencesDir + "history"),
-      playerId_(unsigned(GetMediaPlayer::playerList().size())),
+      playerId_(static_cast<unsigned>(GetMediaPlayer::playerList().size())),
       historyWidget_(preferences.customActions,
                      std::bind(& PlaybackComponent::playFromHistory, this,
                                std::placeholders::_1),
@@ -206,7 +206,7 @@ void PlaybackComponent::setPreferencesExceptHistory(
             [&] {
                 QStringList errors;
                 std::tie(mediaPlayer_, errors) =
-                GetMediaPlayer::instance(int(playerId_));
+                GetMediaPlayer::instance(static_cast<int>(playerId_));
                 return errors.empty() ? QString() : errors.join("\n");
             }
         } .blocking(inputController_, externalPlayerErrors(), cancelled);
