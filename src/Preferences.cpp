@@ -361,27 +361,35 @@ void loadAddingItems(const QDomElement & parent,
 CustomActions::Actions defaultCustomActions()
 {
     const QString mustBeInstalled = QObject::tr(" must be installed.");
-    const QString thunarMustBeInstalled = "Thunar" + mustBeInstalled;
+    const QString xdgUtilsMustBeInstalled = "xdg-utils" + mustBeInstalled;
+    const QString replaceCommandWith =
+        QObject::tr("Replace \"%1\" with your preferred %2.");
+    const QString defaultFileManager = "thunar", defaultTextEditor = "mousepad";
     CustomActions::Actions actions {
         CustomActions::Action {
-            QObject::tr("Open in file manager"), "thunar ?", 0, -1,
-            CustomActions::Action::Type::anyItem, true,
-            thunarMustBeInstalled
+            QObject::tr("Open with default application"), "xdg-open ?",
+            1, 1, CustomActions::Action::Type::anyItem, true,
+            xdgUtilsMustBeInstalled
         },
         CustomActions::Action {
-            QObject::tr("Open containing directory"), "thunar @", 0, -1,
-            CustomActions::Action::Type::anyItem, true,
-            thunarMustBeInstalled
+            QObject::tr("Open containing directory"), "xdg-open @",
+            1, -1, CustomActions::Action::Type::anyItem, true,
+            xdgUtilsMustBeInstalled
         },
         CustomActions::Action {
-            QObject::tr("Open in VLC"), "vlc ?", 0, -1,
-            CustomActions::Action::Type::anyItem, false,
+            QObject::tr("Open in file manager"), defaultFileManager + " ?",
+            0, -1, CustomActions::Action::Type::anyItem, false,
+            replaceCommandWith.arg("thunar", QObject::tr("file manager"))
+        },
+        CustomActions::Action {
+            QObject::tr("Open in VLC"), "vlc ?",
+            0, -1, CustomActions::Action::Type::anyItem, false,
             "VLC" + mustBeInstalled
         },
         CustomActions::Action {
-            QObject::tr("View/edit text file"), "mousepad ?", 0, -1,
-            CustomActions::Action::Type::file, false,
-            "Mousepad" + mustBeInstalled
+            QObject::tr("View/edit text file"), defaultTextEditor + " ?",
+            0, -1, CustomActions::Action::Type::file, false,
+            replaceCommandWith.arg("mousepad", QObject::tr("text editor"))
         },
         CustomActions::Action {
             QObject::tr("Move to music trash"), "mv ? ~/Music/trash/",
@@ -389,24 +397,28 @@ CustomActions::Actions defaultCustomActions()
             QObject::tr("~/Music/trash directory must exist.")
         },
         CustomActions::Action {
-            QObject::tr("Move to Trash"), "trash-put ?", 1, -1,
-            CustomActions::Action::Type::anyItem, false,
+            QObject::tr("Move to Trash"), "trash-put ?",
+            1, -1, CustomActions::Action::Type::anyItem, false,
             "trash-cli" + mustBeInstalled
         }
     };
 
 # ifdef WIN32_DEFAULT_CUSTOM_ACTIONS
     {
-        CustomActions::Action & fileManager = actions[0];
-        fileManager.command = "explorer ?";
-        fileManager.maxArgN = 1;
-        fileManager.comment.clear();
+        CustomActions::Action & defaultApplication = actions[0];
+        defaultApplication.enabled = false;
 
         CustomActions::Action & containingDirectory = actions[1];
         containingDirectory.command = "explorer @";
         containingDirectory.comment.clear();
 
-        CustomActions::Action & textEditor = actions[3];
+        CustomActions::Action & fileManager = actions[2];
+        fileManager.command = "explorer ?";
+        fileManager.maxArgN = 1;
+        fileManager.enabled = true;
+        fileManager.comment.clear();
+
+        CustomActions::Action & textEditor = actions[4];
         textEditor.command = "notepad ?";
         textEditor.maxArgN = 1;
         textEditor.comment.clear();

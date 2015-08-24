@@ -26,7 +26,7 @@
 
 Application::Application(int & argc, char ** argv) : QApplication(argc, argv)
 {
-    setApplicationVersion("1.3");
+    setApplicationVersion("1.3.5-dev");
     setAttribute(Qt::AA_DontShowIconsInMenus, false);
     setQuitOnLastWindowClosed(false);
 }

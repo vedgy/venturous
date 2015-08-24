@@ -73,7 +73,7 @@ want to use it for icon generation, pass *generate-png* argument to
 
 ## Runtime requirements
 * <i>qt4</i> OR <i>qt5</i> shared libraries (<i>Core</i>, <i>XML</i>
-    and <i>GUI</i>/<i>Widgets</i> modules)
+    and <i>GUI</i>/<i>Widgets</i> modules).
 * <i>Audacious</i> (managed Audacious mode in <i>Venturous</i> - which
     is <i>not</i> the default mode - requires Audacious 3.4 or later).
 * <i>audacious</i> and <i>audtool</i> executables must be present in
@@ -85,7 +85,9 @@ want to use it for icon generation, pass *generate-png* argument to
     work. The biggest problem is that stopping playback does not work in
     this case, which prevents <i>Venturous</i> from normal functioning.
 * <i>notify-send</i> from <i>libnotify</i> (optional - for desktop
-    notifications)
+    notifications).
+* <i>xdg-open</i> from <i>xdg-utils</i> (optional - for some default
+    custom actions on non-MS-Windows systems).
 * <i>Song Change</i> Audacious plugin (optional - for detached
     Audacious mode, which is the default mode). This plugin is usually
     unavailable in MS Windows, so Windows users have to switch to the
