@@ -57,7 +57,8 @@ QString applicationVersion()
 QString copyrightAndLicense()
 {
     return QString::fromUtf8(
-               "© 2014, 2015 Igor Kushnir &lt;igorkuo AT Google mail&gt;.<br>")
+               "© 2014, 2015, 2017"
+               " Igor Kushnir &lt;igorkuo AT Google mail&gt;.<br>")
            + "License: <a href='http://www.gnu.org/copyleft/gpl.html'>"
            "GNU GPL v3 or later</a>.";
 }
