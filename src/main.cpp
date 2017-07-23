@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2017 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -35,13 +35,6 @@ namespace
 {
 inline QString quittingMessage() { return QObject::tr("\nQuitting ..."); }
 
-void setSymbol(const std::unique_ptr<QSharedMemory> & shared, char symbol)
-{
-    shared->lock();
-    *(char *)shared->data() = symbol;
-    shared->unlock();
-}
-
 }
 
 
@@ -61,7 +54,7 @@ int main(int argc, char * argv[])
     if (! shared->create(sizeof(char), QSharedMemory::ReadWrite)) {
         if (shared->error() == QSharedMemory::AlreadyExists) {
             shared->attach(QSharedMemory::ReadWrite);
-            setSymbol(shared, SharedMemory::Symbol::show());
+            SharedMemory::setSymbol(*shared, SharedMemory::Symbol::show());
 
             std::cout << QtUtilities::qStringToString(
                           QObject::tr("Another instance of %1 is running.\n"
@@ -77,7 +70,7 @@ int main(int argc, char * argv[])
             return 2;
         }
     }
-    setSymbol(shared, SharedMemory::Symbol::noCommand());
+    SharedMemory::setSymbol(*shared, SharedMemory::Symbol::noCommand());
 
     bool cancelled;
     MainWindow mainWindow(std::move(shared), cancelled);

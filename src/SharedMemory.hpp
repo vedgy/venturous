@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2017 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -18,6 +18,8 @@
 
 # ifndef VENTUROUS_SHARED_MEMORY_HPP
 # define VENTUROUS_SHARED_MEMORY_HPP
+
+# include <QSharedMemory>
 
 
 namespace SharedMemory
@@ -46,8 +48,15 @@ constexpr char show() noexcept { return 'W'; }
 constexpr char hide() noexcept { return 'H'; }
 constexpr char quit() noexcept { return 'Q'; }
 
+} // END namespace Symbol
+
+inline void setSymbol(QSharedMemory & shared, char symbol)
+{
+    shared.lock();
+    *static_cast<char *>(shared.data()) = symbol;
+    shared.unlock();
 }
 
-}
+} // END namespace SharedMemory
 
 # endif // VENTUROUS_SHARED_MEMORY_HPP

@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014, 2015 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2015, 2017 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -52,7 +52,7 @@ constexpr const char * quit() noexcept { return "quit"; }
 
 constexpr const char * help() noexcept { return "help"; }
 
-}
+} // END namespace Command
 
 void printCommand(const char * command, const char * description)
 {
@@ -95,7 +95,7 @@ void printError(const std::string & error)
               << Command::help() << "\"." << std::endl;
 }
 
-}
+} // END unnamed namespace
 
 
 int main(int argc, char * argv[])
@@ -167,11 +167,8 @@ int main(int argc, char * argv[])
     }
 
     QSharedMemory shared(key());
-    if (shared.attach(QSharedMemory::ReadWrite)) {
-        shared.lock();
-        *(char *)shared.data() = symbol;
-        shared.unlock();
-    }
+    if (shared.attach(QSharedMemory::ReadWrite))
+        setSymbol(shared, symbol);
     else {
         printError(APPLICATION_NAME " is not running");
         return 7;
