@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2017 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -188,9 +188,9 @@ void MainWindow::timerEvent(QTimerEvent *)
     using namespace SharedMemory;
 
     sharedMemory_->lock();
-    const char command = *(const char *)sharedMemory_->constData();
+    const char command = *static_cast<const char *>(sharedMemory_->constData());
     if (command != Symbol::noCommand())
-        *(char *)sharedMemory_->data() = Symbol::noCommand();
+        *static_cast<char *>(sharedMemory_->data()) = Symbol::noCommand();
     sharedMemory_->unlock();
 
     if (command != Symbol::noCommand()) {
