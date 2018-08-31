@@ -42,7 +42,7 @@ do
     elif [[ "$arg" == "--" ]] ; then
         break
     else
-        echo "Unrecognized option: $1"
+        echo "Unrecognized option: $arg"
         print_help
     fi
 done
