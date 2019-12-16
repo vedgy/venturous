@@ -101,7 +101,7 @@ and run
 
 ## License
 
-Copyright (C) 2014, 2015, 2017 Igor Kushnir <igorkuo AT Google mail>
+Copyright (C) 2014, 2015, 2017, 2019 Igor Kushnir <igorkuo AT Google mail>
 
 Venturous is licensed under the <b>GNU GPLv3+</b> license,
 a copy of which can be found in the `COPYING` file.

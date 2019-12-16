@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2019 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@
 # include <cstddef>
 # include <cassert>
 # include <utility>
+# include <algorithm>
 # include <vector>
 # include <string>
 
@@ -302,27 +303,32 @@ void HistoryWidget::playSelectedItems()
 void HistoryWidget::removeSelectedItems()
 {
     const auto items = selectedItems();
-    if (! items.empty()) {
-        const QListWidgetItem * currentItem = item(currentEntryIndex_);
-        if (currentItem != nullptr && currentItem->isSelected()) {
-            currentItem = nullptr;
-            currentEntryIndex_ =
-                Preferences::Playback::History::multipleItemsIndex;
-        }
+    if (items.empty())
+        return;
 
-        std::vector<std::size_t> indices;
-        indices.reserve(std::size_t(items.size()));
-        for (const QListWidgetItem * const item : items)
-            indices.emplace_back(row(item));
-        history_.remove(indices);
-        for (const QListWidgetItem * const item : items)
-            delete item;
-
-        if (currentItem != nullptr)
-            currentEntryIndex_ = row(currentItem);
-
-        emit historyChanged();
+    const QListWidgetItem * currentItem = item(currentEntryIndex_);
+    if (currentItem && currentItem->isSelected()) {
+        currentItem = nullptr;
+        currentEntryIndex_ = Preferences::Playback::History::multipleItemsIndex;
     }
+
+    {
+        std::vector<std::size_t> indices(
+            static_cast<std::size_t>(items.size()));
+        std::transform(items.constBegin(), items.constEnd(),
+            indices.begin(), [this](const QListWidgetItem * item) {
+                return static_cast<std::size_t>(row(item));
+            });
+        history_.remove(std::move(indices));
+    }
+
+    for (const QListWidgetItem * const item : items)
+        delete item;
+
+    if (currentItem)
+        currentEntryIndex_ = row(currentItem);
+
+    emit historyChanged();
 }
 
 void HistoryWidget::contextMenuEvent(QContextMenuEvent * const event)
