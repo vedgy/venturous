@@ -281,8 +281,9 @@
     <i>Audacious</i> playlist reaches an end. Note that since the
     <i>detached</i> mode depends on <i>Audacious</i> configuration files,
     issues are possible if <i>Venturous</i> is launched before these files are
-    created or after <i>Audacious</i> is updated.
-    The workaround to restore settings:
+    created or after <i>Audacious</i> is updated. The most likely issue in this
+    case: the next randomly chosen item is not played after the previous one
+    is finished. The workaround is to force storing these settings like this:
     open <i>Venturous</i> Preferences window; switch to <i>managed</i> mode;
     close <i>Venturous</i> Preferences window;
     open it again, switch to <i>detached</i> mode and close
