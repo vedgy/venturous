@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014, 2015 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2015, 2019 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -379,7 +379,8 @@ CustomActions::Actions defaultCustomActions()
         CustomActions::Action {
             QObject::tr("Open in file manager"), defaultFileManager + " ?",
             0, -1, CustomActions::Action::Type::anyItem, false,
-            replaceCommandWith.arg("thunar", QObject::tr("file manager"))
+            replaceCommandWith.arg(defaultFileManager,
+                                   QObject::tr("file manager"))
         },
         CustomActions::Action {
             QObject::tr("Open in VLC"), "vlc ?",
@@ -389,7 +390,8 @@ CustomActions::Actions defaultCustomActions()
         CustomActions::Action {
             QObject::tr("View/edit text file"), defaultTextEditor + " ?",
             0, -1, CustomActions::Action::Type::file, false,
-            replaceCommandWith.arg("mousepad", QObject::tr("text editor"))
+            replaceCommandWith.arg(defaultTextEditor,
+                                   QObject::tr("text editor"))
         },
         CustomActions::Action {
             QObject::tr("Move to music trash"), "mv ? ~/Music/trash/",
