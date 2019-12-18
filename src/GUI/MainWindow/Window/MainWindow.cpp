@@ -37,7 +37,6 @@
 
 # include <QString>
 # include <QTimer>
-# include <QDir>
 # include <QUrl>
 # include <QSharedMemory>
 # include <QCoreApplication>
@@ -75,10 +74,7 @@ MainWindow::~MainWindow()
 
 QString MainWindow::getPreferencesDirName()
 {
-    QString result(PREFERENCES_DIR);
-    if (! result.isEmpty() && result[0] == '~')
-        result.replace(0, 1, QDir::homePath());
-    return result;
+    return getVenturousPreferencesDirName();
 }
 
 

@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014, 2017 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2017, 2019 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -19,13 +19,25 @@
 # ifndef VENTUROUS_SHARED_MEMORY_HPP
 # define VENTUROUS_SHARED_MEMORY_HPP
 
+# include <QString>
+# include <QDir>
 # include <QSharedMemory>
 
 
+inline QString getVenturousPreferencesDirName()
+{
+    QString result(PREFERENCES_DIR);
+    if (! result.isEmpty() && result[0] == '~')
+        result.replace(0, 1, QDir::homePath());
+    return result;
+}
+
 namespace SharedMemory
 {
-constexpr const char * key() noexcept {
-    return "oS2huoventurousyiOventoolhJkNQqC{";
+inline QString key() {
+    // Append the path to preferences to allow running independent Venturous
+    // instances, e.g. by different users of the same system.
+    return "venturousandventoolhJkNQqC{" + getVenturousPreferencesDirName();
 }
 
 namespace Symbol
