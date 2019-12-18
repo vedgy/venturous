@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014, 2017 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2017, 2019 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -335,7 +335,7 @@ void MainWindow::onFilePreferences()
 void MainWindow::onFilePreferencesDirectory()
 {
     QString directory = getPreferencesDirName();
-    if (! QDesktopServices::openUrl(QUrl::fromLocalFile(directory))) {
+    if (! QDesktopServices::openUrl(QUrl{directory})) {
         inputController_.showMessage(
             tr("Preferences directory error"),
             tr("Could not open directory ") + std::move(directory));
