@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2019 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -113,6 +113,17 @@ PlaybackPage::PlaybackPage(QWidget * const parent, const Qt::WindowFlags f)
     layout->addRow(tr("Next from history"), & nextFromHistoryCheckBox);
 
 
+    skipRecentHistoryItemCountSpinBox.setRange(
+        0, Preferences::Playback::maxSkipRecentHistoryItemCount);
+    skipRecentHistoryItemCountSpinBox.setToolTip(
+        tr("The number of most recent items in history,\n"
+           "which will not be selected for random playback."));
+    QtUtilities::Widgets::setFixedSizePolicy(
+        & skipRecentHistoryItemCountSpinBox);
+    layout->addRow(tr("Skip recent history item count"),
+                   & skipRecentHistoryItemCountSpinBox);
+
+
     desktopNotificationsCheckBox.setToolTip(tr(
             "If checked, desktop notifications would be shown after\n"
             "changing played item\n"
@@ -154,6 +165,8 @@ void PlaybackPage::setUiPreferences(const Preferences & source)
     }
 
     nextFromHistoryCheckBox.setChecked(playback.nextFromHistory);
+    skipRecentHistoryItemCountSpinBox.setValue(
+            static_cast<int>(playback.skipRecentHistoryItemCount));
     desktopNotificationsCheckBox.setChecked(playback.desktopNotifications);
     startupPolicyComboBox.setCurrentIndex(static_cast<int>(
             playback.startupPolicy));
@@ -175,6 +188,8 @@ void PlaybackPage::writeUiPreferencesTo(Preferences & destination) const
         unsigned(statusUpdateSpinBox.value() * msInS + 0.5) : 0u;
 
     playback.nextFromHistory = nextFromHistoryCheckBox.isChecked();
+    playback.skipRecentHistoryItemCount =
+        static_cast<unsigned>(skipRecentHistoryItemCountSpinBox.value());
     playback.desktopNotifications = desktopNotificationsCheckBox.isChecked();
     playback.startupPolicy = static_cast<Preferences::Playback::StartupPolicy>(
                                  startupPolicyComboBox.currentIndex());

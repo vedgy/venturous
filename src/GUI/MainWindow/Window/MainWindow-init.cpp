@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014, 2015 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2015, 2019 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -46,6 +46,7 @@
 
 # include <cassert>
 # include <utility>
+# include <functional>
 # include <memory>
 
 
@@ -204,6 +205,10 @@ MainWindow::MainWindow(
     playlistComponent_.reset(
         new PlaylistComponent(* this, * actions_, inputController_,
                               preferences,
+                              std::bind(
+                                  & PlaybackComponent::isRecentHistoryEntry,
+                                  playbackComponent_.get(),
+                                  std::placeholders::_1, std::placeholders::_2),
     [this](CommonTypes::ItemCollection items) {
         playbackComponent_->play(std::move(items));
     },

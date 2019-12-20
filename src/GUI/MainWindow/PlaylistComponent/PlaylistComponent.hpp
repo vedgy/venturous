@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014, 2015 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2015, 2019 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -52,6 +52,10 @@ class PlaylistComponent : public QObject
 {
     Q_OBJECT
 public:
+    using IsRecentHistoryEntry =
+            std::function<bool(unsigned recentEntryCount,
+                               const std::string & entry)>;
+
     /// @param cancelled Is set to true if user has cancelled launching
     /// application (because of error); is set to false otherwise.
     /// NOTE: mainWindow, actions, inputController and preferences must remain
@@ -59,7 +63,9 @@ public:
     explicit PlaylistComponent(
         QMainWindow & mainWindow, const Actions & actions,
         QtUtilities::Widgets::InputController & inputController,
-        const Preferences & preferences, CommonTypes::PlayItems playItems,
+        const Preferences & preferences,
+        IsRecentHistoryEntry isRecentHistoryEntry,
+        CommonTypes::PlayItems playItems,
         const std::string & preferencesDir, bool & cancelled);
     /// NOTE: does not block execution.
     ~PlaylistComponent();
@@ -113,6 +119,10 @@ private:
     bool ensureAskInEditMode();
     bool ensureAskOutOfEditMode();
 
+    /// @return The next, not too recent, random item path to be played.
+    /// NOTE: does not block execution.
+    std::string getNextRandomItem();
+
     /// @brief Backs up current playlist file.
     /// @return true if backup was successful, false otherwise.
     /// NOTE: does not block execution.
@@ -138,6 +148,8 @@ private:
     QtUtilities::Widgets::InputController & inputController_;
     const Preferences::AddingPatterns & addingPatterns_;
     const AddingItems::Policy & addingPolicy_;
+    unsigned skipRecentHistoryItemCount_;
+    IsRecentHistoryEntry isRecentHistoryEntry_;
     const CommonTypes::PlayItems playItems_;
     const std::string itemsFilename_;
     const QString qItemsFilename_;

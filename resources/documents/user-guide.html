@@ -393,6 +393,14 @@
         user. Note that this option increases CPU usage in idle state
         substantially, especially in case of small time interval,
         so it is disabled by default.</li>
+        <li><i>Skip recent history item count</i> - if greater than 0, Venturous
+        discards randomly chosen items that match most recent history entries.
+        Since repeated searching of randomly chosen items in history can hurt
+        performance, the number of history entries considered "recent" is the
+        lower of this configured value and 0.8 * (size of the current playlist).
+        Of course, the configured value should be much lower than the mandatory
+        upper bound. Even for large playlists 5-10 recent entries should be
+        enough to get rid of possible frequent item playback repetition.</li>
         <li><i>Desktop notifications</i> - if enabled, desktop notification is
         shown after played item is changed. If <i>notify-send</i> executable
         from <i>libnotify</i> is not available in <i>PATH</i>, notifications

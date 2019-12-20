@@ -196,6 +196,16 @@ void HistoryWidget::playedMultipleItems()
     silentlySetCurrentEntry(Preferences::Playback::History::multipleItemsIndex);
 }
 
+bool HistoryWidget::isRecentEntry(unsigned recentEntryCount,
+                                  const std::string & entry) const
+{
+    const auto & items = history_.items();
+    const auto count = std::min(static_cast<std::size_t>(recentEntryCount),
+                                items.size());
+    const auto end = items.cbegin() + static_cast<std::ptrdiff_t>(count);
+    return std::find(items.cbegin(), end, entry) != end;
+}
+
 
 void HistoryWidget::clearHistory()
 {

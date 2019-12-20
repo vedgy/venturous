@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2019 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -95,6 +95,11 @@ public:
     /// @brief Sets currentEntryIndex_ to
     /// Preferences::Playback::History::multipleItemsIndex.
     void playedMultipleItems();
+
+    /// @return true if @p entry is among last @p recentEntryCount
+    /// history entries.
+    bool isRecentEntry(unsigned recentEntryCount,
+                       const std::string & entry) const;
 
 public slots:
     /// WARNING: can block execution.

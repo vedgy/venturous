@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014, 2015 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2015, 2019 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -63,6 +63,7 @@ public:
         static constexpr unsigned minStatusUpdateInterval = 300,
                                   defaultStatusUpdateInterval = 2000,
                                   maxStatusUpdateInterval = 30 * 1000;
+        static constexpr unsigned maxSkipRecentHistoryItemCount = 99;
         static constexpr StartupPolicyUnderlyingType maxStartupPolicy = 4;
 
         explicit Playback();
@@ -75,6 +76,7 @@ public:
         /// 0 is also allowed - it disables updating playback status.
         unsigned statusUpdateInterval;
         bool nextFromHistory;
+        unsigned skipRecentHistoryItemCount;
         bool desktopNotifications;
         StartupPolicy startupPolicy;
     }

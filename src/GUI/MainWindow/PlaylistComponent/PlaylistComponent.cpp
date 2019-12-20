@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014, 2015 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2015, 2019 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -77,11 +77,17 @@ inline const QString & editModeTitle()
 PlaylistComponent::PlaylistComponent(
     QMainWindow & mainWindow, const Actions & actions,
     QtUtilities::Widgets::InputController & inputController,
-    const Preferences & preferences, CommonTypes::PlayItems playItems,
+    const Preferences & preferences,
+    IsRecentHistoryEntry isRecentHistoryEntry,
+    CommonTypes::PlayItems playItems,
     const std::string & preferencesDir, bool & cancelled)
     : actions_(actions), inputController_(inputController),
       addingPatterns_(preferences.addingPatterns),
-      addingPolicy_(preferences.addingPolicy), playItems_(std::move(playItems)),
+      addingPolicy_(preferences.addingPolicy),
+      skipRecentHistoryItemCount_(
+          preferences.playback.skipRecentHistoryItemCount),
+      isRecentHistoryEntry_(std::move(isRecentHistoryEntry)),
+      playItems_(std::move(playItems)),
       itemsFilename_(preferencesDir + "items"),
       qItemsFilename_(QtUtilities::toQString(itemsFilename_)),
       qBackupItemsFilename_(qItemsFilename_ + ".backup"),
@@ -155,6 +161,8 @@ PlaylistComponent::~PlaylistComponent()
 
 void PlaylistComponent::setPreferences(const Preferences & preferences)
 {
+    skipRecentHistoryItemCount_ =
+            preferences.playback.skipRecentHistoryItemCount;
     treeWidget_.setAutoUnfoldedLevels(preferences.treeAutoUnfoldedLevels);
     treeAutoCleanup_ = preferences.treeAutoCleanup;
 }
@@ -162,7 +170,7 @@ void PlaylistComponent::setPreferences(const Preferences & preferences)
 bool PlaylistComponent::playRandomItem()
 {
     if (itemTree_.itemCount() > 0) {
-        playItems_( { randomItemChooser_.randomPath(itemTree_) });
+        playItems_( { getNextRandomItem() });
         return true;
     }
     return false;
@@ -278,6 +286,31 @@ bool PlaylistComponent::ensureAskInEditMode()
 bool PlaylistComponent::ensureAskOutOfEditMode()
 {
     return treeWidget_.editMode() ? leaveAskEditMode() : true;
+}
+
+std::string PlaylistComponent::getNextRandomItem()
+{
+    // When recentEntryCount is close to the total tree item count, the
+    // performance of this function can randomly degrade due to many successive
+    // history searches. Let maxRecentEntryCount be substantially lower than
+    // the total item count to limit the impact on performance.
+    const auto maxRecentItemCount = 0.8 * itemTree_.itemCount();
+    const auto recentEntryCount = std::min(
+                    skipRecentHistoryItemCount_,
+                    static_cast<unsigned>(maxRecentItemCount));
+# ifdef DEBUG_VENTUROUS_PLAYLIST_COMPONENT
+    std::cout << "recentEntryCount = " << recentEntryCount << std::endl;
+# endif
+    std::string item;
+    do {
+        item = randomItemChooser_.randomPath(itemTree_);
+# ifdef DEBUG_VENTUROUS_PLAYLIST_COMPONENT
+        std::cout << "Random filename: "
+                  << item.substr(item.find_last_of('/') + 1) << std::endl;
+# endif
+    }
+    while (isRecentHistoryEntry_(recentEntryCount, item));
+    return item;
 }
 
 bool PlaylistComponent::makeBackup() const

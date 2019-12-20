@@ -71,6 +71,8 @@ VENTUROUS_preferences_string_constant(exitExternalPlayerOnQuit,
 VENTUROUS_preferences_string_constant(statusUpdateInterval,
                                       "StatusUpdateInterval")
 VENTUROUS_preferences_string_constant(nextFromHistory, "NextFromHistory")
+VENTUROUS_preferences_string_constant(skipRecentHistoryItemCount,
+                                      "SkipRecentHistoryItemCount")
 VENTUROUS_preferences_string_constant(desktopNotifications,
                                       "DesktopNotifications")
 VENTUROUS_preferences_string_constant(startupPolicy, "StartupPolicy")
@@ -162,6 +164,8 @@ void appendPlayback(XmlElement & parent, const Preferences::Playback & playback)
 
     e.appendChild(statusUpdateInterval(), playback.statusUpdateInterval);
     e.appendChild(nextFromHistory(), playback.nextFromHistory);
+    e.appendChild(skipRecentHistoryItemCount(),
+                  playback.skipRecentHistoryItemCount);
     e.appendChild(desktopNotifications(), playback.desktopNotifications);
     e.appendChild(startupPolicy(),
                   static_cast <
@@ -271,6 +275,9 @@ void loadPlayback(const QDomElement & parent, Preferences::Playback & playback)
                                         P::minStatusUpdateInterval,
                                         P::maxStatusUpdateInterval);
     copyUniqueChildsTextTo(e, nextFromHistory(), playback.nextFromHistory);
+    copyUniqueChildsTextToMax(e, skipRecentHistoryItemCount(),
+                              playback.skipRecentHistoryItemCount,
+                              P::maxSkipRecentHistoryItemCount);
     copyUniqueChildsTextTo(e, desktopNotifications(),
                            playback.desktopNotifications);
     {
@@ -481,6 +488,7 @@ Preferences::Playback::History::History()
 constexpr unsigned Preferences::Playback::minStatusUpdateInterval;
 constexpr unsigned Preferences::Playback::defaultStatusUpdateInterval;
 constexpr unsigned Preferences::Playback::maxStatusUpdateInterval;
+constexpr unsigned Preferences::Playback::maxSkipRecentHistoryItemCount;
 constexpr Preferences::Playback::StartupPolicyUnderlyingType
 Preferences::Playback::maxStartupPolicy;
 
@@ -488,6 +496,7 @@ Preferences::Playback::Playback()
     : playerId(0), autoSetExternalPlayerOptions(true),
       autoHideExternalPlayerWindow(false), exitExternalPlayerOnQuit(true),
       statusUpdateInterval(0), nextFromHistory(false),
+      skipRecentHistoryItemCount(0),
       desktopNotifications(true), startupPolicy(StartupPolicy::doNothing)
 {}
 
@@ -619,6 +628,7 @@ bool operator == (const Preferences::Playback & lhs,
            && lhs.exitExternalPlayerOnQuit == rhs.exitExternalPlayerOnQuit &&
            lhs.statusUpdateInterval == rhs.statusUpdateInterval &&
            lhs.nextFromHistory == rhs.nextFromHistory &&
+           lhs.skipRecentHistoryItemCount == rhs.skipRecentHistoryItemCount &&
            lhs.desktopNotifications == rhs.desktopNotifications &&
            lhs.startupPolicy == rhs.startupPolicy;
 }
