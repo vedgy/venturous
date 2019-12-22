@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014, 2015 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2015, 2019 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -333,7 +333,7 @@ std::pair<QString, QStringList> getProgramAndArgs(
             case '@':
                 if (mode == Mode::plain || mode == Mode::inDoubleQuotes) {
                     current +=
-# if WIN32_CUSTOM_ACTIONS_USE_BACKSLASH
+# ifdef WIN32_CUSTOM_ACTIONS_USE_BACKSLASH
                         replaceSlashesWithBackslashes(commonItemPrefix);
 # else
                         commonItemPrefix;
