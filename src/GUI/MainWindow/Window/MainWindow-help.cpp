@@ -1,6 +1,6 @@
 /*
  This file is part of Venturous.
- Copyright (C) 2014, 2015 Igor Kushnir <igorkuo AT Google mail>
+ Copyright (C) 2014, 2015, 2019 Igor Kushnir <igorkuo AT Google mail>
 
  Venturous is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as published by
@@ -67,7 +67,7 @@ QString compilerAndQtVersions()
 {
     return QObject::tr("Compiled with ") +
 # ifdef __VERSION__
-#   if defined(__GNUG__) && ! defined(__INTEL_COMPILER)
+#   if defined(__GNUG__) && ! defined(__clang__) && ! defined(__INTEL_COMPILER)
            "GCC "
 #   endif
            __VERSION__
