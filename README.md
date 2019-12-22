@@ -51,7 +51,7 @@ move item(s) to trash.
 3. If you want to install the latest stable version, execute the following
 command:
 
-        git checkout tags/v1.3
+        git checkout tags/v1.4
 If you prefer the latest development version (can be unstable), just skip this
 step.
 
